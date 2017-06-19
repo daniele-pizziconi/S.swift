@@ -3,7 +3,7 @@ import Foundation
 extension Condition: Generatable {
 
   /// Generates the code for this right hand side value.
-  func generate() -> String {
+  func generate(_ nested: Bool = false) -> String {
     var expressions = [String]()
     for expression in self.expressions {
 

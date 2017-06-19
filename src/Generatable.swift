@@ -45,7 +45,7 @@ enum RhsValue {
 
   /// An enum.
   case `enum`(type: String, name: String)
-
+    
   /// A call to the super stylesheet.
   case call(call: String, type: String)
 
@@ -76,6 +76,28 @@ enum RhsValue {
 
   static func valueFrom(_ boolean: Bool) -> RhsValue  {
     return .boolean(bool: boolean)
+  }
+    
+  static func valueFrom(_ array: [Yaml]) throws -> RhsValue  {
+    var values = [RhsValue]()
+    for item in array {
+      do {
+        var rhsValue: RhsValue? = nil
+        switch item {
+        case .dictionary(let dictionary): rhsValue = try valueFrom(dictionary)
+        case .bool(let boolean): rhsValue = valueFrom(boolean)
+        case .double(let double): rhsValue = valueFrom(Float(double))
+        case .int(let integer): rhsValue = valueFrom(Float(integer))
+        case .string(let string): rhsValue = try valueFrom(string)
+        default:
+          throw RhsError.internal
+        }
+        values.append(rhsValue!)
+      } catch {
+        throw RhsError.internal
+      }
+    }
+    return  .boolean(bool: true)
   }
 
   static func valueFrom(_ hash: [Yaml: Yaml]) throws -> RhsValue  {
@@ -206,8 +228,9 @@ class RhsRedirectValue {
 
 extension RhsValue: Generatable {
 
-  func generate() -> String {
-    let indentation = "\n\t\t\t"
+    func generate(_ isNested: Bool = false) -> String {
+    let indentationNested = isNested ? "\t\t" : ""
+    let indentation = "\n\(indentationNested)\t\t\t"
     let prefix = "\(indentation)return "
     switch self {
     case .scalar(let float):
@@ -340,50 +363,61 @@ extension RhsValue: Generatable {
 //MARK: Property
 
 class Property {
-  var rhs: RhsValue
+  var style: Style?
+  var rhs: RhsValue?
   let key: String
   var isOverride: Bool = false
   var isOverridable: Bool = false
 
-  init(key: String, rhs: RhsValue) {
-    self.rhs = rhs
-    self.key = key.replacingOccurrences(of: ".", with: "_")
+    init(key: String, rhs: RhsValue?, style: Style?) {
+      self.style = style
+      self.rhs = rhs
+      self.key = key.replacingOccurrences(of: ".", with: "_")
   }
 }
 
 extension Property: Generatable {
 
-  func generate() -> String {
-    var method = ""
-    method += "\n\n\t\t//MARK: \(self.key) "
-    if !isOverride {
-      let visibility = isOverridable ? "public" : "fileprivate"
-      method += "\n\t\t\(visibility) var _\(key): \(rhs.returnValue())?"
+ func generate(_ isNested: Bool = false) -> String {
+    var generated = ""
+    if let style = self.style {
+        generated = style.generate(true)
+    } else if let rhs = self.rhs {
+        
+        var method = ""
+        let indentation = isNested ? "\t\t\t" : "\t\t"
+        method += "\n\n\(indentation)//MARK: \(self.key) "
+        
+        if !isOverride {
+            let visibility = isOverridable ? "public" : "fileprivate"
+            method += "\n\(indentation)\(visibility) var _\(key): \(rhs.returnValue())?"
+        }
+        
+        // Options.
+        let objc = Configuration.objcGeneration ? "@objc " : ""
+        let screen = Configuration.targetOsx
+            ? "NSApplication.sharedApplication().mainWindow?"
+            : "UIScreen.main"
+        let methodArgs =  Configuration.targetOsx
+            ? "" : "_ traitCollection: UITraitCollection? = \(screen).traitCollection"
+        let override = isOverride ? "override " : ""
+        let visibility = isOverridable ? "open" : "public"
+        
+        method +=
+        "\n\(indentation)\(override)\(visibility) func \(key)Property(\(methodArgs)) -> \(rhs.returnValue()) {"
+        method += "\n\(indentation)\tif let override = _\(key) { return override }"
+        method += "\(rhs.generate(isNested))"
+        method += "\n\(indentation)\t}"
+        
+        if !isOverride {
+            method += "\n\(indentation)\(objc)public var \(key): \(rhs.returnValue()) {"
+            method += "\n\(indentation)\tget { return self.\(key)Property() }"
+            method += "\n\(indentation)\tset { _\(key) = newValue }"
+            method += "\n\(indentation)}"
+        }
+        generated = method
     }
-
-    // Options.
-    let objc = Configuration.objcGeneration ? "@objc " : ""
-    let screen = Configuration.targetOsx
-        ? "NSApplication.sharedApplication().mainWindow?"
-        : "UIScreen.main"
-    let methodArgs =  Configuration.targetOsx
-        ? "" : "_ traitCollection: UITraitCollection? = \(screen).traitCollection"
-    let override = isOverride ? "override " : ""
-    let visibility = isOverridable ? "open" : "public"
-
-    method +=
-      "\n\t\t\(override)\(visibility) func \(key)Property(\(methodArgs)) -> \(rhs.returnValue()) {"
-    method += "\n\t\t\tif let override = _\(key) { return override }"
-    method += "\(rhs.generate())"
-    method += "\n\t\t}"
-
-    if !isOverride {
-      method += "\n\t\t\(objc)public var \(key): \(rhs.returnValue()) {"
-      method += "\n\t\t\tget { return self.\(key)Property() }"
-      method += "\n\t\t\tset { _\(key) = newValue }"
-      method += "\n\t\t}"
-    }
-    return method
+    return generated
   }
 }
 
@@ -448,9 +482,10 @@ class Style {
 
 extension Style: Generatable {
 
-  func generate() -> String {
-
-    var wrapper = ""
+func generate(_ isNested: Bool = false) -> String {
+    
+    let indentation = isNested ? "\t\t" : "\t"
+    var wrapper = isNested ? "\n\n" + indentation : indentation
     wrapper += "//MARK: - \(self.name)"
 
     let objc = Configuration.objcGeneration ? "@objc " : ""
@@ -458,27 +493,28 @@ extension Style: Generatable {
 
     if let s = self.superclassName { superclass = ": \(s)AppearanceProxy" }
     let visibility = isOverridable ? "open" : "public"
-
-    wrapper += "\n\t\(objc)\(visibility) static let \(name) = \(name)AppearanceProxy()"
-    wrapper += "\n\t\(objc)\(visibility) class \(name)AppearanceProxy\(superclass) {"
+    let staticModifier = isNested ? "" : " static"
+    
+    wrapper += "\n\(indentation)\(objc)\(visibility)\(staticModifier) let \(name) = \(name)AppearanceProxy()"
+    wrapper += "\n\(indentation)\(objc)\(visibility) class \(name)AppearanceProxy\(superclass) {"
 
     if isOverridable {
-      wrapper += "\n\t\tpublic init() {}"
+      wrapper += "\n\(indentation)\tpublic init() {}"
     }
     for property in properties {
-      wrapper += property.generate()
+      wrapper += property.generate(isNested)
     }
 
     if isApplicable {
-      wrapper += "\n\t\tpublic func apply(view: \(isExtension ? self.name : self.viewClass)) {"
+      wrapper += "\n\(indentation)\tpublic func apply(view: \(isExtension ? self.name : self.viewClass)) {"
       for property in properties {
         wrapper +=
-            "\n\t\t\tview.\(property.key.replacingOccurrences(of: "_", with: "."))"
+            "\n\(indentation)\t\tview.\(property.key.replacingOccurrences(of: "_", with: "."))"
             + " = self.\(property.key)"
       }
-      wrapper += "\n\t\t}\n"
+      wrapper += "\n\(indentation)\t}\n"
     }
-    wrapper += "\n\t}\n"
+    wrapper += "\n\(indentation)}\n"
     return wrapper
   }
 }
@@ -497,8 +533,8 @@ class Stylesheet {
     // Resolve the type for the redirected values.
     for style in styles {
       for property in style.properties {
-        if property.rhs.isRedirect {
-          let redirection = property.rhs.redirection!
+        if let rhs = property.rhs, rhs.isRedirect {
+          let redirection = rhs.redirection!
           let type = self.resolveRedirectedType(redirection)
           property.rhs = RhsValue.redirect(redirection:
               RhsRedirectValue(redirection: redirection, type: type))
@@ -544,17 +580,17 @@ class Stylesheet {
     let style = styles.filter() { return $0.name == components[0]}.first!
     let property = style.properties.filter() { return $0.key == components[1] }.first!
 
-    if property.rhs.isRedirect {
-      return resolveRedirectedType(property.rhs.redirection!)
+    if let rhs = property.rhs, rhs.isRedirect {
+      return resolveRedirectedType(property.rhs!.redirection!)
     } else {
-      return property.rhs.returnValue()
+      return property.rhs!.returnValue()
     }
   }
 }
 
 extension Stylesheet: Generatable {
 
-  func generate() -> String {
+  func generate(_ nested: Bool = false) -> String {
     var stylesheet = ""
     let objc = Configuration.objcGeneration ? "@objc " : ""
     let superclass = Configuration.objcGeneration ? ": NSObject" : ""

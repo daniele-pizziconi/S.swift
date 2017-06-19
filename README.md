@@ -18,13 +18,13 @@ This:
 Color:
   blue: "#00ff00" #values can be colors, font, images, numbers or bool
   red: #properties can also have different values (when different conditions match)
-    "horizontal = compact and idiom = phone": "#aa0000" 
+    "horizontal = compact and idiom = phone": "#aa0000"
     "default": "#ff0000"
 
 Typography:
   small: Font(Helvetica, 12) #font (use System(-Weight*) or SystemBold as font names to use the system font)
   medium: Font(System-Semibold, 14)
-  
+
 FooView:
   background: $Color.red #properties can also redirect to other style's properties
   font: $Typography.small
@@ -41,7 +41,7 @@ FooView:
 
 is transformed into a strongly typed, stylesheet in swift (**for brevity's sake only the interface of the generated code is shown below**)
 
-```swift 
+```swift
 
 ///Entry point for the app stylesheet
 struct S {
@@ -52,7 +52,7 @@ struct S {
         public func redProperty(traitCollection: UITraitCollection? = default) -> UIColor
         public var red: UIColor { ... }
     }
-    
+
     public static struct let Typography: TypographyAppearanceProxy
     public struct TypographyAppearanceProxy {
         public var small: UIFont { ... }
@@ -88,10 +88,10 @@ Like in the example shown above, **S** supports conditions for the value that ta
 *One liner.* Copy and paste this in your terminal.
 
 ```
-curl "https://raw.githubusercontent.com/alexdrone/S.swift/master/sgen" > sgen && mv sgen /usr/local/bin/sgen && chmod +x /usr/local/bin/sgen 
+curl "https://raw.githubusercontent.com/daniele-pizziconi/S.swift/master/sgen" > sgen && mv sgen /usr/local/bin/sgen && chmod +x /usr/local/bin/sgen 
 ```
 
-The usage of the generator is as simple as 
+The usage of the generator is as simple as
 ```
 sgen $SRCROOT
 ```
@@ -113,7 +113,7 @@ sgen PROJECT_PATH (--platform ios|osx) (--extensions internal|public) (--objc)
 You can integrate **S** in your build phases by adding it as a build script.
 
 - Click on your **TARGET** abd go the **Build Phases** tab.
-- Click on the **+** and select **New Run Script Phase** 
+- Click on the **+** and select **New Run Script Phase**
 
 ![GitHub Logo](docs/screen_1.jpg)
 
@@ -132,7 +132,7 @@ You can integrate **S** in your build phases by adding it as a build script.
 
 - Et voilà! Every time you will build your target the generated file will be updated as well.
 
-## Stylesheet 
+## Stylesheet
 
 The following is the grammar for the YAML stylesheet.
 Is supports simple values (bool, metrics, fonts, colors, images and enums), conditional values and redirects (by simply using $ + Section.key)
@@ -151,7 +151,7 @@ SECTION_1:
 SECTION_2:
   KEY: VALUE
   KEY: $SECTION_1.KEY #redirect
-  
+
 SECTION_3 < SECTION_2: #this style inherits from another one
   KEY: VALUE
   KEY: $SECTION.KEY #redirect

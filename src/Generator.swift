@@ -18,7 +18,7 @@ public enum GeneratorError: Error {
 }
 
 public protocol Generatable {
-  func generate() -> String
+    func generate(_ isNested: Bool) -> String
 }
 
 public struct Generator: Generatable  {
@@ -62,17 +62,31 @@ public struct Generator: Generatable  {
   }
 
   /// Returns the swift code for this item.
-  public func generate() -> String {
+  public func generate(_ nested: Bool = false) -> String {
     return self.stylesheet?.generate() ?? "Unable to generate stylesheet"
   }
 
   private func createProperties(_ dictionary: [Yaml: Yaml]) throws -> [Property] {
     var properties = [Property]()
+    
     for (yamlKey, yamlValue) in dictionary {
       if let key = yamlKey.string {
         do {
+          var style: Style? = nil
           var rhsValue: RhsValue? = nil
           switch yamlValue {
+          case .array(let array):
+            
+            let flattenedDictionary = array.map({ (value) -> [Yaml: Yaml] in
+                return value.dictionary!
+            }).reduce([Yaml: Yaml](), { (dict, tuple) -> [Yaml: Yaml] in
+                var nextDict = dict
+                for (key,value) in tuple {
+                    nextDict.updateValue(value, forKey:key)
+                }
+                return nextDict
+            })
+            style = Style(name: key, properties: try createProperties(flattenedDictionary))
           case .dictionary(let dictionary): rhsValue = try RhsValue.valueFrom(dictionary)
           case .bool(let boolean): rhsValue = RhsValue.valueFrom(boolean)
           case .double(let double): rhsValue = RhsValue.valueFrom(Float(double))
@@ -82,7 +96,7 @@ public struct Generator: Generatable  {
             throw GeneratorError.illegalYamlScalarValue(
               error: "\(yamlValue) not supported as right-hand side value")
           }
-          let property = Property(key: key, rhs: rhsValue!)
+          let property = Property(key: key, rhs: rhsValue, style: style)
           properties.append(property)
         } catch {
           throw GeneratorError.illegalYamlScalarValue(error: "\(yamlValue) is not parsable")
