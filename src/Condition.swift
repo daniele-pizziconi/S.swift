@@ -229,7 +229,7 @@ struct Condition: Hashable, Parsable {
     /// Hashable compliancy.
     var hashValue: Int {
       get {
-        return hash(self)
+        return rawString.hashValue
       }
     }
 
@@ -280,7 +280,7 @@ struct Condition: Hashable, Parsable {
   /// Hashable compliancy.
   var hashValue: Int {
     get {
-      return hash(self)
+      return rawString.hashValue
     }
   }
 
