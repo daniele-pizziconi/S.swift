@@ -494,8 +494,9 @@ func generate(_ isNested: Bool = false) -> String {
     if let s = self.superclassName { superclass = ": \(s)AppearanceProxy" }
     let visibility = isOverridable ? "open" : "public"
     let staticModifier = isNested ? "" : " static"
+    let variableVisibility = !isNested ? "public" : visibility
     
-    wrapper += "\n\(indentation)\(objc)\(visibility)\(staticModifier) let \(name) = \(name)AppearanceProxy()"
+    wrapper += "\n\(indentation)\(objc)\(variableVisibility)\(staticModifier) let \(name) = \(name)AppearanceProxy()"
     wrapper += "\n\(indentation)\(objc)\(visibility) class \(name)AppearanceProxy\(superclass) {"
 
     if isOverridable {
