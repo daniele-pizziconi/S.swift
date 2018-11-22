@@ -625,7 +625,7 @@ extension Stylesheet: Generatable {
     var header = ""
     header += "public class Application {\n"
     header +=
-      "\tdynamic public class func preferredContentSizeCategory() -> UIContentSizeCategory {\n"
+      "\t@objc dynamic public class func preferredContentSizeCategory() -> UIContentSizeCategory {\n"
     header += "\t\treturn .large\n"
     header += "\t}\n"
     header += "}\n\n"
