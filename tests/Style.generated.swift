@@ -23,24 +23,38 @@ public protocol AppearaceProxyComponent: class {
 /// Entry point for the app stylesheet
 public class S {
 
-	//MARK: - Blue
-	public static let Blue = BlueAppearanceProxy()
-	public class BlueAppearanceProxy {
+	//MARK: - Color
+	public static let Color = ColorAppearanceProxy()
+	public class ColorAppearanceProxy {
 
-		//MARK: backgroundColor 
-		fileprivate var _backgroundColor: UIColor?
-		public func backgroundColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _backgroundColor { return override }
-			return Color.blueProperty(traitCollection)
+		//MARK: blue 
+		fileprivate var _blue: UIColor?
+		public func blueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _blue { return override }
+			return UIColor(red: 0.6666667, green: 0.73333335, blue: 0.8, alpha: 0.1254902)
 			}
-		public var backgroundColor: UIColor {
-			get { return self.backgroundColorProperty() }
-			set { _backgroundColor = newValue }
-		}
-		public func apply(view: NSView) {
-			view.backgroundColor = self.backgroundColor
+		public var blue: UIColor {
+			get { return self.blueProperty() }
+			set { _blue = newValue }
 		}
 
+		//MARK: red 
+		fileprivate var _red: UIColor?
+		public func redProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _red { return override }
+			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone && UIScreen.main.fixedCoordinateSpace.bounds.size.width > 300.0 { 
+			return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
+			}
+			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone && UIScreen.main.fixedCoordinateSpace.bounds.size.width < 300.0 { 
+			return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
+			}
+			
+			return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
+			}
+		public var red: UIColor {
+			get { return self.redProperty() }
+			set { _red = newValue }
+		}
 	}
 	//MARK: - Typography
 	public static let Typography = TypographyAppearanceProxy()
@@ -68,42 +82,15 @@ public class S {
 			set { _small = newValue }
 		}
 	}
-	//MARK: - Color
-	public static let Color = ColorAppearanceProxy()
-	public class ColorAppearanceProxy {
-
-		//MARK: red 
-		fileprivate var _red: UIColor?
-		public func redProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _red { return override }
-			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone && UIScreen.main.fixedCoordinateSpace.bounds.size.width < 300.0 { 
-			return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-			}
-			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone && UIScreen.main.fixedCoordinateSpace.bounds.size.width > 300.0 { 
-			return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-			}
-			
-			return UIColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
-			}
-		public var red: UIColor {
-			get { return self.redProperty() }
-			set { _red = newValue }
-		}
-
-		//MARK: blue 
-		fileprivate var _blue: UIColor?
-		public func blueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _blue { return override }
-			return UIColor(red: 0.6666667, green: 0.73333335, blue: 0.8, alpha: 0.1254902)
-			}
-		public var blue: UIColor {
-			get { return self.blueProperty() }
-			set { _blue = newValue }
-		}
-	}
 	//MARK: - DefaultButton
 	public static let DefaultButton = DefaultButtonAppearanceProxy()
 	public class DefaultButtonAppearanceProxy: FooViewAppearanceProxy {
+
+		//MARK: margin 
+		override public func marginProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _margin { return override }
+			return CGFloat(12.0)
+			}
 
 		//MARK: color 
 		fileprivate var _color: UIColor?
@@ -116,32 +103,45 @@ public class S {
 			set { _color = newValue }
 		}
 
-		//MARK: margin 
-		override public func marginProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _margin { return override }
-			return CGFloat(12.0)
-			}
-
 		//MARK: opaque 
 		override public func opaqueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> Bool {
 			if let override = _opaque { return override }
 			return false
 			}
 	}
+	//MARK: - Blue
+	public static let Blue = BlueAppearanceProxy()
+	public class BlueAppearanceProxy {
+
+		//MARK: backgroundColor 
+		fileprivate var _backgroundColor: UIColor?
+		public func backgroundColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _backgroundColor { return override }
+			return Color.blueProperty(traitCollection)
+			}
+		public var backgroundColor: UIColor {
+			get { return self.backgroundColorProperty() }
+			set { _backgroundColor = newValue }
+		}
+		public func apply(view: NSView) {
+			view.backgroundColor = self.backgroundColor
+		}
+
+	}
 	//MARK: - FooView
-	open static let FooView = FooViewAppearanceProxy()
+	public static let FooView = FooViewAppearanceProxy()
 	open class FooViewAppearanceProxy {
 		public init() {}
 
-		//MARK: aPoint 
-		public var _aPoint: CGPoint?
-		open func aPointProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGPoint {
-			if let override = _aPoint { return override }
-			return CGPoint(x: 10.0, y: 10.0)
+		//MARK: image 
+		public var _image: UIImage?
+		open func imageProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIImage {
+			if let override = _image { return override }
+			return UImage(named: "myimage")!
 			}
-		public var aPoint: CGPoint {
-			get { return self.aPointProperty() }
-			set { _aPoint = newValue }
+		public var image: UIImage {
+			get { return self.imageProperty() }
+			set { _image = newValue }
 		}
 
 		//MARK: textAlignment 
@@ -155,6 +155,17 @@ public class S {
 			set { _textAlignment = newValue }
 		}
 
+		//MARK: compound_property 
+		public var _compound_property: CGFloat?
+		open func compound_propertyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _compound_property { return override }
+			return CGFloat(10.0)
+			}
+		public var compound_property: CGFloat {
+			get { return self.compound_propertyProperty() }
+			set { _compound_property = newValue }
+		}
+
 		//MARK: opaque 
 		public var _opaque: Bool?
 		open func opaqueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> Bool {
@@ -166,26 +177,15 @@ public class S {
 			set { _opaque = newValue }
 		}
 
-		//MARK: aSize 
-		public var _aSize: CGSize?
-		open func aSizeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGSize {
-			if let override = _aSize { return override }
-			return CGSize(width: 100.0, height: 100.0)
+		//MARK: aPoint 
+		public var _aPoint: CGPoint?
+		open func aPointProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGPoint {
+			if let override = _aPoint { return override }
+			return CGPoint(x: 10.0, y: 10.0)
 			}
-		public var aSize: CGSize {
-			get { return self.aSizeProperty() }
-			set { _aSize = newValue }
-		}
-
-		//MARK: font 
-		public var _font: UIFont?
-		open func fontProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-			if let override = _font { return override }
-			return Typography.smallProperty(traitCollection)
-			}
-		public var font: UIFont {
-			get { return self.fontProperty() }
-			set { _font = newValue }
+		public var aPoint: CGPoint {
+			get { return self.aPointProperty() }
+			set { _aPoint = newValue }
 		}
 
 		//MARK: margin 
@@ -199,6 +199,17 @@ public class S {
 			set { _margin = newValue }
 		}
 
+		//MARK: aSize 
+		public var _aSize: CGSize?
+		open func aSizeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGSize {
+			if let override = _aSize { return override }
+			return CGSize(width: 100.0, height: 100.0)
+			}
+		public var aSize: CGSize {
+			get { return self.aSizeProperty() }
+			set { _aSize = newValue }
+		}
+
 		//MARK: aRect 
 		public var _aRect: CGRect?
 		open func aRectProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGRect {
@@ -210,37 +221,26 @@ public class S {
 			set { _aRect = newValue }
 		}
 
-		//MARK: compound_property 
-		public var _compound_property: CGFloat?
-		open func compound_propertyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _compound_property { return override }
-			return CGFloat(10.0)
+		//MARK: font 
+		public var _font: UIFont?
+		open func fontProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+			if let override = _font { return override }
+			return Typography.smallProperty(traitCollection)
 			}
-		public var compound_property: CGFloat {
-			get { return self.compound_propertyProperty() }
-			set { _compound_property = newValue }
-		}
-
-		//MARK: image 
-		public var _image: UIImage?
-		open func imageProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIImage {
-			if let override = _image { return override }
-			return UImage(named: "myimage")!
-			}
-		public var image: UIImage {
-			get { return self.imageProperty() }
-			set { _image = newValue }
+		public var font: UIFont {
+			get { return self.fontProperty() }
+			set { _font = newValue }
 		}
 		public func apply(view: FooView) {
-			view.aPoint = self.aPoint
-			view.textAlignment = self.textAlignment
-			view.opaque = self.opaque
-			view.aSize = self.aSize
-			view.font = self.font
-			view.margin = self.margin
-			view.aRect = self.aRect
-			view.compound.property = self.compound_property
 			view.image = self.image
+			view.textAlignment = self.textAlignment
+			view.compound.property = self.compound_property
+			view.opaque = self.opaque
+			view.aPoint = self.aPoint
+			view.margin = self.margin
+			view.aSize = self.aSize
+			view.aRect = self.aRect
+			view.font = self.font
 		}
 
 	}
