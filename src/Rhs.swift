@@ -153,7 +153,7 @@ struct Rhs {
              "\(weight) is not a valid system font weight. Allowed weights: \(weights)")
 
       let prefix = Configuration.targetOsx ? "NSFont" : "UIFont"
-      return "\(prefix).weight.\(weight)"
+      return "\(prefix).Weight.\(weight)"
     }
 
     init(name fontName: String, size fontSize: Float) {
