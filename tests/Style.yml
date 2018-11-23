@@ -1,4 +1,5 @@
 Color:
+  black: [b01: "#aabbcc", b02: "#aabbcc"]
   red:
     "idiom = phone and width < 300": "#ffcc00"
     "idiom = phone and width > 300": "#ffcc00"
@@ -7,10 +8,14 @@ Color:
 
 Typography:
   small: font(System, 12)
-  medium: font(System-Semibold, 18)
+  medium: font(System-semibold, 18)
 
 @style Blue for NSView:
   backgroundColor: $Color.blue
+
+@appearance_proxy @open TestView:
+  backgroundColor: $Color.black.b01
+  textColor: [normal: $Color.black.b01]
 
 @appearance_proxy DefaultButton extends FooView:
   margin: 12

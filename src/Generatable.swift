@@ -430,10 +430,12 @@ class Style {
   var isExtension = false
   var isOverridable = false
   var isApplicable = false
+  var isNested = false
   var viewClass: String = "UIView"
 
-  init(name: String, properties: [Property]) {
-
+  init(name: String, isNested: Bool = false, properties: [Property]) {
+    
+    self.isNested = isNested
     var styleName = name.trimmingCharacters(in: CharacterSet.whitespaces)
 
     // Check if this could generate an extension.
@@ -532,21 +534,27 @@ class Stylesheet {
     self.name = name
     self.styles = styles
     // Resolve the type for the redirected values.
-    for style in styles {
-      for property in style.properties {
-        if let rhs = property.rhs, rhs.isRedirect {
-          let redirection = rhs.redirection!
-          let type = self.resolveRedirectedType(redirection)
-          property.rhs = RhsValue.redirect(redirection:
-              RhsRedirectValue(redirection: redirection, type: type))
-        }
-      }
-    }
+    styles.forEach({ resolveRedirection($0) })
     // Mark the overrides.
     for style in styles.filter({ return $0.superclassName != nil }) {
       for property in style.properties {
         property.isOverride = self.propertyIsOverride(property.key,
                                                       superclass: style.superclassName!)
+      }
+    }
+  }
+  
+  fileprivate func resolveRedirection(_ style: Style) {
+    for property in style.properties {
+      if let rhs = property.rhs, rhs.isRedirect {
+        let redirection = rhs.redirection!
+        let type = resolveRedirectedType(redirection)
+        property.rhs = RhsValue.redirect(redirection:
+          RhsRedirectValue(redirection: redirection, type: type))
+      }
+      
+      if let nestedStyle = property.style {
+        resolveRedirection(nestedStyle)
       }
     }
   }
@@ -576,10 +584,17 @@ class Stylesheet {
   fileprivate func resolveRedirectedType(_ redirection: String) -> String {
 
     let components = redirection.components(separatedBy: ".")
-    assert(components.count == 2, "Redirect \(redirection) invalid")
+    assert(components.count == 2 || components.count == 3, "Redirect \(redirection) invalid")
 
-    let style = styles.filter() { return $0.name == components[0]}.first!
-    let property = style.properties.filter() { return $0.key == components[1] }.first!
+    let property: Property
+    if components.count == 2 {
+        let style = styles.filter() { return $0.name == components[0]}.first!
+        property = style.properties.filter() { return $0.key == components[1] }.first!
+    } else {
+        let style = styles.filter() { return $0.name == components[0]}.first!
+        let nestedStyleProperty = style.properties.filter() { return $0.style?.name == components[1] }.first!.style!
+        property = nestedStyleProperty.properties.filter() { return $0.key == components[2] }.first!
+    }
 
     if let rhs = property.rhs, rhs.isRedirect {
       return resolveRedirectedType(property.rhs!.redirection!)
