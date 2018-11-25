@@ -21,6 +21,25 @@ public protocol AppearaceProxyComponent: class {
 /// Entry point for the app stylesheet
 public class S {
 
+	//MARK: - BetterView
+	public static let BetterView = BetterViewAppearanceProxy()
+	public class BetterViewAppearanceProxy: TestViewAppearanceProxy {
+
+		//MARK: - BetterViewtextColor
+		override public func textColorStyle() -> TestViewAppearanceProxy.textColorAppearanceProxy {
+			if let override = _textColor { return override }
+				return BetterViewtextColorAppearanceProxy()
+			}
+		public class BetterViewtextColorAppearanceProxy: TestViewAppearanceProxy.textColorAppearanceProxy {
+
+			//MARK: normal 
+			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return Color.black.b02Property(traitCollection)
+				}
+		}
+
+	}
 	//MARK: - Color
 	public static let Color = ColorAppearanceProxy()
 	public class ColorAppearanceProxy {
@@ -94,33 +113,14 @@ public class S {
 		}
 
 	}
-	//MARK: - BetterView
-	public static let BetterView = BetterViewAppearanceProxy()
-	public class BetterViewAppearanceProxy: TestViewAppearanceProxy {
-
-		//MARK: - BetterViewtextColor
-		override public func textColorStyle() -> TestView.textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return BetterViewtextColorAppearanceProxy()
-			}
-		public class BetterViewtextColorAppearanceProxy: TestView.textColorAppearanceProxy {
-
-			//MARK: normal 
-			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return Color.black.b02Property(traitCollection)
-				}
-		}
-
-	}
 
 }
-extension TestView: AppearaceProxyComponent {
+extension BetterView: AppearaceProxyComponent {
 
-	public typealias ApperanceProxyType = S.TestViewAppearanceProxy
+	public typealias ApperanceProxyType = S.BetterViewAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return S.TestView }
+			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return S.BetterView }
 			return proxy
 		}
 		set {
@@ -130,12 +130,12 @@ extension TestView: AppearaceProxyComponent {
 	}
 }
 
-extension BetterView: AppearaceProxyComponent {
+extension TestView: AppearaceProxyComponent {
 
-	public typealias ApperanceProxyType = S.BetterViewAppearanceProxy
+	public typealias ApperanceProxyType = S.TestViewAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return S.BetterView }
+			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return S.TestView }
 			return proxy
 		}
 		set {

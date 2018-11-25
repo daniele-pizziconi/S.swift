@@ -623,7 +623,7 @@ class Stylesheet {
     for st in styles {
       for property in st.properties {
         if let nestedStyle = property.style, nestedStyle.name == style.name, let superclassName = st.superclassName, nestedStyles.count > 1 {
-          return (true, "\(superclassName).\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
+          return (true, "\(superclassName)AppearanceProxy.\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
         }
       }
     }

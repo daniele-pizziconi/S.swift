@@ -21,9 +21,50 @@ public protocol AppearaceProxyComponent: class {
 /// Entry point for the app stylesheet
 public class S {
 
+	//MARK: - Color
+	public static let Color = ColorAppearanceProxy()
+	public class ColorAppearanceProxy {
+
+		//MARK: blue 
+		fileprivate var _blue: UIColor?
+		public func blueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _blue { return override }
+			return UIColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0)
+			}
+		public var blue: UIColor {
+			get { return self.blueProperty() }
+			set { _blue = newValue }
+		}
+
+		//MARK: red 
+		fileprivate var _red: UIColor?
+		public func redProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _red { return override }
+			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone && UIScreen.main.fixedCoordinateSpace.bounds.size.width < 300.0 { 
+			return UIColor(red: 0.6666667, green: 0.0, blue: 0.0, alpha: 1.0)
+			}
+			
+			return UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
+			}
+		public var red: UIColor {
+			get { return self.redProperty() }
+			set { _red = newValue }
+		}
+	}
 	//MARK: - DefaultButton
 	public static let DefaultButton = DefaultButtonAppearanceProxy()
 	public class DefaultButtonAppearanceProxy: FooViewAppearanceProxy {
+
+		//MARK: opaque 
+		fileprivate var _opaque: Bool?
+		public func opaqueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> Bool {
+			if let override = _opaque { return override }
+			return false
+			}
+		public var opaque: Bool {
+			get { return self.opaqueProperty() }
+			set { _opaque = newValue }
+		}
 
 		//MARK: margin 
 		fileprivate var _margin: CGFloat?
@@ -46,62 +87,10 @@ public class S {
 			get { return self.colorProperty() }
 			set { _color = newValue }
 		}
-
-		//MARK: opaque 
-		fileprivate var _opaque: Bool?
-		public func opaqueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> Bool {
-			if let override = _opaque { return override }
-			return false
-			}
-		public var opaque: Bool {
-			get { return self.opaqueProperty() }
-			set { _opaque = newValue }
-		}
-	}
-	//MARK: - Color
-	public static let Color = ColorAppearanceProxy()
-	public class ColorAppearanceProxy {
-
-		//MARK: red 
-		fileprivate var _red: UIColor?
-		public func redProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _red { return override }
-			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.phone && UIScreen.main.fixedCoordinateSpace.bounds.size.width < 300.0 { 
-			return UIColor(red: 0.6666667, green: 0.0, blue: 0.0, alpha: 1.0)
-			}
-			
-			return UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-			}
-		public var red: UIColor {
-			get { return self.redProperty() }
-			set { _red = newValue }
-		}
-
-		//MARK: blue 
-		fileprivate var _blue: UIColor?
-		public func blueProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _blue { return override }
-			return UIColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0)
-			}
-		public var blue: UIColor {
-			get { return self.blueProperty() }
-			set { _blue = newValue }
-		}
 	}
 	//MARK: - __FooView
 	public static let __FooView = __FooViewAppearanceProxy()
 	public class __FooViewAppearanceProxy {
-
-		//MARK: margin 
-		fileprivate var _margin: CGFloat?
-		public func marginProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _margin { return override }
-			return CGFloat(12.0)
-			}
-		public var margin: CGFloat {
-			get { return self.marginProperty() }
-			set { _margin = newValue }
-		}
 
 		//MARK: font 
 		fileprivate var _font: UIFont?
@@ -112,6 +101,17 @@ public class S {
 		public var font: UIFont {
 			get { return self.fontProperty() }
 			set { _font = newValue }
+		}
+
+		//MARK: margin 
+		fileprivate var _margin: CGFloat?
+		public func marginProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _margin { return override }
+			return CGFloat(12.0)
+			}
+		public var margin: CGFloat {
+			get { return self.marginProperty() }
+			set { _margin = newValue }
 		}
 
 		//MARK: opaque 
@@ -140,17 +140,6 @@ public class S {
 	public static let Typography = TypographyAppearanceProxy()
 	public class TypographyAppearanceProxy {
 
-		//MARK: small 
-		fileprivate var _small: UIFont?
-		public func smallProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-			if let override = _small { return override }
-			return UIFont(name: "Helvetica", size: 12.0)!
-			}
-		public var small: UIFont {
-			get { return self.smallProperty() }
-			set { _small = newValue }
-		}
-
 		//MARK: medium 
 		fileprivate var _medium: UIFont?
 		public func mediumProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
@@ -160,6 +149,17 @@ public class S {
 		public var medium: UIFont {
 			get { return self.mediumProperty() }
 			set { _medium = newValue }
+		}
+
+		//MARK: small 
+		fileprivate var _small: UIFont?
+		public func smallProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+			if let override = _small { return override }
+			return UIFont(name: "Helvetica", size: 12.0)!
+			}
+		public var small: UIFont {
+			get { return self.smallProperty() }
+			set { _small = newValue }
 		}
 	}
 
