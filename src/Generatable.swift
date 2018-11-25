@@ -511,6 +511,10 @@ func generate(_ isNested: Bool = false) -> String {
         let override = isNestedOverride ? "override " : ""
         let returnClass = isNestedOverride ? String(nestedSuperclass[nestedSuperclass.index(nestedSuperclass.startIndex, offsetBy: 2)...]) : styleClass
         
+        if isNestedOverridable {
+            wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
+        }
+      
         wrapper +=
         "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
         wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
@@ -564,7 +568,7 @@ class Stylesheet {
     // Resolve the type for the redirected values.
     styles.forEach({ resolveRedirection($0) })
     // Mark the overrides.
-    styles.forEach({ markOverrides($0) })
+    styles.forEach({ markOverrides($0, superclassName: $0.superclassName) })
     // Mark the overridables.
     let nestedStyles = styles.flatMap{ $0.properties }.flatMap{ $0.style }
     let duplicates = Dictionary(grouping: nestedStyles, by: { $0.name })
@@ -591,9 +595,9 @@ class Stylesheet {
     }
   }
   
-  fileprivate func markOverrides(_ style: Style) {
+  fileprivate func markOverrides(_ style: Style, superclassName: String?) {
     for property in style.properties {
-      if let superclassName = style.superclassName {
+      if let superclassName = superclassName {
         property.isOverride = self.propertyIsOverride(property.key,
                                                       superclass: superclassName)
       }
@@ -604,7 +608,7 @@ class Stylesheet {
           nestedStyle.nestedSuperclassName = superclassName
           nestedStyle.nestedOverrideName = styleName
         }
-        markOverrides(nestedStyle)
+        markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
       }
     }
   }

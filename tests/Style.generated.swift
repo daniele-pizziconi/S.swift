@@ -29,17 +29,6 @@ public class S {
 		public let black = blackAppearanceProxy()
 		public class blackAppearanceProxy {
 
-			//MARK: b02 
-			fileprivate var _b02: UIColor?
-			public func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b02 { return override }
-					return UIColor(red: 0.6666667, green: 0.73333335, blue: 0.8, alpha: 1.0)
-				}
-			public var b02: UIColor {
-				get { return self.b02Property() }
-				set { _b02 = newValue }
-			}
-
 			//MARK: b01 
 			fileprivate var _b01: UIColor?
 			public func b01Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -49,6 +38,17 @@ public class S {
 			public var b01: UIColor {
 				get { return self.b01Property() }
 				set { _b01 = newValue }
+			}
+
+			//MARK: b02 
+			fileprivate var _b02: UIColor?
+			public func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b02 { return override }
+					return UIColor(red: 0.6666667, green: 0.73333335, blue: 0.8, alpha: 1.0)
+				}
+			public var b02: UIColor {
+				get { return self.b02Property() }
+				set { _b02 = newValue }
 			}
 		}
 
@@ -70,6 +70,7 @@ public class S {
 		}
 
 		//MARK: - textColor
+		public var _textColor: textColorAppearanceProxy?
 		open func textColorStyle() -> textColorAppearanceProxy {
 			if let override = _textColor { return override }
 				return textColorAppearanceProxy()
@@ -105,15 +106,10 @@ public class S {
 		public class BetterViewtextColorAppearanceProxy: TestView.textColorAppearanceProxy {
 
 			//MARK: normal 
-			fileprivate var _normal: UIColor?
-			public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _normal { return override }
 					return Color.black.b02Property(traitCollection)
 				}
-			public var normal: UIColor {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
 		}
 
 	}
