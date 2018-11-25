@@ -424,18 +424,19 @@ extension Property: Generatable {
 //MARK: Style
 
 class Style {
-  let name: String
+  var name: String
   var superclassName: String? = nil
   let properties: [Property]
   var isExtension = false
   var isOverridable = false
   var isApplicable = false
-  var isNested = false
+  var isNestedOverride = false
+  var isNestedOverridable = false
+  var nestedOverrideName: String?
+  var nestedSuperclassName: String? = nil
   var viewClass: String = "UIView"
 
-  init(name: String, isNested: Bool = false, properties: [Property]) {
-    
-    self.isNested = isNested
+  init(name: String, properties: [Property]) {
     var styleName = name.trimmingCharacters(in: CharacterSet.whitespaces)
 
     // Check if this could generate an extension.
@@ -488,18 +489,45 @@ func generate(_ isNested: Bool = false) -> String {
     
     let indentation = isNested ? "\t\t" : "\t"
     var wrapper = isNested ? "\n\n" + indentation : indentation
-    wrapper += "//MARK: - \(self.name)"
-
+    if let nestedOverrideName = nestedOverrideName {
+        wrapper += "//MARK: - \(nestedOverrideName)"
+    } else {
+        wrapper += "//MARK: - \(name)"
+    }
+    
     let objc = Configuration.objcGeneration ? "@objc " : ""
     var superclass = Configuration.objcGeneration ? ": NSObject" : ""
+    var nestedSuperclass = Configuration.objcGeneration ? ": NSObject" : ""
 
-    if let s = self.superclassName { superclass = ": \(s)AppearanceProxy" }
+    if let s = superclassName { superclass = ": \(s)AppearanceProxy" }
+    if let s = nestedSuperclassName { nestedSuperclass = ": \(s)AppearanceProxy" }
     let visibility = isOverridable ? "open" : "public"
     let staticModifier = isNested ? "" : " static"
     let variableVisibility = !isNested ? "public" : visibility
+    let styleClass = isNestedOverride ? "\(nestedOverrideName!)AppearanceProxy" : "\(name)AppearanceProxy"
     
-    wrapper += "\n\(indentation)\(objc)\(variableVisibility)\(staticModifier) let \(name) = \(name)AppearanceProxy()"
-    wrapper += "\n\(indentation)\(objc)\(visibility) class \(name)AppearanceProxy\(superclass) {"
+    if isNestedOverride || isNestedOverridable {
+        let visibility = isNestedOverridable ? "open" : "public"
+        let override = isNestedOverride ? "override " : ""
+        let returnClass = isNestedOverride ? String(nestedSuperclass[nestedSuperclass.index(nestedSuperclass.startIndex, offsetBy: 2)...]) : styleClass
+        
+        wrapper +=
+        "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
+        wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
+        wrapper += "\n\(indentation)\t\treturn \(styleClass)()"
+        wrapper += "\n\(indentation)\t}"
+        
+        if isNestedOverridable {
+            wrapper += "\n\(indentation)\(objc)public var \(name): \(styleClass) {"
+            wrapper += "\n\(indentation)\tget { return self.\(name)Style() }"
+            wrapper += "\n\(indentation)\tset { _\(name) = newValue }"
+            wrapper += "\n\(indentation)}"
+        }
+    } else {
+      wrapper += "\n\(indentation)\(objc)\(variableVisibility)\(staticModifier) let \(name) = \(name)AppearanceProxy()"
+    }
+    let superclassDeclaration = isNestedOverride ? nestedSuperclass : superclass
+    wrapper += "\n\(indentation)\(objc)\(visibility) class \(styleClass)\(superclassDeclaration) {"
 
     if isOverridable {
       wrapper += "\n\(indentation)\tpublic init() {}"
@@ -536,11 +564,15 @@ class Stylesheet {
     // Resolve the type for the redirected values.
     styles.forEach({ resolveRedirection($0) })
     // Mark the overrides.
-    for style in styles.filter({ return $0.superclassName != nil }) {
-      for property in style.properties {
-        property.isOverride = self.propertyIsOverride(property.key,
-                                                      superclass: style.superclassName!)
-      }
+    styles.forEach({ markOverrides($0) })
+    // Mark the overridables.
+    let nestedStyles = styles.flatMap{ $0.properties }.flatMap{ $0.style }
+    let duplicates = Dictionary(grouping: nestedStyles, by: { $0.name })
+      .filter { $1.count > 1 }                 // filter down to only those with multiple contacts
+      .sorted { $0.1.count > $1.1.count }
+      .flatMap { $0.value }
+    for style in duplicates where !style.isNestedOverride {
+      style.isNestedOverridable = true
     }
   }
   
@@ -558,7 +590,42 @@ class Stylesheet {
       }
     }
   }
-
+  
+  fileprivate func markOverrides(_ style: Style) {
+    for property in style.properties {
+      if let superclassName = style.superclassName {
+        property.isOverride = self.propertyIsOverride(property.key,
+                                                      superclass: superclassName)
+      }
+      if let nestedStyle = property.style {
+        let (isOverride, superclassName, styleName) = styleIsOverride(nestedStyle, superStyle: style)
+        if let styleName = styleName, let superclassName = superclassName, isOverride {
+          nestedStyle.isNestedOverride = isOverride
+          nestedStyle.nestedSuperclassName = superclassName
+          nestedStyle.nestedOverrideName = styleName
+        }
+        markOverrides(nestedStyle)
+      }
+    }
+  }
+  
+  fileprivate func styleIsOverride(_ style: Style, superStyle: Style) -> (isOverride: Bool, superclassName: String?, styleName: String?) {
+    guard let _ = superStyle.superclassName else { return (false, nil, nil) }
+    let nestedStyles = styles.flatMap{ $0.properties }.filter{
+      guard let nestedStyle = $0.style, nestedStyle.name == style.name else { return false }
+      return true
+    };
+    
+    for st in styles {
+      for property in st.properties {
+        if let nestedStyle = property.style, nestedStyle.name == style.name, let superclassName = st.superclassName, nestedStyles.count > 1 {
+          return (true, "\(superclassName).\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
+        }
+      }
+    }
+    return (false, nil, nil)
+  }
+  
   // Determines if this property is an override or not.
   fileprivate func propertyIsOverride(_ property: String, superclass: String) -> Bool {
 
@@ -613,8 +680,7 @@ extension Stylesheet: Generatable {
     let importDef = Configuration.targetOsx ? "Cocoa" : "UIKit"
 
     stylesheet += "/// Autogenerated file\n"
-    stylesheet += "\n// swiftlint:disable type_body_length\n"
-    stylesheet += "// swiftlint:disable type_name\n\n"
+    stylesheet += "\n// swiftlint:disable all\n"
     stylesheet += "import \(importDef)\n\n"
     if let namespace = Configuration.importFrameworks {
       stylesheet += "import \(namespace)\n\n"

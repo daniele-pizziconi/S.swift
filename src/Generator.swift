@@ -86,7 +86,7 @@ public struct Generator: Generatable  {
                 }
                 return nextDict
             })
-            style = Style(name: key, isNested: true, properties: try createProperties(flattenedDictionary))
+            style = Style(name: key, properties: try createProperties(flattenedDictionary))
           case .dictionary(let dictionary): rhsValue = try RhsValue.valueFrom(dictionary)
           case .bool(let boolean): rhsValue = RhsValue.valueFrom(boolean)
           case .double(let double): rhsValue = RhsValue.valueFrom(Float(double))

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		164602301C77334800FC9992 /* Generatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1646022F1C77334800FC9992 /* Generatable.swift */; };
 		164CA2841EB5E44D0014ED69 /* Style.yml in Resources */ = {isa = PBXBuildFile; fileRef = 164CA2811EB5E44D0014ED69 /* Style.yml */; };
 		164DC70A1C7F565900859EC0 /* Rhs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AC371B1C78C69B00F61BE9 /* Rhs.swift */; };
 		164DC70D1C7F568C00859EC0 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F8FAE41C78D9F40055BA8F /* Generator.swift */; };
@@ -22,6 +21,7 @@
 		16F9E0391C772AAC0083C55D /* S.h in Headers */ = {isa = PBXBuildFile; fileRef = 16F9E0381C772AAC0083C55D /* S.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16F9E0561C772AD30083C55D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E0551C772AD30083C55D /* main.swift */; };
 		16F9E05B1C772B080083C55D /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E05A1C772B080083C55D /* Yaml.swift */; };
+		64539E3421AB4A8100482BB6 /* Generatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1646022F1C77334800FC9992 /* Generatable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,7 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1646022F1C77334800FC9992 /* Generatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generatable.swift; sourceTree = "<group>"; };
+		1646022F1C77334800FC9992 /* Generatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Generatable.swift; sourceTree = "<group>"; tabWidth = 2; };
 		164CA2801EB5E44D0014ED69 /* Style.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Style.generated.swift; sourceTree = "<group>"; };
 		164CA2811EB5E44D0014ED69 /* Style.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Style.yml; sourceTree = "<group>"; };
 		168354421C808BA8008EA29F /* Condition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Condition.swift; sourceTree = "<group>"; };
@@ -241,9 +241,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				164602301C77334800FC9992 /* Generatable.swift in Sources */,
 				168354431C808BA8008EA29F /* Condition.swift in Sources */,
 				16F9E05B1C772B080083C55D /* Yaml.swift in Sources */,
+				64539E3421AB4A8100482BB6 /* Generatable.swift in Sources */,
 				16AC371A1C7772EE00F61BE9 /* Utils.swift in Sources */,
 				16F8FAE51C78D9F40055BA8F /* Generator.swift in Sources */,
 				16AC371C1C78C69B00F61BE9 /* Rhs.swift in Sources */,
