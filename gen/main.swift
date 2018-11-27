@@ -124,7 +124,9 @@ for file in files {
   if let target = Configuration.singleFile {
     if file.hasSuffix(target) {
       generate(file: file)
+      break
     }
+  } else {
+    generate(file: file)
   }
-  generate(file: file)
 }
