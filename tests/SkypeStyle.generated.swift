@@ -17,12 +17,12 @@ public class SkypeStyle: TeamsStyle {
 		}
 	public class SkypeStyleButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy {
 
-		//MARK: - SkypeStyleButtonButton
+		//MARK: - SkypeStylecolorButton
 		override public func colorStyle() -> TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
 			if let override = _color { return override }
-				return SkypeStyleButtonButtonAppearanceProxy()
+				return SkypeStylecolorButtonAppearanceProxy()
 			}
-		public class SkypeStyleButtonButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+		public class SkypeStylecolorButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
 
 			//MARK: c1 
 			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
