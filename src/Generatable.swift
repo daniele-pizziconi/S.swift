@@ -908,10 +908,12 @@ extension Stylesheet: Generatable {
     let visibility = "fileprivate"
     var header = ""
     header += "\(visibility) var __ApperanceProxyHandle: UInt8 = 0\n\n"
+    header += "\(visibility) var __ThemeAwareHandle: UInt8 = 0\n\n"
     header += "/// Your view should conform to 'AppearaceProxyComponent'.\n"
     header += "public protocol AppearaceProxyComponent: class {\n"
     header += "\tassociatedtype ApperanceProxyType\n"
     header += "\tvar appearanceProxy: ApperanceProxyType { get }\n"
+    header += "\tvar themeAware: Bool { get }\n"
     header += "\tfunc didChangeAppearanceProxy()"
     header += "\n}\n\n"
     return header
@@ -927,22 +929,67 @@ extension Stylesheet: Generatable {
       }
       let visibility = Configuration.publicExtensions ? "public" : ""
 
+      let extendedStylesInBaseStylesheet = styles.filter({ $0.superclassName == style.name })
+      var extendedStylesInExtendedStylesheets = [String: [Style]]()
+      for extendedStylesheet in Generator.Stylesheets.filter({ $0.superclassName == name }) {
+        if let styles = Optional(extendedStylesheet.styles.filter({ $0.superclassName == style.name })), styles.count > 0 {
+          extendedStylesInExtendedStylesheets[extendedStylesheet.name] = styles
+        }
+      }
+      
+      var statements = [String: [String]]()
+      for extendedStyle in extendedStylesInBaseStylesheet {
+        var conditions = [String]()
+        conditions.append("proxy is \(name).\(extendedStyle.name)AppearanceProxy")
+        extendedStylesInExtendedStylesheets.forEach({
+          if $1.filter({ $0.name == extendedStyle.name }).count > 0 {
+            conditions.append("proxy is \($0).\($0)\(extendedStyle.name)AppearanceProxy")
+          }
+        })
+        statements[extendedStyle.name] = conditions
+      }
+      
       extensions += "\nextension \(style.name): AppearaceProxyComponent {\n\n"
       extensions +=
         "\t\(visibility) typealias ApperanceProxyType = "
         + "\(name).\(style.name)AppearanceProxy\n"
       extensions += "\t\(visibility) var appearanceProxy: ApperanceProxyType {\n"
       extensions += "\t\tget {\n"
-      extensions +=
-        "\t\t\tguard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) "
-        + "as? ApperanceProxyType else { return \(stylesheetName).\(style.name) }\n"
-      extensions += "\t\t\treturn proxy\n"
+      extensions += "\t\t\tif let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {\n"
+      extensions += "\t\t\t\tif !themeAware { return proxy }\n\n"
+      
+      var index = 0
+      for (key, value) in statements {
+        let prefix = index == 0 ? "\t\t\t\tif " : " else if "
+        let condition = value.joined(separator: " || ")
+        extensions += "\(prefix)\(condition) {\n"
+        extensions += "\t\t\t\t\treturn \(stylesheetName).\(key)\n\t\t\t\t}"
+        index += 1
+      }
+      
+      extensions += "\n\t\t\t\treturn proxy\n"
+      extensions += "\t\t\t}\n\n"
+      extensions += "\t\t\treturn \(stylesheetName).\(style.name)\n"
       extensions += "\t\t}\n"
       extensions += "\t\tset {\n"
       extensions +=
         "\t\t\tobjc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue,"
         + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
       extensions += "\t\t\tdidChangeAppearanceProxy()\n"
+      extensions += "\t\t}\n"
+      extensions += "\t}\n"
+      
+      extensions += "\t\(visibility) var themeAware: Bool {\n"
+      extensions += "\t\tget {\n"
+      extensions +=
+        "\t\t\tguard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) "
+        + "as? Bool else { return true }\n"
+      extensions += "\t\t\treturn proxy\n"
+      extensions += "\t\t}\n"
+      extensions += "\t\tset {\n"
+      extensions +=
+        "\t\t\tobjc_setAssociatedObject(self, &__ThemeAwareHandle, newValue,"
+        + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
       extensions += "\t\t}\n"
       extensions += "\t}\n"
       extensions += "}\n"
