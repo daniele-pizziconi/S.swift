@@ -640,21 +640,10 @@ class Stylesheet {
   }
   
   fileprivate func markOverrides(_ style: Style, superclassName: String?) {
-    
-    var styles = ""
-    for style in self.styles {
-      styles.append(style.name)
-    }
-    
-    
+
     //check if the style is an override from a generic base stylesheet
     if let baseSuperclassName = self.superclassName, let baseStylesheet = Generator.Stylesheets.filter({ return $0.name == baseSuperclassName }).first {
       if let superStyle = baseStylesheet.styles.filter({ return $0.name == style.name }).first {
-        
-//        if style.name == "PrimaryButton" {
-//          assert(false, "superclass: \(superStyle.nestedSuperclassName), nestedStyle.nestedOverrideName: \(superStyle.nestedOverrideName)")
-//        }
-        
         style.isNestedOverride = true
         style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)"
         style.nestedOverrideName = "\(name)\(style.name)"
@@ -666,44 +655,7 @@ class Stylesheet {
             nestedStyle.nestedOverrideName = "\(name)\(style.name)"
           }
         }
-        
-//        assert(false, "style name:\(style.name) "
-        
-//        for nestedStyle in style.properties.flatMap({ $0.style }) {
-//
-//          assert(false, "style name:\(nestedStyle.name) superclass: \(nestedStyle.nestedSuperclassName), nestedStyle.nestedOverrideName: \(nestedStyle.nestedOverrideName)")
-//
-//          nestedStyle.isNestedOverride = true
-//          nestedStyle.nestedSuperclassName = "\(style.nestedSuperclassName!)AppearanceProxy.\(nestedStyle.name)"
-//          nestedStyle.nestedOverrideName = "\(baseStylesheet.name)\(nestedStyle.name)"
-////          markOverrides(nestedStyle, superclassName: nil)
-//        }
       }
-      
-//      //CERCARE NEI NESTED!!!!!
-//      for superStyle in baseStylesheet.styles {
-//        for property in superStyle.properties {
-//          if let nestedStyle = property.style, nestedStyle.name == style.name {
-//            style.isNestedOverride = true
-//            for nestedOwnStyle in style.properties.flatMap({ $0.style }) {
-//              nestedOwnStyle.isNestedOverride = true
-//              nestedOwnStyle.nestedSuperclassName = "\(style.nestedSuperclassName!)AppearanceProxy.\(nestedStyle.name)"
-//              nestedOwnStyle.nestedOverrideName = "\(style.nestedOverrideName!)\(nestedStyle.name)"
-//              //          markOverrides(nestedStyle, superclassName: nil)
-//            }
-//          }
-//        }
-//      }
-      
-//      for superStyle in baseStylesheet.styles {
-//        for property in superStyle.properties {
-//          if let nestedStyle = property.style, nestedStyle.name == style.name {
-//            style.isNestedOverride = true
-//            style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle).\(superStyle.name)"
-//            style.nestedOverrideName = "\(name)\(style.name)"
-//          }
-//        }
-//      }
     }
     
     for property in style.properties {
@@ -816,14 +768,18 @@ extension Stylesheet: Generatable {
     }
     
     if isBaseStylesheet {
-      if Configuration.appExtensionApiOnly {
-        stylesheet += self.generateAppExtensionApplicationHeader()
-      }
       if Configuration.runtimeSwappable {
-        stylesheet += self.generateRuntimeSwappableHeader()
+        if Generator.Stylesheets.filter({ $0.superclassName == name }).count > 0 {
+          stylesheet += generateStylesheetManager()
+        } else {
+          stylesheet += generateRuntimeSwappableHeader()
+        }
+      }
+      if Configuration.appExtensionApiOnly {
+        stylesheet += generateAppExtensionApplicationHeader()
       }
       if Configuration.extensionsEnabled {
-        stylesheet += self.generateExtensionsHeader()
+        stylesheet += generateExtensionsHeader()
       }
     }
     
@@ -842,6 +798,55 @@ extension Stylesheet: Generatable {
     }
     return stylesheet
   }
+  
+  func generateStylesheetManager() -> String {
+    let baseStyleName = Generator.Stylesheets.filter({ $0.superclassName == nil }).first!
+    var baseEnumCase = baseStyleName.name.replacingOccurrences(of: "Style", with: "")
+    baseEnumCase = baseEnumCase.prefix(1).lowercased() + baseEnumCase.dropFirst()
+
+    var cases = [String: String]()
+    for i in 0..<Configuration.stylesheetNames.count {
+      var name = Configuration.stylesheetNames[i]
+      var enumCase = name.replacingOccurrences(of: "Style", with: "")
+      enumCase = enumCase.prefix(1).lowercased() + enumCase.dropFirst()
+      if let components = Optional(enumCase.components(separatedBy: ":")), components.count > 1 {
+        enumCase = components.first!
+        name = name.components(separatedBy: ":").first!
+      }
+      cases[name] = enumCase
+    }
+    
+    var header = ""
+    header += "public enum Theme: Int {\n"
+    cases.forEach({ header += "\tcase \($1)\n" })
+    header += "\n"
+    header += "\tpublic var stylesheet: \(baseStyleName.name) {\n"
+    header += "\t\tswitch self {\n"
+    cases.forEach({ header += "\t\tcase .\($1): return \($0).default\n" })
+    header += "\t\t}\n"
+    header += "\t}\n"
+    header += "}\n"
+    
+    header += "\n"
+  
+    header += "public class StylesheetManager {\n"
+    header +=
+    "\t@objc dynamic public class func stylesheet(_ stylesheet: \(baseStyleName.name)) -> \(baseStyleName.name) {\n"
+    header += "\t\treturn StylesheetManager.default.theme.stylesheet\n"
+    header += "\t}\n\n"
+    header += "\tprivate struct DefaultKeys {\n"
+    header += "\t\tstatic let theme = \"theme\"\n"
+    header += "\t}\n\n"
+    header += "\tpublic static let `default` = StylesheetManager()\n\n"
+    header += "\tpublic var theme: Theme {\n"
+    header += "\t\tdidSet { UserDefaults.standard[DefaultKeys.theme] = theme }\n"
+    header += "\t}\n\n"
+    header += "\tpublic init() {\n"
+    header += "\t\tself.theme = UserDefaults.standard[DefaultKeys.theme] ?? .\(baseEnumCase)\n"
+    header += "\t}\n"
+    header += "}\n\n"
+    return header
+  }
 
   func generateAppExtensionApplicationHeader() -> String {
     var header = ""
@@ -856,7 +861,7 @@ extension Stylesheet: Generatable {
   
   func generateRuntimeSwappableHeader() -> String {
     var header = ""
-    header += "public class Stylesheet {\n"
+    header += "public class StylesheetManager {\n"
     header +=
     "\t@objc dynamic public class func stylesheet(_ stylesheet: \(name)) -> \(name) {\n"
     header += "\t\treturn stylesheet\n"
@@ -880,7 +885,7 @@ extension Stylesheet: Generatable {
 
   func generateExtensions() -> String {
     var extensions = ""
-    let stylesheetName = Configuration.runtimeSwappable ? "Stylesheet.stylesheet(\(name).default)" : name
+    let stylesheetName = Configuration.runtimeSwappable ? "StylesheetManager.stylesheet(\(name).default)" : name
     for style in styles.filter({ $0.isExtension }) {
       
       if let superclassName = superclassName, let _ = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ $0.name == style.name }).first {

@@ -3,15 +3,41 @@
 // swiftlint:disable all
 import UIKit
 
-public class Application {
-	@objc dynamic public class func preferredContentSizeCategory() -> UIContentSizeCategory {
-		return .large
+public enum Theme: Int {
+	case teams
+	case skype
+
+	public var stylesheet: TeamsStyle {
+		switch self {
+		case .teams: return TeamsStyle.default
+		case .skype: return SkypeStyle.default
+		}
 	}
 }
 
-public class Stylesheet {
+public class StylesheetManager {
 	@objc dynamic public class func stylesheet(_ stylesheet: TeamsStyle) -> TeamsStyle {
-		return stylesheet
+		return StylesheetManager.default.theme.stylesheet
+	}
+
+	private struct DefaultKeys {
+		static let theme = "theme"
+	}
+
+	public static let `default` = StylesheetManager()
+
+	public var theme: Theme {
+		didSet { UserDefaults.standard[DefaultKeys.theme] = theme }
+	}
+
+	public init() {
+		self.theme = UserDefaults.standard[DefaultKeys.theme] ?? .teams
+	}
+}
+
+public class Application {
+	@objc dynamic public class func preferredContentSizeCategory() -> UIContentSizeCategory {
+		return .large
 	}
 }
 
@@ -29,43 +55,6 @@ public class TeamsStyle: NSObject {
 
 public static let `default` = TeamsStyle()
 
-	//MARK: - Button
-	public var _Button: ButtonAppearanceProxy?
-	open func ButtonStyle() -> ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return ButtonAppearanceProxy()
-		}
-	public var Button: ButtonAppearanceProxy {
-		get { return self.ButtonStyle() }
-		set { _Button = newValue }
-	}
-	public class ButtonAppearanceProxy {
-
-		//MARK: - color
-		public var _color: colorAppearanceProxy?
-		open func colorStyle() -> colorAppearanceProxy {
-			if let override = _color { return override }
-				return colorAppearanceProxy()
-			}
-		public var color: colorAppearanceProxy {
-			get { return self.colorStyle() }
-			set { _color = newValue }
-		}
-		public class colorAppearanceProxy {
-
-			//MARK: c1 
-			public var _c1: UIColor?
-			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return TeamsStyle.default.Color.blackProperty(traitCollection)
-				}
-			public var c1: UIColor {
-				get { return self.c1Property() }
-				set { _c1 = newValue }
-			}
-		}
-
-	}
 	//MARK: - PrimaryButton
 	public var _PrimaryButton: PrimaryButtonAppearanceProxy?
 	open func PrimaryButtonStyle() -> PrimaryButtonAppearanceProxy {
@@ -116,6 +105,43 @@ public static let `default` = TeamsStyle()
 			set { _black = newValue }
 		}
 	}
+	//MARK: - Button
+	public var _Button: ButtonAppearanceProxy?
+	open func ButtonStyle() -> ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return ButtonAppearanceProxy()
+		}
+	public var Button: ButtonAppearanceProxy {
+		get { return self.ButtonStyle() }
+		set { _Button = newValue }
+	}
+	public class ButtonAppearanceProxy {
+
+		//MARK: - color
+		public var _color: colorAppearanceProxy?
+		open func colorStyle() -> colorAppearanceProxy {
+			if let override = _color { return override }
+				return colorAppearanceProxy()
+			}
+		public var color: colorAppearanceProxy {
+			get { return self.colorStyle() }
+			set { _color = newValue }
+		}
+		public class colorAppearanceProxy {
+
+			//MARK: c1 
+			public var _c1: UIColor?
+			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return TeamsStyle.default.Color.blackProperty(traitCollection)
+				}
+			public var c1: UIColor {
+				get { return self.c1Property() }
+				set { _c1 = newValue }
+			}
+		}
+
+	}
 
 }
 extension Button: AppearaceProxyComponent {
@@ -123,7 +149,7 @@ extension Button: AppearaceProxyComponent {
 	public typealias ApperanceProxyType = TeamsStyle.ButtonAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return Stylesheet.stylesheet(TeamsStyle.default).Button }
+			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return StylesheetManager.stylesheet(TeamsStyle.default).Button }
 			return proxy
 		}
 		set {
