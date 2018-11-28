@@ -3,3 +3,10 @@ Color:
 
 @appearance_proxy Button:
   color: [c1: $Color.black.b1]
+  borderColor: [c1: $Color.black.b1]
+
+PrimaryButton extends Button:
+  color: [c1: $Color.black.b1]
+
+CircularButton extends Button:
+  color: [c1: $Color.black.b1]

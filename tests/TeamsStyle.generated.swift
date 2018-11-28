@@ -3,6 +3,23 @@
 // swiftlint:disable all
 import UIKit
 
+fileprivate extension UserDefaults {
+	subscript<T>(key: String) -> T? {
+		get { return value(forKey: key) as? T }
+		set { set(newValue, forKey: key) }
+	}
+
+	subscript<T: RawRepresentable>(key: String) -> T? {
+		get {
+			if let rawValue = value(forKey: key) as? T.RawValue {
+				return T(rawValue: rawValue)
+			}
+			return nil
+		}
+		set { self[key] = newValue?.rawValue }
+	}
+}
+
 public enum Theme: Int {
 	case skype
 	case teams
@@ -57,6 +74,70 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
+	public class ColorAppearanceProxy {
+
+		//MARK: - black
+		public var _black: blackAppearanceProxy?
+		open func blackStyle() -> blackAppearanceProxy {
+			if let override = _black { return override }
+				return blackAppearanceProxy()
+			}
+		public var black: blackAppearanceProxy {
+			get { return self.blackStyle() }
+			set { _black = newValue }
+		}
+		public class blackAppearanceProxy {
+
+			//MARK: b1 
+			public var _b1: UIColor?
+			open func b1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b1 { return override }
+					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
+				}
+			public var b1: UIColor {
+				get { return self.b1Property() }
+				set { _b1 = newValue }
+			}
+		}
+
+	}
+	//MARK: - PrimaryButton
+	public var _PrimaryButton: PrimaryButtonAppearanceProxy?
+	open func PrimaryButtonStyle() -> PrimaryButtonAppearanceProxy {
+		if let override = _PrimaryButton { return override }
+			return PrimaryButtonAppearanceProxy()
+		}
+	public var PrimaryButton: PrimaryButtonAppearanceProxy {
+		get { return self.PrimaryButtonStyle() }
+		set { _PrimaryButton = newValue }
+	}
+	public class PrimaryButtonAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: - PrimaryButtoncolor
+		override open func colorStyle() -> ButtonAppearanceProxy.colorAppearanceProxy {
+			if let override = _color { return override }
+				return PrimaryButtoncolorAppearanceProxy()
+			}
+		public class PrimaryButtoncolorAppearanceProxy: ButtonAppearanceProxy.colorAppearanceProxy {
+
+			//MARK: c1 
+			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
+				}
+		}
+
+	}
 	//MARK: - Button
 	public var _Button: ButtonAppearanceProxy?
 	open func ButtonStyle() -> ButtonAppearanceProxy {
@@ -93,41 +174,56 @@ public class TeamsStyle: NSObject {
 			}
 		}
 
-	}
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
-		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
-	}
-	public class ColorAppearanceProxy {
 
-		//MARK: - black
-		public var _black: blackAppearanceProxy?
-		open func blackStyle() -> blackAppearanceProxy {
-			if let override = _black { return override }
-				return blackAppearanceProxy()
+		//MARK: - borderColor
+		public var _borderColor: borderColorAppearanceProxy?
+		open func borderColorStyle() -> borderColorAppearanceProxy {
+			if let override = _borderColor { return override }
+				return borderColorAppearanceProxy()
 			}
-		public var black: blackAppearanceProxy {
-			get { return self.blackStyle() }
-			set { _black = newValue }
+		public var borderColor: borderColorAppearanceProxy {
+			get { return self.borderColorStyle() }
+			set { _borderColor = newValue }
 		}
-		public class blackAppearanceProxy {
+		public class borderColorAppearanceProxy {
 
-			//MARK: b1 
-			public var _b1: UIColor?
-			open func b1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b1 { return override }
-					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
+			//MARK: c1 
+			public var _c1: UIColor?
+			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
 				}
-			public var b1: UIColor {
-				get { return self.b1Property() }
-				set { _b1 = newValue }
+			public var c1: UIColor {
+				get { return self.c1Property() }
+				set { _c1 = newValue }
 			}
+		}
+
+	}
+	//MARK: - CircularButton
+	public var _CircularButton: CircularButtonAppearanceProxy?
+	open func CircularButtonStyle() -> CircularButtonAppearanceProxy {
+		if let override = _CircularButton { return override }
+			return CircularButtonAppearanceProxy()
+		}
+	public var CircularButton: CircularButtonAppearanceProxy {
+		get { return self.CircularButtonStyle() }
+		set { _CircularButton = newValue }
+	}
+	public class CircularButtonAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: - CircularButtoncolor
+		override open func colorStyle() -> ButtonAppearanceProxy.colorAppearanceProxy {
+			if let override = _color { return override }
+				return CircularButtoncolorAppearanceProxy()
+			}
+		public class CircularButtoncolorAppearanceProxy: ButtonAppearanceProxy.colorAppearanceProxy {
+
+			//MARK: c1 
+			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
+				}
 		}
 
 	}

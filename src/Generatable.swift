@@ -829,6 +829,22 @@ extension Stylesheet: Generatable {
     }
     
     var header = ""
+    header += "fileprivate extension UserDefaults {\n"
+    header += "\tsubscript<T>(key: String) -> T? {\n"
+    header += "\t\tget { return value(forKey: key) as? T }\n"
+    header += "\t\tset { set(newValue, forKey: key) }\n"
+    header += "\t}\n\n"
+    header += "\tsubscript<T: RawRepresentable>(key: String) -> T? {\n"
+    header += "\t\tget {\n"
+    header += "\t\t\tif let rawValue = value(forKey: key) as? T.RawValue {\n"
+    header += "\t\t\t\treturn T(rawValue: rawValue)\n"
+    header += "\t\t\t}\n"
+    header += "\t\t\treturn nil\n"
+    header += "\t\t}\n"
+    header += "\t\tset { self[key] = newValue?.rawValue }\n"
+    header += "\t}\n"
+    header += "}\n\n"
+    
     header += "public enum Theme: Int {\n"
     cases.forEach({ header += "\tcase \($1)\n" })
     header += "\n"
