@@ -1,5 +1,8 @@
 Color:
-  red: [r01: "#aaaaaa"]
+  black: "#252423"
 
-@appearance_proxy FooView:
-  backgroundColor: $Color.red.r01
+@appearance_proxy Button:
+  color: [c1: $Color.black]
+
+PrimaryButton extends Button:
+  color: [c1: $Color.black]

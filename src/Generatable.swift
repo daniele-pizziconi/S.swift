@@ -511,7 +511,7 @@ extension Style: Generatable {
         let override = isNestedOverride ? "override " : ""
         let returnClass = isNestedOverride ? String(nestedSuperclass[nestedSuperclass.index(nestedSuperclass.startIndex, offsetBy: 2)...]) : styleClass
         
-        if isNestedOverridable {
+        if isNestedOverridable && !isNestedOverride {
             wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
         }
       
@@ -521,7 +521,7 @@ extension Style: Generatable {
         wrapper += "\n\(indentation)\t\treturn \(styleClass)()"
         wrapper += "\n\(indentation)\t}"
         
-        if isNestedOverridable {
+        if isNestedOverridable && !isNestedOverride {
             wrapper += "\n\(indentation)\(objc)public var \(name): \(styleClass) {"
             wrapper += "\n\(indentation)\tget { return self.\(name)Style() }"
             wrapper += "\n\(indentation)\tset { _\(name) = newValue }"
@@ -602,8 +602,18 @@ class Stylesheet {
       if let rhs = property.rhs, rhs.isRedirect {
         var redirection = rhs.redirection!
         let type = resolveRedirectedType(redirection)
-        if Configuration.runtimeSwappable && superclassName == nil && Generator.Stylesheets.filter({ return $0.superclassName == name }).count > 0 {
-          redirection = "\(name).default.\(redirection)"
+        if Configuration.runtimeSwappable {
+          let components = redirection.components(separatedBy: ".")
+          var name: String? = nil
+          if let _ = styles.filter({ return $0.name == components[0] }).first {
+            name = self.name
+          } else if let baseStylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first {
+            name = baseStylesheet.name
+          }
+          
+          if let name = name {
+            redirection = "\(name).default.\(redirection)"
+          }
         }
         property.rhs = RhsValue.redirect(redirection:
           RhsRedirectValue(redirection: redirection, type: type))
@@ -719,17 +729,19 @@ class Stylesheet {
 
     let components = redirection.components(separatedBy: ".")
     assert(components.count == 2 || components.count == 3, "Redirect \(redirection) invalid")
-
-    let property: Property
-    if components.count == 2 {
-        let style = styles.filter() { return $0.name == components[0]}.first!
-        property = style.properties.filter() { return $0.key == components[1] }.first!
-    } else {
-        let style = styles.filter() { return $0.name == components[0]}.first!
-        let nestedStyleProperty = style.properties.filter() { return $0.style?.name == components[1] }.first!.style!
-        property = nestedStyleProperty.properties.filter() { return $0.key == components[2] }.first!
+  
+    var style = styles.filter({ return $0.name == components[0] }).first
+    if style == nil {
+      style = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ return $0.name == components[0] }).first
     }
-
+    var property: Property
+    if components.count == 2 {
+      property = style!.properties.filter() { return $0.key == components[1] }.first!
+    } else {
+      let nestedStyleProperty = style!.properties.filter() { return $0.style?.name == components[1] }.first!.style!
+      property = nestedStyleProperty.properties.filter() { return $0.key == components[2] }.first!
+    }
+    
     if let rhs = property.rhs, rhs.isRedirect {
       return resolveRedirectedType(property.rhs!.redirection!)
     } else {
@@ -824,7 +836,11 @@ extension Stylesheet: Generatable {
   func generateExtensions() -> String {
     var extensions = ""
     let stylesheetName = Configuration.runtimeSwappable ? "Stylesheet.stylesheet(\(name).default)" : name
-    for style in self.styles.filter({ $0.isExtension }) {
+    for style in styles.filter({ $0.isExtension }) {
+      
+      if let superclassName = superclassName, let _ = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ $0.name == style.name }).first {
+        continue
+      }
       let visibility = Configuration.publicExtensions ? "public" : ""
 
       extensions += "\nextension \(style.name): AppearaceProxyComponent {\n\n"

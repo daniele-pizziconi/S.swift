@@ -1,3 +1,5 @@
-Color:
-  red: [r01: "#ffffff"]
-  yellow: "#ffffff"
+@appearance_proxy Button:
+  color: [c1: $Color.black]
+
+PrimaryButton extends Button:
+  color: [c1: $Color.black]
