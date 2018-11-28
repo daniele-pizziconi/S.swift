@@ -651,6 +651,7 @@ class Stylesheet {
             nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
             nestedStyle.nestedOverrideName = "\(name)\(superNestedStyle.name)\(style.name)"
           }
+          markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
         }
       }
     }
@@ -796,7 +797,7 @@ extension Stylesheet: Generatable {
     
     if Configuration.runtimeSwappable {
       let override = superclassName != nil ? "override " : ""
-      stylesheet += "\t\(override)class func shared() -> \(self.name) {\n"
+      stylesheet += "\tpublic \(override)class func shared() -> \(self.name) {\n"
       stylesheet += "\t\t struct __ { static let _sharedInstance = \(self.name)() }\n"
       stylesheet += "\t\treturn __._sharedInstance\n"
       stylesheet += "\t}\n"
@@ -853,9 +854,11 @@ extension Stylesheet: Generatable {
     cases.forEach({ header += "\t\tcase .\($1): return \($0).shared()\n" })
     header += "\t\t}\n"
     header += "\t}\n"
-    header += "}\n"
+    header += "}\n\n"
     
-    header += "\n"
+    header += "public extension Notification.Name {\n"
+    header += "\tstatic let didChangeTheme = Notification.Name(\"stylesheet.theme\")\n"
+    header += "}\n\n"
   
     header += "public class StylesheetManager {\n"
     header +=
@@ -867,7 +870,10 @@ extension Stylesheet: Generatable {
     header += "\t}\n\n"
     header += "\tpublic static let `default` = StylesheetManager()\n\n"
     header += "\tpublic var theme: Theme {\n"
-    header += "\t\tdidSet { UserDefaults.standard[DefaultKeys.theme] = theme }\n"
+    header += "\t\tdidSet {\n"
+    header += "\t\t\tNotificationCenter.default.post(name: .didChangeTheme, object: theme)\n"
+    header += "\t\t\tUserDefaults.standard[DefaultKeys.theme] = theme\n"
+    header += "\t\t}\n"
     header += "\t}\n\n"
     header += "\tpublic init() {\n"
     header += "\t\tself.theme = UserDefaults.standard[DefaultKeys.theme] ?? .\(baseEnumCase)\n"
