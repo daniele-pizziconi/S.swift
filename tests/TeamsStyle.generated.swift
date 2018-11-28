@@ -29,29 +29,6 @@ public class TeamsStyle: NSObject {
 
 public static let `default` = TeamsStyle()
 
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
-		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
-	}
-	public class ColorAppearanceProxy {
-
-		//MARK: black 
-		public var _black: UIColor?
-		open func blackProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _black { return override }
-			return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
-			}
-		public var black: UIColor {
-			get { return self.blackProperty() }
-			set { _black = newValue }
-		}
-	}
 	//MARK: - Button
 	public var _Button: ButtonAppearanceProxy?
 	open func ButtonStyle() -> ButtonAppearanceProxy {
@@ -115,6 +92,29 @@ public static let `default` = TeamsStyle()
 				}
 		}
 
+	}
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
+	public class ColorAppearanceProxy {
+
+		//MARK: black 
+		public var _black: UIColor?
+		open func blackProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _black { return override }
+			return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
+			}
+		public var black: UIColor {
+			get { return self.blackProperty() }
+			set { _black = newValue }
+		}
 	}
 
 }

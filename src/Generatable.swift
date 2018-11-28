@@ -490,15 +490,15 @@ extension Style: Generatable {
     let indentation = isNested ? "\t\t" : "\t"
     var wrapper = isNested ? "\n\n" + indentation : indentation
     if let nestedOverrideName = nestedOverrideName {
-        wrapper += "//MARK: - \(nestedOverrideName)"
+      wrapper += "//MARK: - \(nestedOverrideName)"
     } else {
-        wrapper += "//MARK: - \(name)"
+      wrapper += "//MARK: - \(name)"
     }
     
     let objc = Configuration.objcGeneration ? "@objc " : ""
     var superclass = Configuration.objcGeneration ? ": NSObject" : ""
     var nestedSuperclass = Configuration.objcGeneration ? ": NSObject" : ""
-
+    
     if let s = superclassName { superclass = ": \(s)AppearanceProxy" }
     if let s = nestedSuperclassName { nestedSuperclass = ": \(s)AppearanceProxy" }
     let visibility = isOverridable ? "open" : "public"
@@ -507,45 +507,50 @@ extension Style: Generatable {
     let styleClass = isNestedOverride ? "\(nestedOverrideName!)AppearanceProxy" : "\(name)AppearanceProxy"
     
     if isNestedOverride || isNestedOverridable {
-        let visibility = isNestedOverridable ? "open" : "public"
-        let override = isNestedOverride ? "override " : ""
-        let returnClass = isNestedOverride ? String(nestedSuperclass[nestedSuperclass.index(nestedSuperclass.startIndex, offsetBy: 2)...]) : styleClass
-        
-        if isNestedOverridable && !isNestedOverride {
-            wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
-        }
+      let visibility = isNestedOverridable ? "open" : "public"
+      let override = isNestedOverride ? "override " : ""
+      let returnClass = isNestedOverride ? String(nestedSuperclass[nestedSuperclass.index(nestedSuperclass.startIndex, offsetBy: 2)...]) : styleClass
       
-        wrapper +=
-        "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
-        wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
-        wrapper += "\n\(indentation)\t\treturn \(styleClass)()"
-        wrapper += "\n\(indentation)\t}"
-        
-        if isNestedOverridable && !isNestedOverride {
-            wrapper += "\n\(indentation)\(objc)public var \(name): \(styleClass) {"
-            wrapper += "\n\(indentation)\tget { return self.\(name)Style() }"
-            wrapper += "\n\(indentation)\tset { _\(name) = newValue }"
-            wrapper += "\n\(indentation)}"
-        }
+      if isNestedOverridable && !isNestedOverride {
+        wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
+      }
+      
+      if styleClass == "PrimaryButtoncolorAppearanceProxy" {
+//        assert(false, "isNestedOverride: \(isNestedOverride), nestedOverrideName:\(nestedOverrideName), isNestedOverridable: \(isNestedOverridable), nestedSuperclassName: \(nestedSuperclassName)")
+        //isNestedOverride: true, nestedOverrideName:Optional("PrimaryButtoncolor"), isNestedOverridable: true, nestedSuperclassName: Optional("ButtonAppearanceProxy.color")
+      }
+      
+      wrapper +=
+      "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
+      wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
+      wrapper += "\n\(indentation)\t\treturn \(styleClass)()"
+      wrapper += "\n\(indentation)\t}"
+      
+      if isNestedOverridable && !isNestedOverride {
+        wrapper += "\n\(indentation)\(objc)public var \(name): \(styleClass) {"
+        wrapper += "\n\(indentation)\tget { return self.\(name)Style() }"
+        wrapper += "\n\(indentation)\tset { _\(name) = newValue }"
+        wrapper += "\n\(indentation)}"
+      }
     } else {
       wrapper += "\n\(indentation)\(objc)\(variableVisibility)\(staticModifier) let \(name) = \(name)AppearanceProxy()"
     }
     let superclassDeclaration = isNestedOverride ? nestedSuperclass : superclass
     wrapper += "\n\(indentation)\(objc)\(visibility) class \(styleClass)\(superclassDeclaration) {"
-
+    
     if isOverridable {
       wrapper += "\n\(indentation)\tpublic init() {}"
     }
     for property in properties {
       wrapper += property.generate(isNested)
     }
-
+    
     if isApplicable {
       wrapper += "\n\(indentation)\tpublic func apply(view: \(isExtension ? self.name : self.viewClass)) {"
       for property in properties {
         wrapper +=
-            "\n\(indentation)\t\tview.\(property.key.replacingOccurrences(of: "_", with: "."))"
-            + " = self.\(property.key)"
+          "\n\(indentation)\t\tview.\(property.key.replacingOccurrences(of: "_", with: "."))"
+          + " = self.\(property.key)"
       }
       wrapper += "\n\(indentation)\t}\n"
     }
@@ -636,35 +641,75 @@ class Stylesheet {
   
   fileprivate func markOverrides(_ style: Style, superclassName: String?) {
     
+    var styles = ""
+    for style in self.styles {
+      styles.append(style.name)
+    }
+    
+    
     //check if the style is an override from a generic base stylesheet
     if let baseSuperclassName = self.superclassName, let baseStylesheet = Generator.Stylesheets.filter({ return $0.name == baseSuperclassName }).first {
       if let superStyle = baseStylesheet.styles.filter({ return $0.name == style.name }).first {
+        
+//        if style.name == "PrimaryButton" {
+//          assert(false, "superclass: \(superStyle.nestedSuperclassName), nestedStyle.nestedOverrideName: \(superStyle.nestedOverrideName)")
+//        }
+        
         style.isNestedOverride = true
         style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)"
         style.nestedOverrideName = "\(name)\(style.name)"
         
         for nestedStyle in style.properties.flatMap({ $0.style }) {
-          nestedStyle.isNestedOverride = true
-          nestedStyle.nestedSuperclassName = "\(style.nestedSuperclassName!)AppearanceProxy.\(nestedStyle.name)"
-          nestedStyle.nestedOverrideName = "\(style.nestedOverrideName!)\(nestedStyle.name)"
-          markOverrides(nestedStyle, superclassName: nil)
-        }
-      }
-      for superStyle in baseStylesheet.styles {
-        for property in style.properties {
-          if let nestedStyle = property.style, nestedStyle.name == style.name {
-            style.isNestedOverride = true
-            style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle).\(superStyle.name)"
-            style.nestedOverrideName = "\(name)\(style.name)"
+          if let superNestedStyle = superStyle.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle.name }).first {
+            nestedStyle.isNestedOverride = true
+            nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
+            nestedStyle.nestedOverrideName = "\(name)\(style.name)"
           }
         }
+        
+//        assert(false, "style name:\(style.name) "
+        
+//        for nestedStyle in style.properties.flatMap({ $0.style }) {
+//
+//          assert(false, "style name:\(nestedStyle.name) superclass: \(nestedStyle.nestedSuperclassName), nestedStyle.nestedOverrideName: \(nestedStyle.nestedOverrideName)")
+//
+//          nestedStyle.isNestedOverride = true
+//          nestedStyle.nestedSuperclassName = "\(style.nestedSuperclassName!)AppearanceProxy.\(nestedStyle.name)"
+//          nestedStyle.nestedOverrideName = "\(baseStylesheet.name)\(nestedStyle.name)"
+////          markOverrides(nestedStyle, superclassName: nil)
+//        }
       }
+      
+//      //CERCARE NEI NESTED!!!!!
+//      for superStyle in baseStylesheet.styles {
+//        for property in superStyle.properties {
+//          if let nestedStyle = property.style, nestedStyle.name == style.name {
+//            style.isNestedOverride = true
+//            for nestedOwnStyle in style.properties.flatMap({ $0.style }) {
+//              nestedOwnStyle.isNestedOverride = true
+//              nestedOwnStyle.nestedSuperclassName = "\(style.nestedSuperclassName!)AppearanceProxy.\(nestedStyle.name)"
+//              nestedOwnStyle.nestedOverrideName = "\(style.nestedOverrideName!)\(nestedStyle.name)"
+//              //          markOverrides(nestedStyle, superclassName: nil)
+//            }
+//          }
+//        }
+//      }
+      
+//      for superStyle in baseStylesheet.styles {
+//        for property in superStyle.properties {
+//          if let nestedStyle = property.style, nestedStyle.name == style.name {
+//            style.isNestedOverride = true
+//            style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle).\(superStyle.name)"
+//            style.nestedOverrideName = "\(name)\(style.name)"
+//          }
+//        }
+//      }
     }
     
     for property in style.properties {
       if let nestedStyle = property.style {
         let (isOverride, superclassName, styleName) = styleIsOverride(nestedStyle, superStyle: style)
-        if let styleName = styleName, let superclassName = superclassName, isOverride {
+        if let styleName = styleName, let superclassName = superclassName, isOverride, !nestedStyle.isNestedOverride {
           nestedStyle.isNestedOverride = isOverride
           nestedStyle.nestedSuperclassName = superclassName
           nestedStyle.nestedOverrideName = styleName
