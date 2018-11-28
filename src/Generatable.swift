@@ -649,7 +649,7 @@ class Stylesheet {
           if let superNestedStyle = superStyle.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle.name }).first {
             nestedStyle.isNestedOverride = true
             nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
-            nestedStyle.nestedOverrideName = "\(name)\(style.name)"
+            nestedStyle.nestedOverrideName = "\(name)\(superStyle.name)\(style.name)"
           }
         }
       }

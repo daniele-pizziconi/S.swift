@@ -4,13 +4,13 @@
 import UIKit
 
 public enum Theme: Int {
-	case skype
 	case teams
+	case skype
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.shared()
 		case .teams: return TeamsStyle.shared()
+		case .skype: return SkypeStyle.shared()
 		}
 	}
 }
@@ -57,43 +57,6 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
-		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
-	}
-	public class ColorAppearanceProxy {
-
-		//MARK: - black
-		public var _black: blackAppearanceProxy?
-		open func blackStyle() -> blackAppearanceProxy {
-			if let override = _black { return override }
-				return blackAppearanceProxy()
-			}
-		public var black: blackAppearanceProxy {
-			get { return self.blackStyle() }
-			set { _black = newValue }
-		}
-		public class blackAppearanceProxy {
-
-			//MARK: b1 
-			public var _b1: UIColor?
-			open func b1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b1 { return override }
-					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
-				}
-			public var b1: UIColor {
-				get { return self.b1Property() }
-				set { _b1 = newValue }
-			}
-		}
-
-	}
 	//MARK: - Button
 	public var _Button: ButtonAppearanceProxy?
 	open func ButtonStyle() -> ButtonAppearanceProxy {
@@ -127,6 +90,43 @@ public class TeamsStyle: NSObject {
 			public var c1: UIColor {
 				get { return self.c1Property() }
 				set { _c1 = newValue }
+			}
+		}
+
+	}
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
+	public class ColorAppearanceProxy {
+
+		//MARK: - black
+		public var _black: blackAppearanceProxy?
+		open func blackStyle() -> blackAppearanceProxy {
+			if let override = _black { return override }
+				return blackAppearanceProxy()
+			}
+		public var black: blackAppearanceProxy {
+			get { return self.blackStyle() }
+			set { _black = newValue }
+		}
+		public class blackAppearanceProxy {
+
+			//MARK: b1 
+			public var _b1: UIColor?
+			open func b1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b1 { return override }
+					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
+				}
+			public var b1: UIColor {
+				get { return self.b1Property() }
+				set { _b1 = newValue }
 			}
 		}
 

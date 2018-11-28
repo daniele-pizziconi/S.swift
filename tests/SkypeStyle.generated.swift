@@ -10,6 +10,28 @@ public class SkypeStyle: TeamsStyle {
 		 struct __ { static let _sharedInstance = SkypeStyle() }
 		return __._sharedInstance
 	}
+	//MARK: - SkypeStyleButton
+	override public func ButtonStyle() -> TeamsStyle.ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return SkypeStyleButtonAppearanceProxy()
+		}
+	public class SkypeStyleButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy {
+
+		//MARK: - SkypeStyleButtonButton
+		override public func colorStyle() -> TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+			if let override = _color { return override }
+				return SkypeStyleButtonButtonAppearanceProxy()
+			}
+		public class SkypeStyleButtonButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+
+			//MARK: c1 
+			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return StylesheetManager.stylesheet(SkypeStyle.shared()).Color.black.b1Property(traitCollection)
+				}
+		}
+
+	}
 	//MARK: - SkypeStyleColor
 	override public func ColorStyle() -> TeamsStyle.ColorAppearanceProxy {
 		if let override = _Color { return override }
@@ -31,28 +53,6 @@ public class SkypeStyle: TeamsStyle {
 				get { return self.b1Property() }
 				set { _b1 = newValue }
 			}
-		}
-
-	}
-	//MARK: - SkypeStyleButton
-	override public func ButtonStyle() -> TeamsStyle.ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return SkypeStyleButtonAppearanceProxy()
-		}
-	public class SkypeStyleButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy {
-
-		//MARK: - SkypeStyleButton
-		override public func colorStyle() -> TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return SkypeStyleButtonAppearanceProxy()
-			}
-		public class SkypeStyleButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
-
-			//MARK: c1 
-			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(SkypeStyle.shared()).Color.black.b1Property(traitCollection)
-				}
 		}
 
 	}
