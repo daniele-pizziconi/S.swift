@@ -9,8 +9,8 @@ public enum Theme: Int {
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.default
-		case .teams: return TeamsStyle.default
+		case .skype: return SkypeStyle.shared()
+		case .teams: return TeamsStyle.shared()
 		}
 	}
 }
@@ -53,34 +53,9 @@ public protocol AppearaceProxyComponent: class {
 /// Entry point for the app stylesheet
 public class TeamsStyle: NSObject {
 
-public static let `default` = TeamsStyle()
-
-	//MARK: - PrimaryButton
-	public var _PrimaryButton: PrimaryButtonAppearanceProxy?
-	open func PrimaryButtonStyle() -> PrimaryButtonAppearanceProxy {
-		if let override = _PrimaryButton { return override }
-			return PrimaryButtonAppearanceProxy()
-		}
-	public var PrimaryButton: PrimaryButtonAppearanceProxy {
-		get { return self.PrimaryButtonStyle() }
-		set { _PrimaryButton = newValue }
-	}
-	public class PrimaryButtonAppearanceProxy: ButtonAppearanceProxy {
-
-		//MARK: - PrimaryButtoncolor
-		override open func colorStyle() -> ButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return PrimaryButtoncolorAppearanceProxy()
-			}
-		public class PrimaryButtoncolorAppearanceProxy: ButtonAppearanceProxy.colorAppearanceProxy {
-
-			//MARK: c1 
-			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(TeamsStyle.default).Color.blackProperty(traitCollection)
-				}
-		}
-
+	class func shared() -> TeamsStyle {
+		 struct __ { static let _sharedInstance = TeamsStyle() }
+		return __._sharedInstance
 	}
 	//MARK: - Color
 	public var _Color: ColorAppearanceProxy?
@@ -133,12 +108,39 @@ public static let `default` = TeamsStyle()
 			public var _c1: UIColor?
 			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(TeamsStyle.default).Color.blackProperty(traitCollection)
+					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.blackProperty(traitCollection)
 				}
 			public var c1: UIColor {
 				get { return self.c1Property() }
 				set { _c1 = newValue }
 			}
+		}
+
+	}
+	//MARK: - PrimaryButton
+	public var _PrimaryButton: PrimaryButtonAppearanceProxy?
+	open func PrimaryButtonStyle() -> PrimaryButtonAppearanceProxy {
+		if let override = _PrimaryButton { return override }
+			return PrimaryButtonAppearanceProxy()
+		}
+	public var PrimaryButton: PrimaryButtonAppearanceProxy {
+		get { return self.PrimaryButtonStyle() }
+		set { _PrimaryButton = newValue }
+	}
+	public class PrimaryButtonAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: - PrimaryButtoncolor
+		override open func colorStyle() -> ButtonAppearanceProxy.colorAppearanceProxy {
+			if let override = _color { return override }
+				return PrimaryButtoncolorAppearanceProxy()
+			}
+		public class PrimaryButtoncolorAppearanceProxy: ButtonAppearanceProxy.colorAppearanceProxy {
+
+			//MARK: c1 
+			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.blackProperty(traitCollection)
+				}
 		}
 
 	}
@@ -149,7 +151,7 @@ extension Button: AppearaceProxyComponent {
 	public typealias ApperanceProxyType = TeamsStyle.ButtonAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return StylesheetManager.stylesheet(TeamsStyle.default).Button }
+			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return StylesheetManager.stylesheet(TeamsStyle.shared()).Button }
 			return proxy
 		}
 		set {

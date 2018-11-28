@@ -6,27 +6,9 @@ import UIKit
 /// Entry point for the app stylesheet
 public class SkypeStyle: TeamsStyle {
 
-	//MARK: - SkypeStylePrimaryButton
-	override public func PrimaryButtonStyle() -> TeamsStyle.PrimaryButtonAppearanceProxy {
-		if let override = _PrimaryButton { return override }
-			return SkypeStylePrimaryButtonAppearanceProxy()
-		}
-	public class SkypeStylePrimaryButtonAppearanceProxy: TeamsStyle.PrimaryButtonAppearanceProxy {
-
-		//MARK: - SkypeStylePrimaryButton
-		override public func colorStyle() -> TeamsStyle.PrimaryButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return SkypeStylePrimaryButtonAppearanceProxy()
-			}
-		public class SkypeStylePrimaryButtonAppearanceProxy: TeamsStyle.PrimaryButtonAppearanceProxy.colorAppearanceProxy {
-
-			//MARK: c1 
-			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return TeamsStyle.defaultColor.blackProperty(traitCollection)
-				}
-		}
-
+	override class func shared() -> SkypeStyle {
+		 struct __ { static let _sharedInstance = SkypeStyle() }
+		return __._sharedInstance
 	}
 	//MARK: - SkypeStyleButton
 	override public func ButtonStyle() -> TeamsStyle.ButtonAppearanceProxy {
@@ -45,7 +27,29 @@ public class SkypeStyle: TeamsStyle {
 			//MARK: c1 
 			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _c1 { return override }
-					return TeamsStyle.defaultColor.blackProperty(traitCollection)
+					return TeamsStyle.shared()Color.blackProperty(traitCollection)
+				}
+		}
+
+	}
+	//MARK: - SkypeStylePrimaryButton
+	override public func PrimaryButtonStyle() -> TeamsStyle.PrimaryButtonAppearanceProxy {
+		if let override = _PrimaryButton { return override }
+			return SkypeStylePrimaryButtonAppearanceProxy()
+		}
+	public class SkypeStylePrimaryButtonAppearanceProxy: TeamsStyle.PrimaryButtonAppearanceProxy {
+
+		//MARK: - SkypeStylePrimaryButton
+		override public func colorStyle() -> TeamsStyle.PrimaryButtonAppearanceProxy.colorAppearanceProxy {
+			if let override = _color { return override }
+				return SkypeStylePrimaryButtonAppearanceProxy()
+			}
+		public class SkypeStylePrimaryButtonAppearanceProxy: TeamsStyle.PrimaryButtonAppearanceProxy.colorAppearanceProxy {
+
+			//MARK: c1 
+			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _c1 { return override }
+					return TeamsStyle.shared()Color.blackProperty(traitCollection)
 				}
 		}
 

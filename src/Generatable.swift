@@ -515,11 +515,6 @@ extension Style: Generatable {
         wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
       }
       
-      if styleClass == "PrimaryButtoncolorAppearanceProxy" {
-//        assert(false, "isNestedOverride: \(isNestedOverride), nestedOverrideName:\(nestedOverrideName), isNestedOverridable: \(isNestedOverridable), nestedSuperclassName: \(nestedSuperclassName)")
-        //isNestedOverride: true, nestedOverrideName:Optional("PrimaryButtoncolor"), isNestedOverridable: true, nestedSuperclassName: Optional("ButtonAppearanceProxy.color")
-      }
-      
       wrapper +=
       "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
       wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
@@ -618,7 +613,7 @@ class Stylesheet {
           }
         
           if let name = name {
-            let stylesheet = superclassName == nil && Generator.Stylesheets.filter({ $0.superclassName == self.name }).count > 0 ? "StylesheetManager.stylesheet(\(name).default)." : "\(name).default"
+            let stylesheet = superclassName == nil && Generator.Stylesheets.filter({ $0.superclassName == self.name }).count > 0 ? "StylesheetManager.stylesheet(\(name).shared())." : "\(name).shared()"
             redirection = "\(stylesheet)\(redirection)"
           }
         }
@@ -788,8 +783,12 @@ extension Stylesheet: Generatable {
     stylesheet += "/// Entry point for the app stylesheet\n"
     stylesheet += "\(objc)public class \(self.name)\(superclass) {\n\n"
     
-    if Configuration.runtimeSwappable && isBaseStylesheet {
-      stylesheet += "public static let `default` = \(self.name)()\n\n"
+    if Configuration.runtimeSwappable {
+      let override = superclassName != nil ? "override " : ""
+      stylesheet += "\t\(override)class func shared() -> \(self.name) {\n"
+      stylesheet += "\t\t struct __ { static let _sharedInstance = \(self.name)() }\n"
+      stylesheet += "\t\treturn __._sharedInstance\n"
+      stylesheet += "\t}\n"
     }
     for style in self.styles {
       stylesheet += style.generate()
@@ -824,7 +823,7 @@ extension Stylesheet: Generatable {
     header += "\n"
     header += "\tpublic var stylesheet: \(baseStyleName.name) {\n"
     header += "\t\tswitch self {\n"
-    cases.forEach({ header += "\t\tcase .\($1): return \($0).default\n" })
+    cases.forEach({ header += "\t\tcase .\($1): return \($0).shared()\n" })
     header += "\t\t}\n"
     header += "\t}\n"
     header += "}\n"
@@ -887,7 +886,7 @@ extension Stylesheet: Generatable {
 
   func generateExtensions() -> String {
     var extensions = ""
-    let stylesheetName = Configuration.runtimeSwappable ? "StylesheetManager.stylesheet(\(name).default)" : name
+    let stylesheetName = Configuration.runtimeSwappable ? "StylesheetManager.stylesheet(\(name).shared())" : name
     for style in styles.filter({ $0.isExtension }) {
       
       if let superclassName = superclassName, let _ = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ $0.name == style.name }).first {
