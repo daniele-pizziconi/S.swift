@@ -607,17 +607,19 @@ class Stylesheet {
       if let rhs = property.rhs, rhs.isRedirect {
         var redirection = rhs.redirection!
         let type = resolveRedirectedType(redirection)
+        
         if Configuration.runtimeSwappable {
-          let components = redirection.components(separatedBy: ".")
           var name: String? = nil
+          let components = redirection.components(separatedBy: ".")
           if let _ = styles.filter({ return $0.name == components[0] }).first {
             name = self.name
           } else if let baseStylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first {
             name = baseStylesheet.name
           }
-          
+        
           if let name = name {
-            redirection = "\(name).default.\(redirection)"
+            let stylesheet = superclassName == nil && Generator.Stylesheets.filter({ $0.superclassName == self.name }).count > 0 ? "StylesheetManager.stylesheet(\(name).default)." : "\(name).default"
+            redirection = "\(stylesheet)\(redirection)"
           }
         }
         property.rhs = RhsValue.redirect(redirection:

@@ -23,7 +23,7 @@ public class SkypeStyle: TeamsStyle {
 			//MARK: c1 
 			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _c1 { return override }
-					return TeamsStyle.default.Color.blackProperty(traitCollection)
+					return TeamsStyle.defaultColor.blackProperty(traitCollection)
 				}
 		}
 
@@ -45,7 +45,7 @@ public class SkypeStyle: TeamsStyle {
 			//MARK: c1 
 			override public func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _c1 { return override }
-					return TeamsStyle.default.Color.blackProperty(traitCollection)
+					return TeamsStyle.defaultColor.blackProperty(traitCollection)
 				}
 		}
 

@@ -4,13 +4,13 @@
 import UIKit
 
 public enum Theme: Int {
-	case teams
 	case skype
+	case teams
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .teams: return TeamsStyle.default
 		case .skype: return SkypeStyle.default
+		case .teams: return TeamsStyle.default
 		}
 	}
 }
@@ -77,7 +77,7 @@ public static let `default` = TeamsStyle()
 			//MARK: c1 
 			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _c1 { return override }
-					return TeamsStyle.default.Color.blackProperty(traitCollection)
+					return StylesheetManager.stylesheet(TeamsStyle.default).Color.blackProperty(traitCollection)
 				}
 		}
 
@@ -133,7 +133,7 @@ public static let `default` = TeamsStyle()
 			public var _c1: UIColor?
 			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _c1 { return override }
-					return TeamsStyle.default.Color.blackProperty(traitCollection)
+					return StylesheetManager.stylesheet(TeamsStyle.default).Color.blackProperty(traitCollection)
 				}
 			public var c1: UIColor {
 				get { return self.c1Property() }
