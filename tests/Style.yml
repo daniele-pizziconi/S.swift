@@ -1,9 +1,5 @@
 Color:
-  black: [b01: "#aabbcc", b02: "#aabbcc"]
+  red: [r01: "#aaaaaa"]
 
-@appearance_proxy @open TestView:
-  backgroundColor: $Color.black.b01
-  textColor: [normal: $Color.black.b01]
-
-@appearance_proxy BetterView extends TestView:
-  textColor: [normal: $Color.black.b02]
+@appearance_proxy FooView:
+  backgroundColor: $Color.red.r01

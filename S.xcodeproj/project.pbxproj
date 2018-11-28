@@ -21,6 +21,7 @@
 		16F9E0391C772AAC0083C55D /* S.h in Headers */ = {isa = PBXBuildFile; fileRef = 16F9E0381C772AAC0083C55D /* S.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16F9E0561C772AD30083C55D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E0551C772AD30083C55D /* main.swift */; };
 		16F9E05B1C772B080083C55D /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E05A1C772B080083C55D /* Yaml.swift */; };
+		6405DC1121ACBC7E00C72B4B /* StyleDark.yml in Resources */ = {isa = PBXBuildFile; fileRef = 6405DC1021ACBC7D00C72B4B /* StyleDark.yml */; };
 		64539E3421AB4A8100482BB6 /* Generatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1646022F1C77334800FC9992 /* Generatable.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,13 +44,15 @@
 		168354421C808BA8008EA29F /* Condition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Condition.swift; sourceTree = "<group>"; };
 		16AC37191C7772EE00F61BE9 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		16AC371B1C78C69B00F61BE9 /* Rhs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rhs.swift; sourceTree = "<group>"; };
-		16F8FAE41C78D9F40055BA8F /* Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
+		16F8FAE41C78D9F40055BA8F /* Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; tabWidth = 2; };
 		16F9E0351C772AAC0083C55D /* S.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = S.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F9E0381C772AAC0083C55D /* S.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = S.h; sourceTree = "<group>"; };
 		16F9E03A1C772AAC0083C55D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		16F9E0531C772AD30083C55D /* sgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sgen; sourceTree = BUILT_PRODUCTS_DIR; };
-		16F9E0551C772AD30083C55D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		16F9E0551C772AD30083C55D /* main.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; tabWidth = 2; };
 		16F9E05A1C772B080083C55D /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Yaml.swift; sourceTree = "<group>"; };
+		6405DC1021ACBC7D00C72B4B /* StyleDark.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StyleDark.yml; sourceTree = "<group>"; };
+		6405DC1221ACBD8B00C72B4B /* StyleDark.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StyleDark.generated.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +77,8 @@
 			isa = PBXGroup;
 			children = (
 				164CA2801EB5E44D0014ED69 /* Style.generated.swift */,
+				6405DC1221ACBD8B00C72B4B /* StyleDark.generated.swift */,
+				6405DC1021ACBC7D00C72B4B /* StyleDark.yml */,
 				164CA2811EB5E44D0014ED69 /* Style.yml */,
 			);
 			path = tests;
@@ -214,6 +219,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6405DC1121ACBC7E00C72B4B /* StyleDark.yml in Resources */,
 				164CA2841EB5E44D0014ED69 /* Style.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,12 +233,14 @@
 			files = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/tests/Style.yaml",
+				"$(SRCROOT)/tests/StyleDark.yaml",
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$SRCROOT/sgen $SRCROOT --platform ios --appearance_proxy --app_extension\n";
+			shellScript = "$SRCROOT/sgen $SRCROOT --files Style.yml StyleDark.yml --names StyleGeneric StyleDark:StyleGeneric --platform ios --appearance_proxy --app_extension --runtime_swappable\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

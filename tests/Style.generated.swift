@@ -9,6 +9,12 @@ public class Application {
 	}
 }
 
+public class Stylesheet {
+	@objc dynamic public class func stylesheet(_ stylesheet: StyleGeneric) -> StyleGeneric {
+		return stylesheet
+	}
+}
+
 fileprivate var __ApperanceProxyHandle: UInt8 = 0
 
 /// Your view should conform to 'AppearaceProxyComponent'.
@@ -19,123 +25,78 @@ public protocol AppearaceProxyComponent: class {
 }
 
 /// Entry point for the app stylesheet
-public class S {
+public class StyleGeneric: NSObject {
 
-	//MARK: - BetterView
-	public static let BetterView = BetterViewAppearanceProxy()
-	public class BetterViewAppearanceProxy: TestViewAppearanceProxy {
+public static let `default` = StyleGeneric()
 
-		//MARK: - BetterViewtextColor
-		override public func textColorStyle() -> TestViewAppearanceProxy.textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return BetterViewtextColorAppearanceProxy()
-			}
-		public class BetterViewtextColorAppearanceProxy: TestViewAppearanceProxy.textColorAppearanceProxy {
-
-			//MARK: normal 
-			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return Color.black.b02Property(traitCollection)
-				}
-		}
-
-	}
 	//MARK: - Color
-	public static let Color = ColorAppearanceProxy()
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
 	public class ColorAppearanceProxy {
 
-		//MARK: - black
-		public let black = blackAppearanceProxy()
-		public class blackAppearanceProxy {
-
-			//MARK: b01 
-			fileprivate var _b01: UIColor?
-			public func b01Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b01 { return override }
-					return UIColor(red: 0.6666667, green: 0.73333335, blue: 0.8, alpha: 1.0)
-				}
-			public var b01: UIColor {
-				get { return self.b01Property() }
-				set { _b01 = newValue }
+		//MARK: - red
+		public var _red: redAppearanceProxy?
+		open func redStyle() -> redAppearanceProxy {
+			if let override = _red { return override }
+				return redAppearanceProxy()
 			}
+		public var red: redAppearanceProxy {
+			get { return self.redStyle() }
+			set { _red = newValue }
+		}
+		public class redAppearanceProxy {
 
-			//MARK: b02 
-			fileprivate var _b02: UIColor?
-			public func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b02 { return override }
-					return UIColor(red: 0.6666667, green: 0.73333335, blue: 0.8, alpha: 1.0)
+			//MARK: r01 
+			public var _r01: UIColor?
+			open func r01Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _r01 { return override }
+					return UIColor(red: 0.6666667, green: 0.6666667, blue: 0.6666667, alpha: 1.0)
 				}
-			public var b02: UIColor {
-				get { return self.b02Property() }
-				set { _b02 = newValue }
+			public var r01: UIColor {
+				get { return self.r01Property() }
+				set { _r01 = newValue }
 			}
 		}
 
 	}
-	//MARK: - TestView
-	public static let TestView = TestViewAppearanceProxy()
-	open class TestViewAppearanceProxy {
-		public init() {}
+	//MARK: - FooView
+	public var _FooView: FooViewAppearanceProxy?
+	open func FooViewStyle() -> FooViewAppearanceProxy {
+		if let override = _FooView { return override }
+			return FooViewAppearanceProxy()
+		}
+	public var FooView: FooViewAppearanceProxy {
+		get { return self.FooViewStyle() }
+		set { _FooView = newValue }
+	}
+	public class FooViewAppearanceProxy {
 
 		//MARK: backgroundColor 
 		public var _backgroundColor: UIColor?
 		open func backgroundColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 			if let override = _backgroundColor { return override }
-			return Color.black.b01Property(traitCollection)
+			return StyleGeneric.default.Color.red.r01Property(traitCollection)
 			}
 		public var backgroundColor: UIColor {
 			get { return self.backgroundColorProperty() }
 			set { _backgroundColor = newValue }
 		}
-
-		//MARK: - textColor
-		public var _textColor: textColorAppearanceProxy?
-		open func textColorStyle() -> textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return textColorAppearanceProxy()
-			}
-		public var textColor: textColorAppearanceProxy {
-			get { return self.textColorStyle() }
-			set { _textColor = newValue }
-		}
-		public class textColorAppearanceProxy {
-
-			//MARK: normal 
-			fileprivate var _normal: UIColor?
-			public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return Color.black.b01Property(traitCollection)
-				}
-			public var normal: UIColor {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-		}
-
 	}
 
 }
-extension BetterView: AppearaceProxyComponent {
+extension FooView: AppearaceProxyComponent {
 
-	public typealias ApperanceProxyType = S.BetterViewAppearanceProxy
+	public typealias ApperanceProxyType = StyleGeneric.FooViewAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return S.BetterView }
-			return proxy
-		}
-		set {
-			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			didChangeAppearanceProxy()
-		}
-	}
-}
-
-extension TestView: AppearaceProxyComponent {
-
-	public typealias ApperanceProxyType = S.TestViewAppearanceProxy
-	public var appearanceProxy: ApperanceProxyType {
-		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return S.TestView }
+			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return Stylesheet.stylesheet(StyleGeneric.default).FooView }
 			return proxy
 		}
 		set {

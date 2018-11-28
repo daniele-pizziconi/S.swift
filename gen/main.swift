@@ -55,25 +55,34 @@ func destination(file: String) -> String {
   return p
 }
 
-func generate(file: String) {
-  let url = NSURL(fileURLWithPath: file)
-  if url.absoluteString!.contains(".swiftlint.yml") || url.absoluteString!.hasPrefix(".") {
-    return
+func generate(files: [String]) {
+  var urls = [URL]()
+  for file in files {
+    let url = URL(fileURLWithPath: file)
+    if url.absoluteString.contains(".swiftlint.yml") || url.absoluteString.hasPrefix(".") {
+      continue
+    }
+    urls.append(url)
   }
-  let generator = try! Generator(url: url as URL)
-  let payload = generator.generate()
-  let dest = destination(file: file)
-  rm(file: dest)
-  //touch(dest)
-  sleep(1)
-  try! payload.write(toFile: dest, atomically: true, encoding: String.Encoding.utf8)
-  print("\(dest) generated.")
+  
+  let generator = try! Generator(urls: urls)
+  let payloads = generator.generate()
+  for i in 0..<payloads.count {
+    let payload = payloads[i]
+    let file = files[i]
+    let dest = destination(file: file)
+    rm(file: dest)
+    //touch(dest)
+    sleep(1)
+    try! payload.write(toFile: dest, atomically: true, encoding: String.Encoding.utf8)
+    print("\(dest) generated.")
+  }
 }
 
 var args = [String](CommandLine.arguments)
 if args.count == 1 {
   print("\n")
-  print("usage: sgen PROJECT_PATH (--file FILENAME) --name STYLESHEET_NAME (--platform ios|osx) (--appearance_proxy internal|public) (--app_extension) (--objc) --import FRAMEWORKS")
+  print("usage: sgen PROJECT_PATH (--file FILENAME) --name STYLESHEET_NAME (--platform ios|osx) (--appearance_proxy internal|public) (--app_extension) (--objc) --import FRAMEWORKS (--runtime_swappable)")
   print("--file: If you're targetting one single file.")
   print("--name: The default is S.")
   print("--platform: use the **platform** argument to target the desired platform. The default one is **ios**")
@@ -104,13 +113,30 @@ if args.contains("--platform") && args.contains("osx") {
 }
 if args.contains("--file") {
   if let idx = args.index(of: "--file") {
-    Configuration.singleFile = args[idx+1]
+    Configuration.files = [args[idx+1]]
   }
+}
+if args.contains("--files") {
+    if var idx = args.index(of: "--files") {
+        while !args[idx+1].starts(with: "--") && idx < args.count {
+            Configuration.files.append(args[idx+1])
+            idx = idx.advanced(by: 1)
+        }
+    }
 }
 if args.contains("--name") {
   if let idx = args.index(of: "--name") {
-    Configuration.stylesheetName = args[idx+1]
+    Configuration.stylesheetNames = [args[idx+1]]
   }
+}
+if args.contains("--names") {
+    if var idx = args.index(of: "--names") {
+        Configuration.stylesheetNames = []
+        while !args[idx+1].starts(with: "--") && idx < args.count {
+            Configuration.stylesheetNames.append(args[idx+1])
+            idx = idx.advanced(by: 1)
+        }
+    }
 }
 if args.contains("--import") {
   if let idx = args.index(of: "--import") {
@@ -118,15 +144,18 @@ if args.contains("--import") {
   }
 }
 
+if args.contains("--runtime_swappable") {
+  Configuration.runtimeSwappable = true
+}
+
 let path = args[1]
 let files = search(basePath: path)
+var filesToGenerate = [String]()
 for file in files {
-  if let target = Configuration.singleFile {
-    if file.hasSuffix(target) {
-      generate(file: file)
-      break
-    }
-  } else {
-    generate(file: file)
+  if let _ = Configuration.files.filter({ file.hasSuffix($0) }).first {
+      filesToGenerate.append(file)
+  } else if Configuration.files.count == 0 {
+    filesToGenerate.append(file)
   }
 }
+generate(files: filesToGenerate)

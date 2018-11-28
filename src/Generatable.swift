@@ -485,7 +485,7 @@ class Style {
 
 extension Style: Generatable {
 
-func generate(_ isNested: Bool = false) -> String {
+  public func generate(_ isNested: Bool = false) -> String {
     
     let indentation = isNested ? "\t\t" : "\t"
     var wrapper = isNested ? "\n\n" + indentation : indentation
@@ -560,11 +560,16 @@ class Stylesheet {
 
   let name: String
   let styles: [Style]
+  let superclassName: String?
 
-  init(name: String, styles: [Style]) {
+  init(name: String, styles: [Style], superclassName: String? = nil) {
 
     self.name = name
     self.styles = styles
+    self.superclassName = superclassName
+  }
+  
+  fileprivate func prepareGenerator() {
     // Resolve the type for the redirected values.
     styles.forEach({ resolveRedirection($0) })
     // Mark the overrides.
@@ -578,13 +583,28 @@ class Stylesheet {
     for style in duplicates where !style.isNestedOverride {
       style.isNestedOverridable = true
     }
+    
+    if (superclassName == nil && Generator.Stylesheets.filter { (stylesheet) -> Bool in
+      guard let superclassName = stylesheet.superclassName, superclassName == name else { return false }
+      return true
+      }.count > 0) {
+      for style in styles {
+        style.isNestedOverridable = true
+        style.properties.flatMap({ $0.style }).forEach({ $0.isNestedOverridable = true })
+        style.properties.flatMap({ $0.style }).flatMap({ $0.properties }).forEach({ $0.isOverridable = true })
+        style.properties.forEach({ $0.isOverridable = true })
+      }
+    }
   }
   
   fileprivate func resolveRedirection(_ style: Style) {
     for property in style.properties {
       if let rhs = property.rhs, rhs.isRedirect {
-        let redirection = rhs.redirection!
+        var redirection = rhs.redirection!
         let type = resolveRedirectedType(redirection)
+        if Configuration.runtimeSwappable && superclassName == nil && Generator.Stylesheets.filter({ return $0.superclassName == name }).count > 0 {
+          redirection = "\(name).default.\(redirection)"
+        }
         property.rhs = RhsValue.redirect(redirection:
           RhsRedirectValue(redirection: redirection, type: type))
       }
@@ -595,12 +615,43 @@ class Stylesheet {
     }
   }
   
+  fileprivate func markOverridables(_ style: Style) {
+    guard superclassName != nil else { return }
+    
+    if let _ = Generator.Stylesheets.filter({ $0.superclassName == nil }).flatMap({ $0.styles }).filter({ $0.name == style.name }).first {
+      style.isNestedOverridable = true
+      style.properties.forEach({ $0.isOverridable = true })
+    }
+  }
+  
   fileprivate func markOverrides(_ style: Style, superclassName: String?) {
-    for property in style.properties {
-      if let superclassName = superclassName {
-        property.isOverride = self.propertyIsOverride(property.key,
-                                                      superclass: superclassName)
+    
+    //check if the style is an override from a generic base stylesheet
+    if let baseSuperclassName = self.superclassName, let baseStylesheet = Generator.Stylesheets.filter({ return $0.name == baseSuperclassName }).first {
+      if let superStyle = baseStylesheet.styles.filter({ return $0.name == style.name }).first {
+        style.isNestedOverride = true
+        style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)"
+        style.nestedOverrideName = "\(name)\(style.name)"
+        
+        for nestedStyle in style.properties.flatMap({ $0.style }) {
+          nestedStyle.isNestedOverride = true
+          nestedStyle.nestedSuperclassName = "\(style.nestedSuperclassName!)AppearanceProxy.\(nestedStyle.name)"
+          nestedStyle.nestedOverrideName = "\(style.nestedOverrideName!)\(nestedStyle.name)"
+          markOverrides(nestedStyle, superclassName: nil)
+        }
       }
+      for superStyle in baseStylesheet.styles {
+        for property in style.properties {
+          if let nestedStyle = property.style, nestedStyle.name == style.name {
+            style.isNestedOverride = true
+            style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle).\(superStyle.name)"
+            style.nestedOverrideName = "\(name)\(style.name)"
+          }
+        }
+      }
+    }
+    
+    for property in style.properties {
       if let nestedStyle = property.style {
         let (isOverride, superclassName, styleName) = styleIsOverride(nestedStyle, superStyle: style)
         if let styleName = styleName, let superclassName = superclassName, isOverride {
@@ -610,6 +661,8 @@ class Stylesheet {
         }
         markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
       }
+      
+      property.isOverride = propertyIsOverride(property.key, superclass: superclassName, nestedSuperclassName: style.nestedSuperclassName)
     }
   }
   
@@ -631,8 +684,22 @@ class Stylesheet {
   }
   
   // Determines if this property is an override or not.
-  fileprivate func propertyIsOverride(_ property: String, superclass: String) -> Bool {
-
+  fileprivate func propertyIsOverride(_ property: String, superclass: String?, nestedSuperclassName: String?) -> Bool {
+    
+    if let nestedSuperclassName = nestedSuperclassName, let components = Optional(nestedSuperclassName.components(separatedBy: ".")), components.count > 1, let baseStylesheet = Generator.Stylesheets.filter({ $0.name == components.first }).first {
+      if components.count == 2 {
+        if let _ = baseStylesheet.styles.filter({ $0.name == components.last }).first?.properties.filter({ return $0.key == property }).first {
+          return true
+        }
+      } else {
+        let style = components[1].replacingOccurrences(of: "AppearanceProxy", with: "");
+        let nestedStyle = components[2].replacingOccurrences(of: "AppearanceProxy", with: "");
+        if let _ = baseStylesheet.styles.filter({ $0.name == style }).first?.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle }).first?.properties.filter({ return $0.key == property }).first {
+          return true
+        }
+      }
+    }
+    guard let superclass = superclass else { return false }
     guard let style = self.styles.filter({ return $0.name == superclass }).first else {
       if let components = Optional(superclass.components(separatedBy: ".")), components.count == 2 {
         return true
@@ -643,11 +710,7 @@ class Stylesheet {
     if let _ = style.properties.filter({ return $0.key == property }).first {
       return true
     } else {
-      if let s = style.superclassName {
-        return propertyIsOverride(property, superclass: s)
-      } else {
-        return false
-      }
+      return propertyIsOverride(property, superclass: style.superclassName, nestedSuperclassName: style.nestedSuperclassName)
     }
   }
 
@@ -677,11 +740,16 @@ class Stylesheet {
 
 extension Stylesheet: Generatable {
 
-  func generate(_ nested: Bool = false) -> String {
+  public func generate(_ nested: Bool = false) -> String {
+    prepareGenerator()
+    
     var stylesheet = ""
     let objc = Configuration.objcGeneration ? "@objc " : ""
-    let superclass = Configuration.objcGeneration ? ": NSObject" : ""
+    var superclass = Configuration.objcGeneration || Configuration.runtimeSwappable ? ": NSObject" : ""
     let importDef = Configuration.targetOsx ? "Cocoa" : "UIKit"
+    let isBaseStylesheet = superclassName == nil
+    
+    if let s = superclassName { superclass = ": \(s)" }
 
     stylesheet += "/// Autogenerated file\n"
     stylesheet += "\n// swiftlint:disable all\n"
@@ -689,14 +757,25 @@ extension Stylesheet: Generatable {
     if let namespace = Configuration.importFrameworks {
       stylesheet += "import \(namespace)\n\n"
     }
-    if Configuration.appExtensionApiOnly {
-      stylesheet += self.generateAppExtensionApplicationHeader()
+    
+    if isBaseStylesheet {
+      if Configuration.appExtensionApiOnly {
+        stylesheet += self.generateAppExtensionApplicationHeader()
+      }
+      if Configuration.runtimeSwappable {
+        stylesheet += self.generateRuntimeSwappableHeader()
+      }
+      if Configuration.extensionsEnabled {
+        stylesheet += self.generateExtensionsHeader()
+      }
     }
-    if Configuration.extensionsEnabled {
-      stylesheet += self.generateExtensionsHeader()
-    }
+    
     stylesheet += "/// Entry point for the app stylesheet\n"
     stylesheet += "\(objc)public class \(self.name)\(superclass) {\n\n"
+    
+    if Configuration.runtimeSwappable && isBaseStylesheet {
+      stylesheet += "public static let `default` = \(self.name)()\n\n"
+    }
     for style in self.styles {
       stylesheet += style.generate()
     }
@@ -717,6 +796,17 @@ extension Stylesheet: Generatable {
     header += "}\n\n"
     return header
   }
+  
+  func generateRuntimeSwappableHeader() -> String {
+    var header = ""
+    header += "public class Stylesheet {\n"
+    header +=
+    "\t@objc dynamic public class func stylesheet(_ stylesheet: \(name)) -> \(name) {\n"
+    header += "\t\treturn stylesheet\n"
+    header += "\t}\n"
+    header += "}\n\n"
+    return header
+  }
 
   func generateExtensionsHeader() -> String {
     let visibility = "fileprivate"
@@ -733,18 +823,19 @@ extension Stylesheet: Generatable {
 
   func generateExtensions() -> String {
     var extensions = ""
+    let stylesheetName = Configuration.runtimeSwappable ? "Stylesheet.stylesheet(\(name).default)" : name
     for style in self.styles.filter({ $0.isExtension }) {
       let visibility = Configuration.publicExtensions ? "public" : ""
 
       extensions += "\nextension \(style.name): AppearaceProxyComponent {\n\n"
       extensions +=
         "\t\(visibility) typealias ApperanceProxyType = "
-        + "\(Configuration.stylesheetName).\(style.name)AppearanceProxy\n"
+        + "\(name).\(style.name)AppearanceProxy\n"
       extensions += "\t\(visibility) var appearanceProxy: ApperanceProxyType {\n"
       extensions += "\t\tget {\n"
       extensions +=
         "\t\t\tguard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) "
-        + "as? ApperanceProxyType else { return \(Configuration.stylesheetName).\(style.name) }\n"
+        + "as? ApperanceProxyType else { return \(stylesheetName).\(style.name) }\n"
       extensions += "\t\t\treturn proxy\n"
       extensions += "\t\t}\n"
       extensions += "\t\tset {\n"
