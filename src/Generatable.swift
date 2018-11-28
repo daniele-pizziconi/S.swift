@@ -613,7 +613,7 @@ class Stylesheet {
           }
         
           if let name = name {
-            let stylesheet = Generator.Stylesheets.filter({ $0.superclassName != nil }).count > 0 ? "StylesheetManager.stylesheet(\(name).shared())." : "\(name).shared()."
+            let stylesheet = Generator.Stylesheets.filter({ $0.superclassName != nil }).count > 0 ? "\(name).shared()." : "\(name).shared()."
             redirection = "\(stylesheet)\(redirection)"
           }
         }
