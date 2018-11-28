@@ -613,7 +613,7 @@ class Stylesheet {
           }
         
           if let name = name {
-            let stylesheet = superclassName == nil && Generator.Stylesheets.filter({ $0.superclassName == self.name }).count > 0 ? "StylesheetManager.stylesheet(\(name).shared())." : "\(name).shared()"
+            let stylesheet = Generator.Stylesheets.filter({ $0.superclassName != nil }).count > 0 ? "StylesheetManager.stylesheet(\(name).shared())." : "\(name).shared()."
             redirection = "\(stylesheet)\(redirection)"
           }
         }
@@ -724,22 +724,33 @@ class Stylesheet {
     let components = redirection.components(separatedBy: ".")
     assert(components.count == 2 || components.count == 3, "Redirect \(redirection) invalid")
   
-    var style = styles.filter({ return $0.name == components[0] }).first
-    if style == nil {
-      style = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ return $0.name == components[0] }).first
-    }
-    var property: Property
-    if components.count == 2 {
-      property = style!.properties.filter() { return $0.key == components[1] }.first!
-    } else {
-      let nestedStyleProperty = style!.properties.filter() { return $0.style?.name == components[1] }.first!.style!
-      property = nestedStyleProperty.properties.filter() { return $0.key == components[2] }.first!
+    
+    var property: Property? = nil
+    //first search in its own styles
+    let style = styles.filter({ return $0.name == components[0] }).first
+    if style != nil {
+      if components.count == 2, let prop = style!.properties.filter({ return $0.key == components[1] }).first {
+        property = prop
+      } else if components.count == 3, let nestedStyleProperty = style!.properties.filter({ return $0.style?.name == components[1] }).first?.style, let prop = nestedStyleProperty.properties.filter({ return $0.key == components[2] }).first {
+        property = prop
+      }
     }
     
-    if let rhs = property.rhs, rhs.isRedirect {
-      return resolveRedirectedType(property.rhs!.redirection!)
+    //search in basestylesheet
+    if property == nil {
+      if let style = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ return $0.name == components[0] }).first {
+        if components.count == 2, let prop = style.properties.filter({ return $0.key == components[1] }).first {
+          property = prop
+        } else if components.count == 3, let nestedStyleProperty = style.properties.filter({ return $0.style?.name == components[1] }).first?.style, let prop = nestedStyleProperty.properties.filter({ return $0.key == components[2] }).first {
+          property = prop
+        }
+      }
+    }
+    
+    if let rhs = property!.rhs, rhs.isRedirect {
+      return resolveRedirectedType(property!.rhs!.redirection!)
     } else {
-      return property.rhs!.returnValue()
+      return property!.rhs!.returnValue()
     }
   }
 }

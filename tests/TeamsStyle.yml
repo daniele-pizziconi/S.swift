@@ -1,8 +1,5 @@
 Color:
-  black: "#252423"
+  black: [b1: "#252423"]
 
 @appearance_proxy Button:
-  color: [c1: $Color.black]
-
-PrimaryButton extends Button:
-  color: [c1: $Color.black]
+  color: [c1: $Color.black.b1]
