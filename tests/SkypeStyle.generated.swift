@@ -4,21 +4,21 @@
 import UIKit
 
 /// Entry point for the app stylesheet
-public class StyleDark: StyleGeneric {
+public class SkypeStyle: TeamsStyle {
 
-	//MARK: - StyleDarkColor
-	override public func ColorStyle() -> StyleGeneric.ColorAppearanceProxy {
+	//MARK: - SkypeStyleColor
+	override public func ColorStyle() -> TeamsStyle.ColorAppearanceProxy {
 		if let override = _Color { return override }
-			return StyleDarkColorAppearanceProxy()
+			return SkypeStyleColorAppearanceProxy()
 		}
-	public class StyleDarkColorAppearanceProxy: StyleGeneric.ColorAppearanceProxy {
+	public class SkypeStyleColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy {
 
-		//MARK: - StyleDarkColorred
-		override public func redStyle() -> StyleGeneric.ColorAppearanceProxy.redAppearanceProxy {
+		//MARK: - SkypeStyleColorred
+		override public func redStyle() -> TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
 			if let override = _red { return override }
-				return StyleDarkColorredAppearanceProxy()
+				return SkypeStyleColorredAppearanceProxy()
 			}
-		public class StyleDarkColorredAppearanceProxy: StyleGeneric.ColorAppearanceProxy.redAppearanceProxy {
+		public class SkypeStyleColorredAppearanceProxy: TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
 
 			//MARK: r01 
 			override public func r01Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {

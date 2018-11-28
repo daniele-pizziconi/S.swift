@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		164CA2841EB5E44D0014ED69 /* Style.yml in Resources */ = {isa = PBXBuildFile; fileRef = 164CA2811EB5E44D0014ED69 /* Style.yml */; };
+		164CA2841EB5E44D0014ED69 /* TeamsStyle.yml in Resources */ = {isa = PBXBuildFile; fileRef = 164CA2811EB5E44D0014ED69 /* TeamsStyle.yml */; };
 		164DC70A1C7F565900859EC0 /* Rhs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AC371B1C78C69B00F61BE9 /* Rhs.swift */; };
 		164DC70D1C7F568C00859EC0 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F8FAE41C78D9F40055BA8F /* Generator.swift */; };
 		164DC70E1C7F569100859EC0 /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E05A1C772B080083C55D /* Yaml.swift */; };
@@ -21,7 +21,7 @@
 		16F9E0391C772AAC0083C55D /* S.h in Headers */ = {isa = PBXBuildFile; fileRef = 16F9E0381C772AAC0083C55D /* S.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		16F9E0561C772AD30083C55D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E0551C772AD30083C55D /* main.swift */; };
 		16F9E05B1C772B080083C55D /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E05A1C772B080083C55D /* Yaml.swift */; };
-		6405DC1121ACBC7E00C72B4B /* StyleDark.yml in Resources */ = {isa = PBXBuildFile; fileRef = 6405DC1021ACBC7D00C72B4B /* StyleDark.yml */; };
+		6405DC1121ACBC7E00C72B4B /* SkypeStyle.yml in Resources */ = {isa = PBXBuildFile; fileRef = 6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */; };
 		64539E3421AB4A8100482BB6 /* Generatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1646022F1C77334800FC9992 /* Generatable.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,8 +39,8 @@
 
 /* Begin PBXFileReference section */
 		1646022F1C77334800FC9992 /* Generatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Generatable.swift; sourceTree = "<group>"; tabWidth = 2; };
-		164CA2801EB5E44D0014ED69 /* Style.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Style.generated.swift; sourceTree = "<group>"; };
-		164CA2811EB5E44D0014ED69 /* Style.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Style.yml; sourceTree = "<group>"; };
+		164CA2801EB5E44D0014ED69 /* TeamsStyle.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamsStyle.generated.swift; sourceTree = "<group>"; };
+		164CA2811EB5E44D0014ED69 /* TeamsStyle.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TeamsStyle.yml; sourceTree = "<group>"; };
 		168354421C808BA8008EA29F /* Condition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Condition.swift; sourceTree = "<group>"; };
 		16AC37191C7772EE00F61BE9 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		16AC371B1C78C69B00F61BE9 /* Rhs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rhs.swift; sourceTree = "<group>"; };
@@ -51,8 +51,8 @@
 		16F9E0531C772AD30083C55D /* sgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sgen; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F9E0551C772AD30083C55D /* main.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; tabWidth = 2; };
 		16F9E05A1C772B080083C55D /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Yaml.swift; sourceTree = "<group>"; };
-		6405DC1021ACBC7D00C72B4B /* StyleDark.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StyleDark.yml; sourceTree = "<group>"; };
-		6405DC1221ACBD8B00C72B4B /* StyleDark.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StyleDark.generated.swift; sourceTree = "<group>"; };
+		6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SkypeStyle.yml; sourceTree = "<group>"; };
+		6405DC1221ACBD8B00C72B4B /* SkypeStyle.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkypeStyle.generated.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,10 +76,10 @@
 		164CA27E1EB5E44D0014ED69 /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				164CA2801EB5E44D0014ED69 /* Style.generated.swift */,
-				6405DC1221ACBD8B00C72B4B /* StyleDark.generated.swift */,
-				6405DC1021ACBC7D00C72B4B /* StyleDark.yml */,
-				164CA2811EB5E44D0014ED69 /* Style.yml */,
+				164CA2801EB5E44D0014ED69 /* TeamsStyle.generated.swift */,
+				6405DC1221ACBD8B00C72B4B /* SkypeStyle.generated.swift */,
+				6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */,
+				164CA2811EB5E44D0014ED69 /* TeamsStyle.yml */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -219,8 +219,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6405DC1121ACBC7E00C72B4B /* StyleDark.yml in Resources */,
-				164CA2841EB5E44D0014ED69 /* Style.yml in Resources */,
+				6405DC1121ACBC7E00C72B4B /* SkypeStyle.yml in Resources */,
+				164CA2841EB5E44D0014ED69 /* TeamsStyle.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,7 +240,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$SRCROOT/sgen $SRCROOT --files Style.yml StyleDark.yml --names StyleGeneric StyleDark:StyleGeneric --platform ios --appearance_proxy --app_extension --runtime_swappable\n";
+			shellScript = "$SRCROOT/sgen $SRCROOT --files TeamsStyle.yml SkypeStyle.yml --names TeamsStyle SkypeStyle:TeamsStyle --platform ios --appearance_proxy --app_extension --runtime_swappable\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

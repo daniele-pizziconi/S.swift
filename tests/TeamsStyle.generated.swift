@@ -10,7 +10,7 @@ public class Application {
 }
 
 public class Stylesheet {
-	@objc dynamic public class func stylesheet(_ stylesheet: StyleGeneric) -> StyleGeneric {
+	@objc dynamic public class func stylesheet(_ stylesheet: TeamsStyle) -> TeamsStyle {
 		return stylesheet
 	}
 }
@@ -25,10 +25,33 @@ public protocol AppearaceProxyComponent: class {
 }
 
 /// Entry point for the app stylesheet
-public class StyleGeneric: NSObject {
+public class TeamsStyle: NSObject {
 
-public static let `default` = StyleGeneric()
+public static let `default` = TeamsStyle()
 
+	//MARK: - FooView
+	public var _FooView: FooViewAppearanceProxy?
+	open func FooViewStyle() -> FooViewAppearanceProxy {
+		if let override = _FooView { return override }
+			return FooViewAppearanceProxy()
+		}
+	public var FooView: FooViewAppearanceProxy {
+		get { return self.FooViewStyle() }
+		set { _FooView = newValue }
+	}
+	public class FooViewAppearanceProxy {
+
+		//MARK: backgroundColor 
+		public var _backgroundColor: UIColor?
+		open func backgroundColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _backgroundColor { return override }
+			return TeamsStyle.default.Color.red.r01Property(traitCollection)
+			}
+		public var backgroundColor: UIColor {
+			get { return self.backgroundColorProperty() }
+			set { _backgroundColor = newValue }
+		}
+	}
 	//MARK: - Color
 	public var _Color: ColorAppearanceProxy?
 	open func ColorStyle() -> ColorAppearanceProxy {
@@ -66,37 +89,14 @@ public static let `default` = StyleGeneric()
 		}
 
 	}
-	//MARK: - FooView
-	public var _FooView: FooViewAppearanceProxy?
-	open func FooViewStyle() -> FooViewAppearanceProxy {
-		if let override = _FooView { return override }
-			return FooViewAppearanceProxy()
-		}
-	public var FooView: FooViewAppearanceProxy {
-		get { return self.FooViewStyle() }
-		set { _FooView = newValue }
-	}
-	public class FooViewAppearanceProxy {
-
-		//MARK: backgroundColor 
-		public var _backgroundColor: UIColor?
-		open func backgroundColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _backgroundColor { return override }
-			return StyleGeneric.default.Color.red.r01Property(traitCollection)
-			}
-		public var backgroundColor: UIColor {
-			get { return self.backgroundColorProperty() }
-			set { _backgroundColor = newValue }
-		}
-	}
 
 }
 extension FooView: AppearaceProxyComponent {
 
-	public typealias ApperanceProxyType = StyleGeneric.FooViewAppearanceProxy
+	public typealias ApperanceProxyType = TeamsStyle.FooViewAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return Stylesheet.stylesheet(StyleGeneric.default).FooView }
+			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return Stylesheet.stylesheet(TeamsStyle.default).FooView }
 			return proxy
 		}
 		set {

@@ -151,11 +151,16 @@ if args.contains("--runtime_swappable") {
 let path = args[1]
 let files = search(basePath: path)
 var filesToGenerate = [String]()
-for file in files {
-  if let _ = Configuration.files.filter({ file.hasSuffix($0) }).first {
-      filesToGenerate.append(file)
-  } else if Configuration.files.count == 0 {
+
+if Configuration.files.count == 0 {
+  for file in files {
     filesToGenerate.append(file)
+  }
+} else {
+  for target in Configuration.files {
+    if let file = files.filter({ $0.hasSuffix(target) }).first {
+      filesToGenerate.append(file)
+    }
   }
 }
 generate(files: filesToGenerate)
