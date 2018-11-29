@@ -906,22 +906,42 @@ extension Stylesheet: Generatable {
 
   func generateExtensionsHeader() -> String {
     let visibility = "fileprivate"
+    let themeHandler = Configuration.runtimeSwappable && Generator.Stylesheets.filter({ $0.superclassName == name }).count > 0
     var header = ""
-    header += "\(visibility) var __ApperanceProxyHandle: UInt8 = 0\n\n"
-    header += "\(visibility) var __ThemeAwareHandle: UInt8 = 0\n\n"
+    header += "\(visibility) var __ApperanceProxyHandle: UInt8 = 0\n"
+    if themeHandler {
+      header += "\(visibility) var __ThemeAwareHandle: UInt8 = 0\n"
+      header += "\(visibility) var __ObservingDidChangeThemeHandle: UInt8 = 0\n\n"
+    } else {
+      header += "\n"
+    }
     header += "/// Your view should conform to 'AppearaceProxyComponent'.\n"
     header += "public protocol AppearaceProxyComponent: class {\n"
     header += "\tassociatedtype ApperanceProxyType\n"
     header += "\tvar appearanceProxy: ApperanceProxyType { get }\n"
-    header += "\tvar themeAware: Bool { get }\n"
+    if themeHandler {
+      header += "\tvar themeAware: Bool { get set }\n"
+    }
     header += "\tfunc didChangeAppearanceProxy()"
     header += "\n}\n\n"
+    
+    if themeHandler {
+      header += "public extension AppearaceProxyComponent {\n"
+      header += "\tpublic func initAppearanceProxy(themeAware: Bool = true) {\n"
+      header += "\t\tself.themeAware = themeAware\n"
+      header += "\t\tdidChangeAppearanceProxy()\n"
+      header += "\t}\n"
+      header += "}\n\n"
+    }
+    
     return header
   }
 
   func generateExtensions() -> String {
     var extensions = ""
     let stylesheetName = Configuration.runtimeSwappable ? "StylesheetManager.stylesheet(\(name).shared())" : name
+    let themeHandler = Configuration.runtimeSwappable && Generator.Stylesheets.filter({ $0.superclassName == name }).count > 0
+    
     for style in styles.filter({ $0.isExtension }) {
       
       if let superclassName = superclassName, let _ = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ $0.name == style.name }).first {
@@ -955,21 +975,30 @@ extension Stylesheet: Generatable {
         + "\(name).\(style.name)AppearanceProxy\n"
       extensions += "\t\(visibility) var appearanceProxy: ApperanceProxyType {\n"
       extensions += "\t\tget {\n"
-      extensions += "\t\t\tif let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {\n"
-      extensions += "\t\t\t\tif !themeAware { return proxy }\n\n"
       
-      var index = 0
-      for (key, value) in statements {
-        let prefix = index == 0 ? "\t\t\t\tif " : " else if "
-        let condition = value.joined(separator: " || ")
-        extensions += "\(prefix)\(condition) {\n"
-        extensions += "\t\t\t\t\treturn \(stylesheetName).\(key)\n\t\t\t\t}"
-        index += 1
+      if themeHandler {
+        extensions += "\t\t\tif let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {\n"
+        extensions += "\t\t\t\tif !themeAware { return proxy }\n\n"
+        
+        var index = 0
+        for (key, value) in statements {
+          let prefix = index == 0 ? "\t\t\t\tif " : " else if "
+          let condition = value.joined(separator: " || ")
+          extensions += "\(prefix)\(condition) {\n"
+          extensions += "\t\t\t\t\treturn \(stylesheetName).\(key)\n\t\t\t\t}"
+          index += 1
+        }
+        
+        extensions += "\n\t\t\t\treturn proxy\n"
+        extensions += "\t\t\t}\n\n"
+        extensions += "\t\t\treturn \(stylesheetName).\(style.name)\n"
+      } else {
+        extensions +=
+          "\t\t\tguard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) "
+          + "as? ApperanceProxyType else { return \(stylesheetName).\(style.name) }\n"
+        extensions += "\t\t\treturn proxy\n"
       }
       
-      extensions += "\n\t\t\t\treturn proxy\n"
-      extensions += "\t\t\t}\n\n"
-      extensions += "\t\t\treturn \(stylesheetName).\(style.name)\n"
       extensions += "\t\t}\n"
       extensions += "\t\tset {\n"
       extensions +=
@@ -979,19 +1008,44 @@ extension Stylesheet: Generatable {
       extensions += "\t\t}\n"
       extensions += "\t}\n"
       
-      extensions += "\t\(visibility) var themeAware: Bool {\n"
-      extensions += "\t\tget {\n"
-      extensions +=
-        "\t\t\tguard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) "
-        + "as? Bool else { return true }\n"
-      extensions += "\t\t\treturn proxy\n"
-      extensions += "\t\t}\n"
-      extensions += "\t\tset {\n"
-      extensions +=
-        "\t\t\tobjc_setAssociatedObject(self, &__ThemeAwareHandle, newValue,"
-        + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
-      extensions += "\t\t}\n"
-      extensions += "\t}\n"
+      if themeHandler {
+        extensions += "\n\t\(visibility) var themeAware: Bool {\n"
+        extensions += "\t\tget {\n"
+        extensions +=
+          "\t\t\tguard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) "
+          + "as? Bool else { return true }\n"
+        extensions += "\t\t\treturn proxy\n"
+        extensions += "\t\t}\n"
+        extensions += "\t\tset {\n"
+        extensions += "\t\t\tisObservingDidChangeTheme = themeAware\n"
+        extensions +=
+          "\t\t\tobjc_setAssociatedObject(self, &__ThemeAwareHandle, newValue,"
+          + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
+        extensions += "\t\t}\n"
+        extensions += "\t}\n\n"
+        
+        extensions += "\tfileprivate var isObservingDidChangeTheme: Bool {\n"
+        extensions += "\t\tget {\n"
+        extensions += "\t\t\tguard let observing = objc_getAssociatedObject(self, &__ThemeAwareHandle) as? Bool else { return false }\n"
+        extensions += "\t\t\treturn observing\n"
+        extensions += "\t\t}\n"
+        extensions += "\t\tset {\n"
+        extensions += "\t\t\tif newValue == isObservingDidChangeTheme { return }\n"
+        extensions += "\t\t\tif newValue {\n"
+        extensions +=
+          "\t\t\t\tNotificationCenter.default.addObserver(self, selector: #selector(didChangeAppearanceProxy),"
+          + " name: Notification.Name.didChangeTheme, object: nil)\n"
+        extensions += "\t\t\t} else {\n"
+        extensions +=
+          "\t\t\t\tNotificationCenter.default.removeObserver(self,"
+          + " name: Notification.Name.didChangeTheme, object: nil)\n"
+        extensions += "\t\t\t}\n"
+        extensions +=
+          "\t\t\tobjc_setAssociatedObject(self, &__ObservingDidChangeThemeHandle, newValue,"
+          + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
+        extensions += "\t\t}\n"
+        extensions += "\t}\n"
+      }
       extensions += "}\n"
     }
     return extensions
