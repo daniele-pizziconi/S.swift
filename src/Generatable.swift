@@ -1017,10 +1017,10 @@ extension Stylesheet: Generatable {
         extensions += "\t\t\treturn proxy\n"
         extensions += "\t\t}\n"
         extensions += "\t\tset {\n"
-        extensions += "\t\t\tisObservingDidChangeTheme = themeAware\n"
         extensions +=
           "\t\t\tobjc_setAssociatedObject(self, &__ThemeAwareHandle, newValue,"
           + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
+        extensions += "\t\t\tisObservingDidChangeTheme = themeAware\n"
         extensions += "\t\t}\n"
         extensions += "\t}\n\n"
         
