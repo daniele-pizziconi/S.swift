@@ -1020,13 +1020,13 @@ extension Stylesheet: Generatable {
         extensions +=
           "\t\t\tobjc_setAssociatedObject(self, &__ThemeAwareHandle, newValue,"
           + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
-        extensions += "\t\t\tisObservingDidChangeTheme = themeAware\n"
+        extensions += "\t\t\tisObservingDidChangeTheme = newValue\n"
         extensions += "\t\t}\n"
         extensions += "\t}\n\n"
         
         extensions += "\tfileprivate var isObservingDidChangeTheme: Bool {\n"
         extensions += "\t\tget {\n"
-        extensions += "\t\t\tguard let observing = objc_getAssociatedObject(self, &__ThemeAwareHandle) as? Bool else { return false }\n"
+        extensions += "\t\t\tguard let observing = objc_getAssociatedObject(self, &__ObservingDidChangeThemeHandle) as? Bool else { return false }\n"
         extensions += "\t\t\treturn observing\n"
         extensions += "\t\t}\n"
         extensions += "\t\tset {\n"
