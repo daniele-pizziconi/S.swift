@@ -183,8 +183,8 @@ enum RhsValue {
       assert(components.count == 1, "Not a valid enum. Format: enum(Type.Value)")
       let enumComponents = components.first!.components(separatedBy: ".")
       assert(enumComponents.count == 2 || enumComponents.count == 3, "An enum should be expressed in the form Type.Value")
-      let type = components.count == 2 ? enumComponents[0] : "\(enumComponents[0]).\(enumComponents[1])"
-      let name = components.count == 2 ? enumComponents[1] : enumComponents[2]
+      let type = enumComponents.count == 2 ? enumComponents[0] : "\(enumComponents[0]).\(enumComponents[1])"
+      let name = enumComponents.count == 2 ? enumComponents[1] : enumComponents[2]
       return .enum(type: type, name: name)
 
     } else if let components = argumentsFromString("call", string: string) {
