@@ -127,6 +127,10 @@ struct Rhs {
     var isSystemBoldFont: Bool {
       return self.fontName.contains("SystemBold")
     }
+    
+    var isSystemItalicFont: Bool {
+        return self.fontName.contains("SystemItalic")
+    }
 
     var hasWeight: Bool {
       return self.isSystemFont && self.fontName.contains("-")

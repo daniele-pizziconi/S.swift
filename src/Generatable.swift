@@ -301,10 +301,17 @@ extension RhsValue: Generatable {
     let fontClass = Configuration.targetOsx ? "NSFont" : "UIFont"
 
     //system font
-    if font.isSystemBoldFont || font.isSystemFont {
-      let function = font.isSystemFont ? "systemFont" : "boldSystemFont"
+    if font.isSystemFont || font.isSystemBoldFont || font.isSystemItalicFont {
+      var function: String? = nil
+      if font.isSystemFont {
+        function = "systemFont"
+      } else if font.isSystemBoldFont {
+        function = "boldSystemFont"
+      } else if font.isSystemItalicFont {
+        function = "italicSystemFont"
+      }
       let weight = font.hasWeight ? ", weight: \(font.weight!)" : ""
-      return "\(prefix)\(fontClass).\(function)(ofSize: \(font.fontSize)\(weight))"
+      return "\(prefix)\(fontClass).\(function!)(ofSize: \(font.fontSize)\(weight))"
     }
 
     //font with name
