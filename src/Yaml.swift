@@ -145,7 +145,7 @@ extension Yaml {
               let match = text |> Yaml.Regex.substringWithRange(range)
               let lastindent = indents.last ?? 0
               let rest = match.substring(from: match.index(after: match.startIndex))
-              let spaces = rest.characters.count
+              let spaces = rest.count
               let nestedBlockSequence =
                 Yaml.Regex.matches(text |> Yaml.Regex.substringFromIndex(rangeend),
                                    regex: dashPattern!)
@@ -176,7 +176,7 @@ extension Yaml {
             case .dash, .questionMark:
               let match = text |> Yaml.Regex.substringWithRange(range)
               let index = match.index(after: match.startIndex)
-              let indent = match.characters.count
+              let indent = match.count
               indents.append((indents.last ?? 0) + indent)
               matchList.append(
                 TokenMatch(tokenPattern.type, match.substring(to: index)))
@@ -702,7 +702,7 @@ extension Yaml {
         return nil
       }
 
-      let opts = options.characters.reduce(NSRegularExpression.Options()) {
+      let opts = options.reduce(NSRegularExpression.Options()) {
         (acc, opt) -> NSRegularExpression.Options in
         return NSRegularExpression.Options(rawValue:acc.rawValue | (regexOptions[opt]
                ?? NSRegularExpression.Options()).rawValue)
@@ -751,7 +751,7 @@ extension Yaml {
               }
               let replacement = block(captures)
               let offR = NSMakeRange(result.range.location + offset, result.range.length)
-              offset += replacement.characters.count - result.range.length
+              offset += replacement.count - result.range.length
               s.replaceCharacters(in: offR, with: replacement)
             }
           }
@@ -933,7 +933,7 @@ private func expectVersion (_ context: Context) -> YAMLResult<Context> {
 
 
 private func recreateText (_ string: String, context: Context) -> String {
-  if string.characters.count >= 50 || peekType(context) == .end {
+  if string.count >= 50 || peekType(context) == .end {
     return string
   }
   return recreateText(string + peekMatch(context), context: advance(context))
@@ -1325,7 +1325,7 @@ private func foldFlow (_ flow: String) -> String {
 }
 
 private func count(string: String) -> String.IndexDistance {
-  return string.characters.count
+  return string.count
 }
 
 private func parseliteral (_ context: Context) -> YAMLResult<ContextValue> {

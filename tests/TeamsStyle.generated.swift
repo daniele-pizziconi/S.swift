@@ -32,6 +32,10 @@ public enum Theme: Int {
 	}
 }
 
+public extension Notification.Name {
+	static let didChangeTheme = Notification.Name("stylesheet.theme")
+}
+
 public class StylesheetManager {
 	@objc dynamic public class func stylesheet(_ stylesheet: TeamsStyle) -> TeamsStyle {
 		return StylesheetManager.default.theme.stylesheet
@@ -42,9 +46,15 @@ public class StylesheetManager {
 	}
 
 	public static let `default` = StylesheetManager()
+	public static var S: TeamsStyle {
+		return StylesheetManager.default.theme.stylesheet
+	}
 
 	public var theme: Theme {
-		didSet { UserDefaults.standard[DefaultKeys.theme] = theme }
+		didSet {
+			NotificationCenter.default.post(name: .didChangeTheme, object: theme)
+			UserDefaults.standard[DefaultKeys.theme] = theme
+		}
 	}
 
 	public init() {
@@ -59,20 +69,85 @@ public class Application {
 }
 
 fileprivate var __ApperanceProxyHandle: UInt8 = 0
+fileprivate var __ThemeAwareHandle: UInt8 = 0
+fileprivate var __ObservingDidChangeThemeHandle: UInt8 = 0
 
 /// Your view should conform to 'AppearaceProxyComponent'.
 public protocol AppearaceProxyComponent: class {
 	associatedtype ApperanceProxyType
 	var appearanceProxy: ApperanceProxyType { get }
+	var themeAware: Bool { get set }
 	func didChangeAppearanceProxy()
+}
+
+public extension AppearaceProxyComponent {
+	public func initAppearanceProxy(themeAware: Bool = true) {
+		self.themeAware = themeAware
+		didChangeAppearanceProxy()
+	}
+}
+
+fileprivate var __AnimatorProxyHandle: UInt8 = 0
+
+/// Your view should conform to 'AnimatorProxyComponent'.
+public protocol AnimatorProxyComponent: class {
+	associatedtype AnimatorProxyType
+	var animator: AnimatorProxyType { get }
+
 }
 
 /// Entry point for the app stylesheet
 public class TeamsStyle: NSObject {
 
-	class func shared() -> TeamsStyle {
+	public class func shared() -> TeamsStyle {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
+	}
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
+		}
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
+	}
+	public class MetricAppearanceProxy {
+
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
+			}
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
+		}
+	}
+	//MARK: - TimingFunctions
+	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
+	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return TimingFunctionsAppearanceProxy()
+		}
+	public var TimingFunctions: TimingFunctionsAppearanceProxy {
+		get { return self.TimingFunctionsStyle() }
+		set { _TimingFunctions = newValue }
+	}
+	public class TimingFunctionsAppearanceProxy {
+
+		//MARK: easeIn 
+		public var _easeIn: CAMediaTimingFunction?
+		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CAMediaTimingFunction {
+			if let override = _easeIn { return override }
+			return CAMediaTimingFunction(controlPoints: 1.0, 0.0, 0.78, 1.0)
+			}
+		public var easeIn: CAMediaTimingFunction {
+			get { return self.easeInProperty() }
+			set { _easeIn = newValue }
+		}
 	}
 	//MARK: - Color
 	public var _Color: ColorAppearanceProxy?
@@ -86,160 +161,86 @@ public class TeamsStyle: NSObject {
 	}
 	public class ColorAppearanceProxy {
 
-		//MARK: - black
-		public var _black: blackAppearanceProxy?
-		open func blackStyle() -> blackAppearanceProxy {
-			if let override = _black { return override }
-				return blackAppearanceProxy()
+		//MARK: yellow 
+		public var _yellow: UIColor?
+		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _yellow { return override }
+			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
 			}
-		public var black: blackAppearanceProxy {
-			get { return self.blackStyle() }
-			set { _black = newValue }
+		public var yellow: UIColor {
+			get { return self.yellowProperty() }
+			set { _yellow = newValue }
 		}
-		public class blackAppearanceProxy {
-
-			//MARK: b1 
-			public var _b1: UIColor?
-			open func b1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b1 { return override }
-					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
-				}
-			public var b1: UIColor {
-				get { return self.b1Property() }
-				set { _b1 = newValue }
-			}
-		}
-
 	}
-	//MARK: - PrimaryButton
-	public var _PrimaryButton: PrimaryButtonAppearanceProxy?
-	open func PrimaryButtonStyle() -> PrimaryButtonAppearanceProxy {
-		if let override = _PrimaryButton { return override }
-			return PrimaryButtonAppearanceProxy()
+	//MARK: - Animator
+	public var _Animator: AnimatorAnimatorProxy?
+	open func AnimatorAnimator() -> AnimatorAnimatorProxy {
+		if let override = _Animator { return override }
+			return AnimatorAnimatorProxy()
 		}
-	public var PrimaryButton: PrimaryButtonAppearanceProxy {
-		get { return self.PrimaryButtonStyle() }
-		set { _PrimaryButton = newValue }
+	public var Animator: AnimatorAnimatorProxy {
+		get { return self.AnimatorAnimator() }
+		set { _Animator = newValue }
 	}
-	public class PrimaryButtonAppearanceProxy: ButtonAppearanceProxy {
+	open class AnimatorAnimatorProxy {
+		public struct KeyFrame {
+			var time: Float?
+			var timing: CAMediaTimingFunction?
+		}
 
-		//MARK: - PrimaryButtoncolor
-		override open func colorStyle() -> ButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return PrimaryButtoncolorAppearanceProxy()
+		public init() {}
+
+		//MARK: - basic
+		public var _basic: basicAppearanceProxy?
+		open func basicStyle() -> basicAppearanceProxy {
+			if let override = _basic { return override }
+				return basicAppearanceProxy()
 			}
-		public class PrimaryButtoncolorAppearanceProxy: ButtonAppearanceProxy.colorAppearanceProxy {
-
-			//MARK: c1 
-			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
-				}
+		public var basic: basicAppearanceProxy {
+			get { return self.basicStyle() }
+			set { _basic = newValue }
 		}
+		public class basicAppearanceProxy {
 
-	}
-	//MARK: - Button
-	public var _Button: ButtonAppearanceProxy?
-	open func ButtonStyle() -> ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return ButtonAppearanceProxy()
-		}
-	public var Button: ButtonAppearanceProxy {
-		get { return self.ButtonStyle() }
-		set { _Button = newValue }
-	}
-	public class ButtonAppearanceProxy {
-
-		//MARK: - color
-		public var _color: colorAppearanceProxy?
-		open func colorStyle() -> colorAppearanceProxy {
-			if let override = _color { return override }
-				return colorAppearanceProxy()
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return CGFloat(2.0)
 			}
-		public var color: colorAppearanceProxy {
-			get { return self.colorStyle() }
-			set { _color = newValue }
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
 		}
-		public class colorAppearanceProxy {
 
-			//MARK: c1 
-			public var _c1: UIColor?
-			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
-				}
-			public var c1: UIColor {
-				get { return self.c1Property() }
-				set { _c1 = newValue }
+		//MARK: keyFrames 
+		public var _keyFrames: [KeyFrame]?
+		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(time: 0.0, timing: nil), 
+			KeyFrame(time: 0.4, timing: 
+			TimingFunctions.easeInProperty(traitCollection))]
 			}
+		public var keyFrames: [KeyFrame] {
+			get { return self.keyFramesProperty() }
+			set { _keyFrames = newValue }
 		}
-
-
-		//MARK: - borderColor
-		public var _borderColor: borderColorAppearanceProxy?
-		open func borderColorStyle() -> borderColorAppearanceProxy {
-			if let override = _borderColor { return override }
-				return borderColorAppearanceProxy()
-			}
-		public var borderColor: borderColorAppearanceProxy {
-			get { return self.borderColorStyle() }
-			set { _borderColor = newValue }
 		}
-		public class borderColorAppearanceProxy {
-
-			//MARK: c1 
-			public var _c1: UIColor?
-			open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
-				}
-			public var c1: UIColor {
-				get { return self.c1Property() }
-				set { _c1 = newValue }
-			}
-		}
-
-	}
-	//MARK: - CircularButton
-	public var _CircularButton: CircularButtonAppearanceProxy?
-	open func CircularButtonStyle() -> CircularButtonAppearanceProxy {
-		if let override = _CircularButton { return override }
-			return CircularButtonAppearanceProxy()
-		}
-	public var CircularButton: CircularButtonAppearanceProxy {
-		get { return self.CircularButtonStyle() }
-		set { _CircularButton = newValue }
-	}
-	public class CircularButtonAppearanceProxy: ButtonAppearanceProxy {
-
-		//MARK: - CircularButtoncolor
-		override open func colorStyle() -> ButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return CircularButtoncolorAppearanceProxy()
-			}
-		public class CircularButtoncolorAppearanceProxy: ButtonAppearanceProxy.colorAppearanceProxy {
-
-			//MARK: c1 
-			override open func c1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _c1 { return override }
-					return StylesheetManager.stylesheet(TeamsStyle.shared()).Color.black.b1Property(traitCollection)
-				}
-		}
-
-	}
+	
 
 }
-extension Button: AppearaceProxyComponent {
+}
+extension UIView: AnimatorProxyComponent {
 
-	public typealias ApperanceProxyType = TeamsStyle.ButtonAppearanceProxy
-	public var appearanceProxy: ApperanceProxyType {
+	public typealias AnimatorProxyType = TeamsStyle.AnimatorAnimatorProxy
+	public var animator: AnimatorProxyType {
 		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType else { return StylesheetManager.stylesheet(TeamsStyle.shared()).Button }
-			return proxy
+			guard let a = objc_getAssociatedObject(self, &__AnimatorProxyHandle) as? AnimatorProxyType else { return StylesheetManager.stylesheet(TeamsStyle.shared()).Animator }
+			return a
 		}
 		set {
-			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			didChangeAppearanceProxy()
+			objc_setAssociatedObject(self, &__AnimatorProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 		}
 	}
 }

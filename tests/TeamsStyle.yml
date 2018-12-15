@@ -1,12 +1,13 @@
 Color:
-  black: [b1: "#252423"]
+  yellow: "#0078d4"
 
-@appearance_proxy Button:
-  color: [c1: $Color.black.b1]
-  borderColor: [c1: $Color.black.b1]
+TimingFunctions:
+  easeIn: TimingFunction(1.0,0.0,0.78,1.00)
 
-PrimaryButton extends Button:
-  color: [c1: $Color.black.b1]
+Metric:
+  test: 10
 
-CircularButton extends Button:
-  color: [c1: $Color.black.b1]
+@animator Animator:
+  basic: 
+    keyFrames: [{time: 0}, {time: 0.4, timing: $TimingFunctions.easeIn}]
+    duration: 2.0

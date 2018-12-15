@@ -22,7 +22,7 @@ enum RhsValue {
   /// A CGRect value.
   case rect(x: Float, y: Float, width: Float, height: Float)
 
-  /// UIEdgeInsets value.
+  /// A UIEdgeInsets value.
   case edgeInset(top: Float, left: Float, bottom: Float, right: Float)
 
   /// A boolean value.
@@ -45,6 +45,15 @@ enum RhsValue {
 
   /// An enum.
   case `enum`(type: String, name: String)
+  
+  /// A CAMediaTimingFunction.
+  case timingFunction(function: Rhs.TimingFunction)
+  
+  /// A KeyFrame.
+  case keyFrame(keyFrame: Rhs.KeyFrame)
+  
+  /// An array of RhsValue
+  case array(values: [RhsValue])
     
   /// A call to the super stylesheet.
   case call(call: String, type: String)
@@ -58,6 +67,7 @@ enum RhsValue {
 
   fileprivate var isRedirect: Bool {
     switch self {
+    case .keyFrame(let keyFrame): return keyFrame.timing?.isRedirect ?? false
     case .redirect: return true
     default: return false
     }
@@ -66,7 +76,20 @@ enum RhsValue {
   fileprivate var redirection: String? {
     switch self {
     case .redirect(let r): return r.redirection
+    case .keyFrame(let keyFrame):
+      guard let timing = keyFrame.timing, case let .redirect(r) = timing else { return nil }
+      return r.redirection
     default: return nil
+    }
+  }
+  
+  fileprivate func applyRedirection(_ redirectValue: RhsRedirectValue) -> RhsValue {
+    switch self {
+    case .redirect(_): return .redirect(redirection: redirectValue)
+    case .keyFrame(let keyFrame):
+      guard let timing = keyFrame.timing, timing.isRedirect else { return self }
+      return .keyFrame(keyFrame: keyFrame)
+    default: return self
     }
   }
 
@@ -97,7 +120,7 @@ enum RhsValue {
         throw RhsError.internal
       }
     }
-    return  .boolean(bool: true)
+    return .array(values: values)
   }
 
   static func valueFrom(_ hash: [Yaml: Yaml]) throws -> RhsValue  {
@@ -115,9 +138,11 @@ enum RhsValue {
         case .bool(let boolean):
           try conditions[Condition(rawString: key)] = RhsValue.valueFrom(boolean)
         default:
+          assert(false, "k.string: \(key), value: \(value)")
           throw RhsError.internal
         }
       } catch {
+        assert(false, "altro errore k.string: \(key), value: \(value)")
         throw RhsError.malformedCondition(error: "\(conditions) is not well formed")
       }
     }
@@ -179,6 +204,36 @@ enum RhsValue {
       let right = parseNumber(components[3])
       return .edgeInset(top: top, left: left, bottom: bottom, right: right)
 
+    } else if let components = argumentsFromString("timingFunction", string: string) {
+      assert(components.count == 4 || components.count == 1, "Not a valid timing function. Format: TimingFunction(c1, c2, c3, c4) or TimingFunction(easeIn)")
+      if components.count == 4 {
+        let c1 = parseNumber(components[0])
+        let c2 = parseNumber(components[1])
+        let c3 = parseNumber(components[2])
+        let c4 = parseNumber(components[3])
+        return .timingFunction(function: Rhs.TimingFunction(c1: c1, c2: c2, c3: c3, c4: c4))
+      } else {
+        return .timingFunction(function: Rhs.TimingFunction(name: components[0]))
+      }
+      
+    } else if let components = argumentsFromString("keyFrame", string: string) {
+      var timing: RhsValue?
+      var time: Float?
+      
+      for var component in components {
+        component = component.trimmingCharacters(in: CharacterSet.whitespaces)
+        if component.hasPrefix("time") {
+          time = parseNumber(component.replacingOccurrences(of: "time: ", with: ""))
+        } else if component.hasPrefix("timing") {
+          var function = components.filter({ !$0.hasPrefix("time") }).joined(separator: ",")
+          function = function.trimmingCharacters(in: CharacterSet.whitespaces)
+          function = function.replacingOccurrences(of: " ", with: "")
+          function = function.replacingOccurrences(of: "timing:", with: "")
+          timing = try? valueFrom(function)
+        }
+      }
+      return .keyFrame(keyFrame: Rhs.KeyFrame(time: time, timing: timing))
+      
     } else if let components = argumentsFromString("enum", string: string) {
       assert(components.count == 1, "Not a valid enum. Format: enum(Type.Value)")
       let enumComponents = components.first!.components(separatedBy: ".")
@@ -194,7 +249,7 @@ enum RhsValue {
       return .call(call: call, type: type)
     }
 
-    throw RhsError.malformedRhsValue(error: "Unable to parse rhs value")
+    throw RhsError.malformedRhsValue(error: "Unable to parse rhs value, string:\(string)")
   }
 
   func returnValue() -> String {
@@ -210,10 +265,15 @@ enum RhsValue {
     case .size(_, _): return "CGSize"
     case .rect(_, _, _, _): return "CGRect"
     case .edgeInset(_, _, _, _): return  Configuration.targetOsx ? "NSEdgeInsets" : "UIEdgeInsets"
+    case .timingFunction(_): return "CAMediaTimingFunction"
+    case .keyFrame(_): return "KeyFrame"
     case .hash(let hash): for (_, rhs) in hash { return rhs.returnValue() }
     case .call(_, let type): return type
+    case .array(let values):
+      guard let returnTypes = Optional(values.flatMap({ $0.returnValue() })), let first = returnTypes.first, returnTypes.filter({ $0 == first }).count == returnTypes.count else { return "[Any]" }
+      return "[\(first)]"
     }
-    return "AnyObject"
+    return "Any"
   }
 }
 
@@ -267,9 +327,18 @@ extension RhsValue: Generatable {
 
     case .edgeInset(let top, let left, let bottom, let right):
       return generateEdgeInset(prefix, top: top, left: left, bottom: bottom, right: right)
+      
+    case .timingFunction(let function):
+      return generateTimingFunction(prefix, function: function)
+      
+    case .keyFrame(let keyFrame):
+      return generateKeyFrame(prefix, keyFrame: keyFrame)
 
     case .call(let call, _):
       return generateCall(prefix, string: call)
+      
+    case .array(let values):
+      return generateArray(prefix, values: values)
 
     case .hash(let hash):
       var string = ""
@@ -317,12 +386,29 @@ extension RhsValue: Generatable {
     //font with name
     return "\(prefix)\(fontClass)(name: \"\(font.fontName)\", size: \(font.fontSize))!"
   }
-
+  
   func generateColor(_ prefix: String, color: Rhs.Color) -> String {
     let colorClass = Configuration.targetOsx ? "NSColor" : "UIColor"
     return
       "\(prefix)\(colorClass)"
       + "(red: \(color.red), green: \(color.green), blue: \(color.blue), alpha: \(color.alpha))"
+  }
+  
+  func generateTimingFunction(_ prefix: String, function: Rhs.TimingFunction) -> String {
+    let timingFunctionClass = "CAMediaTimingFunction"
+    
+    //control points font
+    if let controlPoints = function.controlPoints {
+      return "\(prefix)\(timingFunctionClass)(controlPoints: \(controlPoints.c1), \(controlPoints.c2), \(controlPoints.c3), \(controlPoints.c4))"
+    } else {
+      return "\(prefix)\(timingFunctionClass)(name: \(function.name!))"
+    }
+  }
+  
+  func generateKeyFrame(_ prefix: String, keyFrame: Rhs.KeyFrame) -> String {
+    let time = keyFrame.time ?? 0.0
+    let timing = keyFrame.timing?.generate() ?? "nil"
+    return "\(prefix)KeyFrame(time: \(time), timing: \(timing))"
   }
 
   func generateImage(_ prefix: String, image: String) -> String {
@@ -366,6 +452,22 @@ extension RhsValue: Generatable {
 
   func generateCall(_ prefix: String, string: String) -> String {
     return "\(prefix)\(string)"
+  }
+  
+  func generateArray(_ prefix: String, values: [RhsValue]) -> String {
+    var string = prefix
+    for (index, value) in values.enumerated() {
+      if index == 0 {
+        string.append("[")
+      }
+      string.append(value.generate().replacingOccurrences(of: "return ", with: ""))
+      if index != values.count - 1 {
+        string.append(", ")
+      } else {
+        string.append("]")
+      }
+    }
+    return string
   }
 }
 
@@ -430,6 +532,17 @@ extension Property: Generatable {
   }
 }
 
+//MARK: Animatio
+
+//class Animation: Style {
+//  let keyFrames: [Property]
+//  
+//  init(name: String, properties: [Property]) {
+//    
+//  }
+//}
+
+
 //MARK: Style
 
 class Style {
@@ -437,6 +550,7 @@ class Style {
   var superclassName: String? = nil
   let properties: [Property]
   var isExtension = false
+  var isAnimation = false
   var isOverridable = false
   var isApplicable = false
   var isNestedOverride = false
@@ -495,8 +609,11 @@ class Style {
 extension Style: Generatable {
 
   public func generate(_ isNested: Bool = false) -> String {
-    
-    let indentation = isNested ? "\t\t" : "\t"
+
+    var indentation = isNested ? "\t\t" : "\t"
+    if isAnimation {
+        indentation.append("\t")
+    }
     var wrapper = isNested ? "\n\n" + indentation : indentation
     if let nestedOverrideName = nestedOverrideName {
       wrapper += "//MARK: - \(nestedOverrideName)"
@@ -569,67 +686,91 @@ class Stylesheet {
 
   let name: String
   let styles: [Style]
+  let animations: [Style]
   let superclassName: String?
+  let animatorName: String?
 
-  init(name: String, styles: [Style], superclassName: String? = nil) {
+  init(name: String, styles: [Style], animations: [Style], superclassName: String? = nil, animatorName: String? = nil) {
 
     self.name = name
     self.styles = styles
+    self.animations = animations
     self.superclassName = superclassName
+    self.animatorName = animatorName
   }
   
   fileprivate func prepareGenerator() {
-    // Resolve the type for the redirected values.
-    styles.forEach({ resolveRedirection($0) })
-    // Mark the overrides.
-    styles.forEach({ markOverrides($0, superclassName: $0.superclassName) })
-    // Mark the overridables.
-    let nestedStyles = styles.flatMap{ $0.properties }.flatMap{ $0.style }
-    let duplicates = Dictionary(grouping: nestedStyles, by: { $0.name })
-      .filter { $1.count > 1 }                 // filter down to only those with multiple contacts
-      .sorted { $0.1.count > $1.1.count }
-      .flatMap { $0.value }
-    for style in duplicates where !style.isNestedOverride {
-      style.isNestedOverridable = true
-    }
-    
-    if (superclassName == nil && Generator.Stylesheets.filter { (stylesheet) -> Bool in
-      guard let superclassName = stylesheet.superclassName, superclassName == name else { return false }
-      return true
-      }.count > 0) {
-      for style in styles {
+    [styles, animations].forEach { generatableArray in
+      // Resolve the type for the redirected values.
+      generatableArray.forEach({ resolveRedirection($0) })
+      // Mark the overrides.
+      generatableArray.forEach({ markOverrides($0, superclassName: $0.superclassName) })
+      // Mark the overridables.
+      let nestedStyles = generatableArray.flatMap{ $0.properties }.flatMap{ $0.style }
+      let duplicates = Dictionary(grouping: nestedStyles, by: { $0.name })
+        .filter { $1.count > 1 }
+        .sorted { $0.1.count > $1.1.count }
+        .flatMap { $0.value }
+      for style in duplicates where !style.isNestedOverride {
         style.isNestedOverridable = true
-        style.properties.flatMap({ $0.style }).forEach({ $0.isNestedOverridable = true })
-        style.properties.flatMap({ $0.style }).flatMap({ $0.properties }).forEach({ $0.isOverridable = true })
-        style.properties.forEach({ $0.isOverridable = true })
+      }
+      
+      if (superclassName == nil && Generator.Stylesheets.filter { (stylesheet) -> Bool in
+        guard let superclassName = stylesheet.superclassName, superclassName == name else { return false }
+        return true
+        }.count > 0) {
+        for style in generatableArray {
+          style.isNestedOverridable = true
+          style.properties.flatMap({ $0.style }).forEach({ $0.isNestedOverridable = true })
+          style.properties.flatMap({ $0.style }).flatMap({ $0.properties }).forEach({ $0.isOverridable = true })
+          style.properties.forEach({ $0.isOverridable = true })
+        }
       }
     }
+  }
+  
+  fileprivate func resolveRedirection(rhs: RhsValue) -> RhsValue? {
+    if rhs.isRedirect == false { return nil }
+    
+    var redirection = rhs.redirection!
+    let type = resolveRedirectedType(redirection)
+    
+    if Configuration.runtimeSwappable {
+      var name: String? = nil
+      let components = redirection.components(separatedBy: ".")
+      if let _ = styles.filter({ return $0.name == components[0] }).first {
+        name = self.name
+      } else if let baseStylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first {
+        name = baseStylesheet.name
+      }
+      
+      if let name = name {
+        let stylesheet = Generator.Stylesheets.filter({ $0.superclassName != nil }).count > 0 ? "\(name).shared()." : "\(name).shared()."
+        redirection = "\(stylesheet)\(redirection)"
+      }
+    }
+    return rhs.applyRedirection(RhsRedirectValue(redirection: redirection, type: type))
   }
   
   fileprivate func resolveRedirection(_ style: Style) {
     for property in style.properties {
-      if let rhs = property.rhs, rhs.isRedirect {
-        var redirection = rhs.redirection!
-        let type = resolveRedirectedType(redirection)
-        
-        if Configuration.runtimeSwappable {
-          var name: String? = nil
-          let components = redirection.components(separatedBy: ".")
-          if let _ = styles.filter({ return $0.name == components[0] }).first {
-            name = self.name
-          } else if let baseStylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first {
-            name = baseStylesheet.name
+      if let rhs = property.rhs {
+        if let redirect = resolveRedirection(rhs: rhs) {
+          property.rhs = redirect
+        } else if case let .array(values) = rhs {
+//          assert(false, "values: \(values)")
+          var newValues = [RhsValue]()
+          for value in values {
+            if let redirect = resolveRedirection(rhs: value) {
+              newValues.append(redirect)
+            } else {
+              newValues.append(value)
+            }
           }
-        
-          if let name = name {
-            let stylesheet = Generator.Stylesheets.filter({ $0.superclassName != nil }).count > 0 ? "\(name).shared()." : "\(name).shared()."
-            redirection = "\(stylesheet)\(redirection)"
-          }
+          property.rhs = .array(values: newValues)
         }
-        property.rhs = RhsValue.redirect(redirection:
-          RhsRedirectValue(redirection: redirection, type: type))
       }
-      
+
       if let nestedStyle = property.style {
         resolveRedirection(nestedStyle)
       }
@@ -639,25 +780,28 @@ class Stylesheet {
   fileprivate func markOverridables(_ style: Style) {
     guard superclassName != nil else { return }
     
-    if let _ = Generator.Stylesheets.filter({ $0.superclassName == nil }).flatMap({ $0.styles }).filter({ $0.name == style.name }).first {
+    if let _ = Generator.Stylesheets.filter({ $0.superclassName == nil }).flatMap({ style.isAnimation ? $0.animations : $0.styles }).filter({ $0.name == style.name }).first {
       style.isNestedOverridable = true
       style.properties.forEach({ $0.isOverridable = true })
     }
   }
   
   fileprivate func markOverrides(_ style: Style, superclassName: String?) {
-
+    let searchInStyles = style.isAnimation == false
+    let nestedSuperclassPrefix = searchInStyles ? "" : "\(animatorName!)AnimatorProxy."
+    
     //check if the style is an override from a generic base stylesheet
     if let baseSuperclassName = self.superclassName, let baseStylesheet = Generator.Stylesheets.filter({ return $0.name == baseSuperclassName }).first {
-      if let superStyle = baseStylesheet.styles.filter({ return $0.name == style.name }).first {
+      let stylesBase = searchInStyles ? baseStylesheet.styles : baseStylesheet.animations
+      if let superStyle = stylesBase.filter({ return $0.name == style.name }).first {
         style.isNestedOverride = true
-        style.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)"
+        style.nestedSuperclassName = "\(baseStylesheet.name).\(nestedSuperclassPrefix)\(superStyle.name)"
         style.nestedOverrideName = "\(name)\(style.name)"
         
         for nestedStyle in style.properties.flatMap({ $0.style }) {
           if let superNestedStyle = superStyle.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle.name }).first {
             nestedStyle.isNestedOverride = true
-            nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
+            nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(nestedSuperclassPrefix)\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
             nestedStyle.nestedOverrideName = "\(name)\(superNestedStyle.name)\(style.name)"
           }
           markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
@@ -670,24 +814,26 @@ class Stylesheet {
         let (isOverride, superclassName, styleName) = styleIsOverride(nestedStyle, superStyle: style)
         if let styleName = styleName, let superclassName = superclassName, isOverride, !nestedStyle.isNestedOverride {
           nestedStyle.isNestedOverride = isOverride
-          nestedStyle.nestedSuperclassName = superclassName
+          nestedStyle.nestedSuperclassName = nestedSuperclassPrefix+superclassName
           nestedStyle.nestedOverrideName = styleName
         }
         markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
       }
       
-      property.isOverride = propertyIsOverride(property.key, superclass: superclassName, nestedSuperclassName: style.nestedSuperclassName)
+      property.isOverride = propertyIsOverride(property.key, superclass: superclassName, nestedSuperclassName: style.nestedSuperclassName, isStyleProperty: searchInStyles)
     }
   }
   
   fileprivate func styleIsOverride(_ style: Style, superStyle: Style) -> (isOverride: Bool, superclassName: String?, styleName: String?) {
     guard let _ = superStyle.superclassName else { return (false, nil, nil) }
-    let nestedStyles = styles.flatMap{ $0.properties }.filter{
+    let stylesBase = style.isAnimation ? animations : styles
+    
+    let nestedStyles = stylesBase.flatMap{ $0.properties }.filter{
       guard let nestedStyle = $0.style, nestedStyle.name == style.name else { return false }
       return true
     };
     
-    for st in styles {
+    for st in stylesBase {
       for property in st.properties {
         if let nestedStyle = property.style, nestedStyle.name == style.name, let superclassName = st.superclassName, nestedStyles.count > 1 {
           return (true, "\(superclassName)AppearanceProxy.\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
@@ -698,23 +844,25 @@ class Stylesheet {
   }
   
   // Determines if this property is an override or not.
-  fileprivate func propertyIsOverride(_ property: String, superclass: String?, nestedSuperclassName: String?) -> Bool {
+  fileprivate func propertyIsOverride(_ property: String, superclass: String?, nestedSuperclassName: String?, isStyleProperty: Bool) -> Bool {
     
     if let nestedSuperclassName = nestedSuperclassName, let components = Optional(nestedSuperclassName.components(separatedBy: ".")), components.count > 1, let baseStylesheet = Generator.Stylesheets.filter({ $0.name == components.first }).first {
-      if components.count == 2 {
-        if let _ = baseStylesheet.styles.filter({ $0.name == components.last }).first?.properties.filter({ return $0.key == property }).first {
+      let stylesBase = isStyleProperty ? baseStylesheet.styles : baseStylesheet.animations
+      if components.count == 2 || (components.count == 3 && isStyleProperty == false) {
+        if let _ = stylesBase.filter({ $0.name == components.last }).first?.properties.filter({ return $0.key == property }).first {
           return true
         }
       } else {
         let style = components[1].replacingOccurrences(of: "AppearanceProxy", with: "");
         let nestedStyle = components[2].replacingOccurrences(of: "AppearanceProxy", with: "");
-        if let _ = baseStylesheet.styles.filter({ $0.name == style }).first?.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle }).first?.properties.filter({ return $0.key == property }).first {
+        if let _ = stylesBase.filter({ $0.name == style }).first?.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle }).first?.properties.filter({ return $0.key == property }).first {
           return true
         }
       }
     }
     guard let superclass = superclass else { return false }
-    guard let style = self.styles.filter({ return $0.name == superclass }).first else {
+    let stylesBase = isStyleProperty ? styles : animations
+    guard let style = stylesBase.filter({ return $0.name == superclass }).first else {
       if let components = Optional(superclass.components(separatedBy: ".")), components.count == 2 {
         return true
       }
@@ -724,20 +872,23 @@ class Stylesheet {
     if let _ = style.properties.filter({ return $0.key == property }).first {
       return true
     } else {
-      return propertyIsOverride(property, superclass: style.superclassName, nestedSuperclassName: style.nestedSuperclassName)
+      return propertyIsOverride(property, superclass: style.superclassName, nestedSuperclassName: style.nestedSuperclassName, isStyleProperty: isStyleProperty)
     }
   }
 
   // Recursively resolves the return type for this redirected property.
   fileprivate func resolveRedirectedType(_ redirection: String) -> String {
 
+//    assert(false, "redirection \(redirection)")
+    
     let components = redirection.components(separatedBy: ".")
     assert(components.count == 2 || components.count == 3, "Redirect \(redirection) invalid")
   
-    
     var property: Property? = nil
-    //first search in its own styles
-    let style = styles.filter({ return $0.name == components[0] }).first
+    //first search in its own styles and animation
+//    let stylesBase = styles : animations
+    let stylesBase = styles
+    let style = stylesBase.filter({ return $0.name == components[0] }).first
     if style != nil {
       if components.count == 2, let prop = style!.properties.filter({ return $0.key == components[1] }).first {
         property = prop
@@ -748,7 +899,11 @@ class Stylesheet {
     
     //search in basestylesheet
     if property == nil {
-      if let style = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ return $0.name == components[0] }).first {
+      let stylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first
+//      let sourceStyles = inStyle ? stylesheet?.styles : stylesheet?.animations
+      let sourceStyles = stylesheet?.styles
+      
+      if let style = sourceStyles?.filter({ return $0.name == components[0] }).first {
         if components.count == 2, let prop = style.properties.filter({ return $0.key == components[1] }).first {
           property = prop
         } else if components.count == 3, let nestedStyleProperty = style.properties.filter({ return $0.style?.name == components[1] }).first?.style, let prop = nestedStyleProperty.properties.filter({ return $0.key == components[2] }).first {
@@ -799,6 +954,9 @@ extension Stylesheet: Generatable {
       if Configuration.extensionsEnabled {
         stylesheet += generateExtensionsHeader()
       }
+      if animatorName != nil {
+        stylesheet += generateAnimatorHeader()
+      }
     }
     
     stylesheet += "/// Entry point for the app stylesheet\n"
@@ -811,12 +969,22 @@ extension Stylesheet: Generatable {
       stylesheet += "\t\treturn __._sharedInstance\n"
       stylesheet += "\t}\n"
     }
-    for style in self.styles {
+    for style in styles {
       stylesheet += style.generate()
+    }
+    if animatorName != nil {
+      stylesheet += generateAnimator()
+      for animation in animations {
+        stylesheet += animation.generate()
+      }
+      stylesheet += "\t\n\n}"
     }
     stylesheet += "\n}"
     if Configuration.extensionsEnabled {
-      stylesheet += self.generateExtensions()
+      stylesheet += generateExtensions()
+    }
+    if isBaseStylesheet && animatorName != nil {
+      stylesheet += generateAnimatorExtension()
     }
     return stylesheet
   }
@@ -948,10 +1116,21 @@ extension Stylesheet: Generatable {
     
     return header
   }
-
+  
+  func generateAnimatorHeader() -> String {
+    let visibility = "fileprivate"
+    var header = ""
+    header += "\(visibility) var __AnimatorProxyHandle: UInt8 = 0\n\n"
+    header += "/// Your view should conform to 'AnimatorProxyComponent'.\n"
+    header += "public protocol AnimatorProxyComponent: class {\n"
+    header += "\tassociatedtype AnimatorProxyType\n"
+    header += "\tvar \(animatorName!.lowercased()): AnimatorProxyType { get }\n"
+    header += "\n}\n\n"
+    return header
+  }
+  
   func generateExtensions() -> String {
     var extensions = ""
-    let stylesheetName = Configuration.runtimeSwappable ? "StylesheetManager.stylesheet(\(name).shared())" : name
     let themeHandler = Configuration.runtimeSwappable && Generator.Stylesheets.filter({ $0.superclassName == name }).count > 0
     
     for style in styles.filter({ $0.isExtension }) {
@@ -959,6 +1138,7 @@ extension Stylesheet: Generatable {
       if let superclassName = superclassName, let _ = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ $0.name == style.name }).first {
         continue
       }
+      let stylesheetName = Configuration.runtimeSwappable && (style.isNestedOverride || style.isNestedOverridable) ? "StylesheetManager.stylesheet(\(name).shared())" : name
       let visibility = Configuration.publicExtensions ? "public" : ""
 
       let extendedStylesInBaseStylesheet = styles.filter({ $0.superclassName == style.name })
@@ -1062,6 +1242,97 @@ extension Stylesheet: Generatable {
     }
     return extensions
   }
+  
+  func generateAnimatorExtension() -> String {
+    let viewClass = Configuration.targetOsx ? "NSView" : "UIView"
+    let visibility = Configuration.publicExtensions ? "public" : ""
+    
+    let shouldAccessInstance = Configuration.runtimeSwappable && (superclassName == nil && Generator.Stylesheets.filter { (stylesheet) -> Bool in
+      guard let superclassName = stylesheet.superclassName, superclassName == self.name, stylesheet.animatorName != nil else { return false }
+      return true
+      }.count > 0)
+    let stylesheetName = shouldAccessInstance ? "StylesheetManager.stylesheet(\(name).shared())" : name
+    var extensions = ""
+    extensions += "\nextension \(viewClass): AnimatorProxyComponent {\n\n"
+    extensions +=
+      "\t\(visibility) typealias AnimatorProxyType = "
+      + "\(name).\(animatorName!)AnimatorProxy\n"
+    extensions += "\t\(visibility) var \(animatorName!.lowercased()): AnimatorProxyType {\n"
+    extensions += "\t\tget {\n"
+    
+    extensions +=
+      "\t\t\tguard let a = objc_getAssociatedObject(self, &__AnimatorProxyHandle) "
+      + "as? AnimatorProxyType else { return \(stylesheetName).\(animatorName!) }\n"
+    extensions += "\t\t\treturn a\n"
+    
+    extensions += "\t\t}\n"
+    extensions += "\t\tset {\n"
+    extensions +=
+      "\t\t\tobjc_setAssociatedObject(self, &__AnimatorProxyHandle, newValue,"
+      + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
+    extensions += "\t\t}\n"
+    extensions += "\t}\n"
+    extensions += "}\n"
+    return extensions
+  }
+  
+  func generateAnimator() -> String {
+    let indentation = "\t"
+    var wrapper = indentation
+    wrapper += "//MARK: - \(animatorName!)"
+    
+    let objc = Configuration.objcGeneration ? "@objc " : ""
+    let baseStylesheetName = Generator.Stylesheets.filter({ $0.superclassName == nil }).first!.name
+    let isOverridable = (superclassName == nil && Generator.Stylesheets.filter { (stylesheet) -> Bool in
+      guard let superclassName = stylesheet.superclassName, superclassName == self.name, stylesheet.animatorName != nil else { return false }
+      return true
+      }.count > 0)
+    let isOverride = (superclassName != nil && Generator.Stylesheets.filter { $0.name == superclassName }.count > 0)
+    let name = animatorName!
+    
+    let visibility = isOverridable ? "open" : "public"
+    let staticModifier = " static"
+    let variableVisibility = "public"
+    let styleClass = isOverride ? "\(self.name)\(name)AnimatorProxy" : "\(name)AnimatorProxy"
+    
+    if isOverride || isOverridable {
+      let visibility = isOverridable ? "open" : "public"
+      let override = isOverride ? "override " : ""
+      let returnClass = isOverride ? "\(baseStylesheetName).\(name)AnimatorProxy" : styleClass
+      
+      if isOverridable && !isOverride {
+        wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
+      }
+      
+      wrapper +=
+      "\n\(indentation)\(override)\(visibility) func \(name)Animator() -> \(returnClass) {"
+      wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
+      wrapper += "\n\(indentation)\t\treturn \(styleClass)()"
+      wrapper += "\n\(indentation)\t}"
+      
+      if isOverridable && !isOverride {
+        wrapper += "\n\(indentation)\(objc)public var \(name): \(styleClass) {"
+        wrapper += "\n\(indentation)\tget { return self.\(name)Animator() }"
+        wrapper += "\n\(indentation)\tset { _\(name) = newValue }"
+        wrapper += "\n\(indentation)}"
+      }
+    } else {
+      wrapper += "\n\(indentation)\(objc)\(variableVisibility)\(staticModifier) let \(name) = \(name)AnimatorProxy()"
+    }
+    let superclassDeclaration = isOverride ? ": \(baseStylesheetName).\(name)AnimatorProxy" : ""
+    wrapper += "\n\(indentation)\(objc)\(visibility) class \(styleClass)\(superclassDeclaration) {"
+    
+    if !isOverride {
+      wrapper += "\n\(indentation)\tpublic struct KeyFrame {"
+      wrapper += "\n\(indentation)\t\tvar time: Float?"
+      wrapper += "\n\(indentation)\t\tvar timing: CAMediaTimingFunction?"
+      wrapper += "\n\(indentation)\t}\n"
+    }
+    
+    if isOverridable {
+      wrapper += "\n\(indentation)\tpublic init() {}"
+    }
+    wrapper += "\n\n"
+    return wrapper
+  }
 }
-
-

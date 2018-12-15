@@ -1,12 +1,6 @@
 Color:
-  gray: [b1: "#252423"]
+  red: "#0078d4"
 
-@appearance_proxy Button:
-  color: [c1: $Color.black.b1]
-  borderColor: [c1: $Color.black.b1]
-
-PrimaryButton extends Button:
-  color: [c1: $Color.black.b1]
-
-CircularButton extends Button:
-  color: [c1: $Color.black.b1]
+@animator Animator:
+  basic:
+    test: 10
