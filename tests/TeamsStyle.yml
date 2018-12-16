@@ -10,5 +10,5 @@ Metric:
 @animator Animator:
   basic: 
     curve: $TimingFunctions.easeIn
-    keyFrames: [{relativeStartTime: 0, animationValues: [{type: opacity, from: 0, to: 0]}]}, {relativeStartTime: 0.5, animationValues: [{type: opacity, from: 0, to: 0]}]}]
+    keyFrames: [{relativeStartTime: 0, animationValues: [{type: rotate, from: 0.0, to: 360.0]}]}]
     duration: 2.0

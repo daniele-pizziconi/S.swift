@@ -111,6 +111,7 @@ public enum AnimatableProp {
 	case width(from: CGFloat?, to: CGFloat)
 	case height(from: CGFloat?, to: CGFloat)
 	case left(from: CGFloat?, to: CGFloat)
+	case rotate(from: CGFloat?, to: CGFloat)
 }
 
 
@@ -123,6 +124,7 @@ public extension AnimatableProp {
 		case .width(let from, _):	if let from = from { view.bounds.size.width = from }
 		case .height(let from, _):	if let from = from { view.bounds.size.height = from }
 		case .left(let from, _):	if let from = from { view.frame.origin.x = from }
+		case .rotate(let from, _):	if let from = from { view.transform = view.transform.rotated(by: (from * .pi / 180.0)) }
 		}
 	}
 
@@ -134,6 +136,7 @@ public extension AnimatableProp {
 		case .width(_, let to):		view.bounds.size.width = to
 		case .height(_, let to):	view.bounds.size.height = to
 		case .left(_, let to):		view.frame.origin.x = to
+		case .rotate(_, let to):	view.transform = view.transform.rotated(by: (to * .pi / 180.0))
 		}
 	}
 
@@ -146,27 +149,27 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
 		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
 	}
-	public class ColorAppearanceProxy {
+	public class MetricAppearanceProxy {
 
-		//MARK: yellow 
-		public var _yellow: UIColor?
-		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _yellow { return override }
-			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
 			}
-		public var yellow: UIColor {
-			get { return self.yellowProperty() }
-			set { _yellow = newValue }
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
 		}
 	}
 	//MARK: - TimingFunctions
@@ -192,27 +195,27 @@ public class TeamsStyle: NSObject {
 			set { _easeIn = newValue }
 		}
 	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
 		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
 	}
-	public class MetricAppearanceProxy {
+	public class ColorAppearanceProxy {
 
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
+		//MARK: yellow 
+		public var _yellow: UIColor?
+		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _yellow { return override }
+			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
 			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
+		public var yellow: UIColor {
+			get { return self.yellowProperty() }
+			set { _yellow = newValue }
 		}
 	}
 	//MARK: - Animator
@@ -251,27 +254,6 @@ public class TeamsStyle: NSObject {
 			set { _curve = newValue }
 		}
 
-		//MARK: keyFrames 
-		public var _keyFrames: [KeyFrame]?
-		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(relativeStartTime: 0.0, relativeDuration: 0.0, values: 
-			[
-			.opacity(from: 
-			CGFloat(0.0), to: 
-			CGFloat(0.0))]), 
-			KeyFrame(relativeStartTime: 0.5, relativeDuration: 0.0, values: 
-			[
-			.opacity(from: 
-			CGFloat(0.0), to: 
-			CGFloat(0.0))])]
-			}
-		public var keyFrames: [KeyFrame] {
-			get { return self.keyFramesProperty() }
-			set { _keyFrames = newValue }
-		}
-
 		//MARK: duration 
 		public var _duration: CGFloat?
 		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -281,6 +263,22 @@ public class TeamsStyle: NSObject {
 		public var duration: CGFloat {
 			get { return self.durationProperty() }
 			set { _duration = newValue }
+		}
+
+		//MARK: keyFrames 
+		public var _keyFrames: [KeyFrame]?
+		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
+			[
+			.rotate(from: 
+			CGFloat(0.0), to: 
+			CGFloat(360.0))])]
+			}
+		public var keyFrames: [KeyFrame] {
+			get { return self.keyFramesProperty() }
+			set { _keyFrames = newValue }
 		}
 		}
 	
@@ -304,16 +302,18 @@ extension UIView: AnimatorProxyComponent {
 		let duration = TimeInterval(animator.basic.durationProperty(traitCollection))
 		let propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: animator.basic.curveProperty(traitCollection)) 
 		propertyAnimator.addAnimations { [weak self] in
-			guard let `self` = self else { return }
-			let keyFrames = self.animator.basic.keyFramesProperty(self.traitCollection)
-			for keyFrame in keyFrames {
-				let relativeStartTime = Double(keyFrame.relativeStartTime ?? 0.0)
-				let relativeDuration = Double(keyFrame.relativeDuration ?? CGFloat(duration))
-				keyFrame.values?.forEach({ $0.applyFrom(to: self) })
-				UIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {
-					keyFrame.values?.forEach({ $0.applyTo(to: self) })
+			UIView.animateKeyframes(withDuration: duration, delay: 0, options: [], animations: {
+				guard let `self` = self else { return }
+				let keyFrames = self.animator.basic.keyFramesProperty(self.traitCollection)
+				for keyFrame in keyFrames {
+					let relativeStartTime = Double(keyFrame.relativeStartTime ?? 0.0)
+					let relativeDuration = Double(keyFrame.relativeDuration ?? CGFloat(duration))
+					keyFrame.values?.forEach({ $0.applyFrom(to: self) })
+					UIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {
+						keyFrame.values?.forEach({ $0.applyTo(to: self) })
+					}
 				}
-			}
+			})
 		}
 		return propertyAnimator
 	}

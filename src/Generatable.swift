@@ -229,9 +229,9 @@ enum RhsValue {
         if component.hasPrefix(Rhs.AnimationValue.Props.typeKey) {
           type = escape(Rhs.AnimationValue.Props.typeKey, string: component)
         } else if component.hasPrefix(Rhs.AnimationValue.Props.fromKey) {
-          from = valueFrom(parseNumber(argumentsFromString(Rhs.AnimationValue.Props.fromKey, string: component)!.first!))
+          from = valueFrom(parseNumber(escape(Rhs.AnimationValue.Props.fromKey, string: component)))
         } else if component.hasPrefix(Rhs.AnimationValue.Props.toKey) {
-          to = valueFrom(parseNumber(argumentsFromString(Rhs.AnimationValue.Props.toKey, string: component)!.first!))
+          to = valueFrom(parseNumber(escape(Rhs.AnimationValue.Props.toKey, string: component)))
         }
       }
       return .keyFrameValue(value: Rhs.AnimationValue(type: type!, from: from, to: to!))
@@ -436,10 +436,8 @@ extension RhsValue: Generatable {
   }
   
   func generateKeyFrame(_ prefix: String, keyFrame: Rhs.KeyFrame) -> String {
-//    let time = keyFrame.time ?? 0.0
-//    let timing = keyFrame.timing?.generate() ?? "nil"
     let relativeStartTime = keyFrame.relativeStartTime ?? 0.0
-    let relativeDuration = keyFrame.relativeDuration ?? 0.0
+    let relativeDuration: String = (keyFrame.relativeDuration ?? 0.0) > 0 ? "\(keyFrame.relativeDuration!)" : "nil"
     let values = keyFrame.values?.generate() ?? "nil"
     return "\(prefix)KeyFrame(relativeStartTime: \(relativeStartTime), relativeDuration: \(relativeDuration), values: \(values))"
   }
@@ -1202,7 +1200,7 @@ extension Stylesheet: Generatable {
       header += "\n\t\tcase .width(_, let to):\t\tview.bounds.size.width = to"
       header += "\n\t\tcase .height(_, let to):\tview.bounds.size.height = to"
       header += "\n\t\tcase .left(_, let to):\t\tview.frame.origin.x = to"
-      header += "\n\t\tcase .rotate(_, let to):\t\tview.transform = view.transform.rotated(by: (to * .pi / 180.0))"
+      header += "\n\t\tcase .rotate(_, let to):\tview.transform = view.transform.rotated(by: (to * .pi / 180.0))"
       header += "\n\t\t}"
       header += "\n\t}\n"
       header += "\n}\n\n"
@@ -1373,16 +1371,18 @@ extension Stylesheet: Generatable {
         extensions += "\t\tlet propertyAnimator = UIViewPropertyAnimator(duration: duration, curve: \(curve))\n"
       }
       extensions += "\t\tpropertyAnimator.addAnimations { [weak self] in\n"
-      extensions += "\t\t\tguard let `self` = self else { return }\n"
-      extensions += "\t\t\tlet keyFrames = self.\(animationReference).\(keyFramesProperty.key)Property(self.traitCollection)\n"
-      extensions += "\t\t\tfor keyFrame in keyFrames {\n"
-      extensions += "\t\t\t\tlet relativeStartTime = Double(keyFrame.relativeStartTime ?? 0.0)\n"
-      extensions += "\t\t\t\tlet relativeDuration = Double(keyFrame.relativeDuration ?? CGFloat(duration))\n"
-      extensions += "\t\t\t\tkeyFrame.values?.forEach({ $0.applyFrom(to: self) })\n"
-      extensions += "\t\t\t\tUIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {\n"
-      extensions += "\t\t\t\t\tkeyFrame.values?.forEach({ $0.applyTo(to: self) })\n"
+      extensions += "\t\t\tUIView.animateKeyframes(withDuration: duration, delay: 0, options: [], animations: {\n"
+      extensions += "\t\t\t\tguard let `self` = self else { return }\n"
+      extensions += "\t\t\t\tlet keyFrames = self.\(animationReference).\(keyFramesProperty.key)Property(self.traitCollection)\n"
+      extensions += "\t\t\t\tfor keyFrame in keyFrames {\n"
+      extensions += "\t\t\t\t\tlet relativeStartTime = Double(keyFrame.relativeStartTime ?? 0.0)\n"
+      extensions += "\t\t\t\t\tlet relativeDuration = Double(keyFrame.relativeDuration ?? CGFloat(duration))\n"
+      extensions += "\t\t\t\t\tkeyFrame.values?.forEach({ $0.applyFrom(to: self) })\n"
+      extensions += "\t\t\t\t\tUIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {\n"
+      extensions += "\t\t\t\t\t\tkeyFrame.values?.forEach({ $0.applyTo(to: self) })\n"
+      extensions += "\t\t\t\t\t}\n"
       extensions += "\t\t\t\t}\n"
-      extensions += "\t\t\t}\n"
+      extensions += "\t\t\t})\n"
       extensions += "\t\t}\n"
       extensions += "\t\treturn propertyAnimator\n"
       extensions += "\t}\n\n"
