@@ -1363,7 +1363,7 @@ extension Stylesheet: Generatable {
       let duration = "\(animationReference).\(durationProperty.key)Property(traitCollection)"
       let curve = "\(animationReference).\(curveProperty.key)Property(traitCollection)"
       
-      extensions += "\tpublic func animate\(animation.name.firstUppercased)(with completion: @escaping () -> Void) -> UIViewPropertyAnimator {\n"
+      extensions += "\tpublic func animate\(animation.name.firstUppercased)(with completion: (() -> Void)? = nil) -> UIViewPropertyAnimator {\n"
       extensions += "\t\tlet duration = TimeInterval(\(duration))\n"
       if useTimingParameters {
         extensions += "\t\tlet propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: \(curve)) \n"
@@ -1387,13 +1387,7 @@ extension Stylesheet: Generatable {
       extensions += "\t\treturn propertyAnimator\n"
       extensions += "\t}\n\n"
     }
-    
-    
     extensions += "}\n"
-    
-
-    
-    
     return extensions
   }
   
