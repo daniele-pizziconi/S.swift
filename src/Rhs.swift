@@ -223,7 +223,8 @@ struct Rhs {
                          "size",
                          "width",
                          "height",
-                         "left"]
+                         "left",
+                         "rotate"]
             assert(types.contains(type),
                    "\(type) is not a valid animatable prop. Allowed animatable props: \(types)")
             return ".\(type)(from: \((from?.generate() ?? "nil")), to: \(to.generate()))"

@@ -1178,6 +1178,7 @@ extension Stylesheet: Generatable {
       header += "\n\tcase width(from: CGFloat?, to: CGFloat)"
       header += "\n\tcase height(from: CGFloat?, to: CGFloat)"
       header += "\n\tcase left(from: CGFloat?, to: CGFloat)"
+      header += "\n\tcase rotate(from: CGFloat?, to: CGFloat)"
       header += "\n}\n\n"
       
       header += "\npublic extension AnimatableProp {"
@@ -1189,6 +1190,7 @@ extension Stylesheet: Generatable {
       header += "\n\t\tcase .width(let from, _):\tif let from = from { view.bounds.size.width = from }"
       header += "\n\t\tcase .height(let from, _):\tif let from = from { view.bounds.size.height = from }"
       header += "\n\t\tcase .left(let from, _):\tif let from = from { view.frame.origin.x = from }"
+      header += "\n\t\tcase .rotate(let from, _):\tif let from = from { view.transform = view.transform.rotated(by: (from * .pi / 180.0)) }"
       header += "\n\t\t}"
       header += "\n\t}\n"
       
@@ -1200,6 +1202,7 @@ extension Stylesheet: Generatable {
       header += "\n\t\tcase .width(_, let to):\t\tview.bounds.size.width = to"
       header += "\n\t\tcase .height(_, let to):\tview.bounds.size.height = to"
       header += "\n\t\tcase .left(_, let to):\t\tview.frame.origin.x = to"
+      header += "\n\t\tcase .rotate(_, let to):\t\tview.transform = view.transform.rotated(by: (to * .pi / 180.0))"
       header += "\n\t\t}"
       header += "\n\t}\n"
       header += "\n}\n\n"
