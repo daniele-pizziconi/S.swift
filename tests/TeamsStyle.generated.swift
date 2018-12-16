@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case skype
 	case teams
+	case skype
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.shared()
 		case .teams: return TeamsStyle.shared()
+		case .skype: return SkypeStyle.shared()
 		}
 	}
 }
@@ -96,6 +96,49 @@ public protocol AnimatorProxyComponent: class {
 
 }
 
+
+public struct KeyFrame {
+	var relativeStartTime: CGFloat?
+	var relativeDuration: CGFloat?
+	var values: [AnimatableProp]?
+}
+
+
+public enum AnimatableProp {
+	case opacity(from: CGFloat?, to: CGFloat)
+	case frame(from: CGRect?, to: CGRect)
+	case size(from: CGSize?, to: CGSize)
+	case width(from: CGFloat?, to: CGFloat)
+	case height(from: CGFloat?, to: CGFloat)
+	case left(from: CGFloat?, to: CGFloat)
+}
+
+
+public extension AnimatableProp {
+	func applyFrom(to view: UIView) {
+		switch self {
+		case .opacity(let from, _):	if let from = from { view.alpha = from }
+		case .frame(let from, _):	if let from = from { view.frame = from }
+		case .size(let from, _):	if let from = from { view.bounds.size = from }
+		case .width(let from, _):	if let from = from { view.bounds.size.width = from }
+		case .height(let from, _):	if let from = from { view.bounds.size.height = from }
+		case .left(let from, _):	if let from = from { view.frame.origin.x = from }
+		}
+	}
+
+	func applyTo(to view: UIView) {
+		switch self {
+		case .opacity(_, let to):	view.alpha = to
+		case .frame(_, let to):		view.frame = to
+		case .size(_, let to):		view.bounds.size = to
+		case .width(_, let to):		view.bounds.size.width = to
+		case .height(_, let to):	view.bounds.size.height = to
+		case .left(_, let to):		view.frame.origin.x = to
+		}
+	}
+
+}
+
 /// Entry point for the app stylesheet
 public class TeamsStyle: NSObject {
 
@@ -139,12 +182,12 @@ public class TeamsStyle: NSObject {
 	public class TimingFunctionsAppearanceProxy {
 
 		//MARK: easeIn 
-		public var _easeIn: CAMediaTimingFunction?
-		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CAMediaTimingFunction {
+		public var _easeIn: UITimingCurveProvider?
+		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UITimingCurveProvider {
 			if let override = _easeIn { return override }
-			return CAMediaTimingFunction(controlPoints: 1.0, 0.0, 0.78, 1.0)
+			return UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0))
 			}
-		public var easeIn: CAMediaTimingFunction {
+		public var easeIn: UITimingCurveProvider {
 			get { return self.easeInProperty() }
 			set { _easeIn = newValue }
 		}
@@ -183,11 +226,6 @@ public class TeamsStyle: NSObject {
 		set { _Animator = newValue }
 	}
 	open class AnimatorAnimatorProxy {
-		public struct KeyFrame {
-			var time: Float?
-			var timing: CAMediaTimingFunction?
-		}
-
 		public init() {}
 
 		//MARK: - basic
@@ -202,6 +240,27 @@ public class TeamsStyle: NSObject {
 		}
 		public class basicAppearanceProxy {
 
+		//MARK: keyFrames 
+		public var _keyFrames: [KeyFrame]?
+		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(relativeStartTime: 0.0, relativeDuration: 0.0, values: 
+			[
+			.opacity(from: 
+			CGFloat(0.0), to: 
+			CGFloat(0.0))]), 
+			KeyFrame(relativeStartTime: 0.5, relativeDuration: 0.0, values: 
+			[
+			.opacity(from: 
+			CGFloat(0.0), to: 
+			CGFloat(0.0))])]
+			}
+		public var keyFrames: [KeyFrame] {
+			get { return self.keyFramesProperty() }
+			set { _keyFrames = newValue }
+		}
+
 		//MARK: duration 
 		public var _duration: CGFloat?
 		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -213,18 +272,15 @@ public class TeamsStyle: NSObject {
 			set { _duration = newValue }
 		}
 
-		//MARK: keyFrames 
-		public var _keyFrames: [KeyFrame]?
-		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(time: 0.0, timing: nil), 
-			KeyFrame(time: 0.4, timing: 
-			TimingFunctions.easeInProperty(traitCollection))]
+		//MARK: curve 
+		public var _curve: UITimingCurveProvider?
+		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UITimingCurveProvider {
+			if let override = _curve { return override }
+			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
 			}
-		public var keyFrames: [KeyFrame] {
-			get { return self.keyFramesProperty() }
-			set { _keyFrames = newValue }
+		public var curve: UITimingCurveProvider {
+			get { return self.curveProperty() }
+			set { _curve = newValue }
 		}
 		}
 	
@@ -243,4 +299,23 @@ extension UIView: AnimatorProxyComponent {
 			objc_setAssociatedObject(self, &__AnimatorProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 		}
 	}
+
+	public func animateBasic(with completion: @escaping () -> Void) -> UIViewPropertyAnimator {
+		let duration = TimeInterval(animator.basic.durationProperty(traitCollection))
+		let propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: animator.basic.curveProperty(traitCollection)) 
+		propertyAnimator.addAnimations { [weak self] in
+			guard let `self` = self else { return }
+			let keyFrames = self.animator.basic.keyFramesProperty(self.traitCollection)
+			for keyFrame in keyFrames {
+				let relativeStartTime = Double(keyFrame.relativeStartTime ?? 0.0)
+				let relativeDuration = Double(keyFrame.relativeDuration ?? CGFloat(duration))
+				keyFrame.values?.forEach({ $0.applyFrom(to: self) })
+				UIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {
+					keyFrame.values?.forEach({ $0.applyTo(to: self) })
+				}
+			}
+		}
+		return propertyAnimator
+	}
+
 }

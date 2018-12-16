@@ -9,5 +9,6 @@ Metric:
 
 @animator Animator:
   basic: 
-    keyFrames: [{time: 0}, {time: 0.4, timing: $TimingFunctions.easeIn}]
+    curve: $TimingFunctions.easeIn
+    keyFrames: [{relativeStartTime: 0, animationValues: [{type: opacity, from: 0, to: 0]}]}, {relativeStartTime: 0.5, animationValues: [{type: opacity, from: 0, to: 0]}]}]
     duration: 2.0

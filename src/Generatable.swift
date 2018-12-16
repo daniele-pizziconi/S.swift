@@ -46,11 +46,14 @@ enum RhsValue {
   /// An enum.
   case `enum`(type: String, name: String)
   
-  /// A CAMediaTimingFunction.
+  /// An animation curve
   case timingFunction(function: Rhs.TimingFunction)
   
   /// A KeyFrame.
   case keyFrame(keyFrame: Rhs.KeyFrame)
+  
+  /// A KeyFrameValue.
+  case keyFrameValue(value: Rhs.AnimationValue)
   
   /// An array of RhsValue
   case array(values: [RhsValue])
@@ -67,7 +70,7 @@ enum RhsValue {
 
   fileprivate var isRedirect: Bool {
     switch self {
-    case .keyFrame(let keyFrame): return keyFrame.timing?.isRedirect ?? false
+//    case .keyFrame(let keyFrame): return keyFrame.timing?.isRedirect ?? false
     case .redirect: return true
     default: return false
     }
@@ -76,9 +79,9 @@ enum RhsValue {
   fileprivate var redirection: String? {
     switch self {
     case .redirect(let r): return r.redirection
-    case .keyFrame(let keyFrame):
-      guard let timing = keyFrame.timing, case let .redirect(r) = timing else { return nil }
-      return r.redirection
+//    case .keyFrame(let keyFrame):
+//      guard let timing = keyFrame.timing, case let .redirect(r) = timing else { return nil }
+//      return r.redirection
     default: return nil
     }
   }
@@ -86,9 +89,9 @@ enum RhsValue {
   fileprivate func applyRedirection(_ redirectValue: RhsRedirectValue) -> RhsValue {
     switch self {
     case .redirect(_): return .redirect(redirection: redirectValue)
-    case .keyFrame(let keyFrame):
-      guard let timing = keyFrame.timing, timing.isRedirect else { return self }
-      return .keyFrame(keyFrame: keyFrame)
+//    case .keyFrame(let keyFrame):
+//      guard let timing = keyFrame.timing, timing.isRedirect else { return self }
+//      return .keyFrame(keyFrame: keyFrame)
     default: return self
     }
   }
@@ -216,23 +219,47 @@ enum RhsValue {
         return .timingFunction(function: Rhs.TimingFunction(name: components[0]))
       }
       
-    } else if let components = argumentsFromString("keyFrame", string: string) {
-      var timing: RhsValue?
-      var time: Float?
+    } else if let components = argumentsFromString(Rhs.AnimationValue.Props.animationValueKey, string: string) {
+      assert(components.count == 2 || components.count == 3)
+      var type: String?
+      var from: RhsValue?
+      var to: RhsValue?
+      
+      for component in components {
+        if component.hasPrefix(Rhs.AnimationValue.Props.typeKey) {
+          type = escape(Rhs.AnimationValue.Props.typeKey, string: component)
+        } else if component.hasPrefix(Rhs.AnimationValue.Props.fromKey) {
+          from = valueFrom(parseNumber(argumentsFromString(Rhs.AnimationValue.Props.fromKey, string: component)!.first!))
+        } else if component.hasPrefix(Rhs.AnimationValue.Props.toKey) {
+          to = valueFrom(parseNumber(argumentsFromString(Rhs.AnimationValue.Props.toKey, string: component)!.first!))
+        }
+      }
+      return .keyFrameValue(value: Rhs.AnimationValue(type: type!, from: from, to: to!))
+      
+    } else if let components = argumentsFromString(Rhs.KeyFrame.Props.keyFrameKey, string: string) {
+      var relativeStartTime: Float?
+      var relativeDuration: Float?
+      var values: RhsValue?
       
       for var component in components {
         component = component.trimmingCharacters(in: CharacterSet.whitespaces)
-        if component.hasPrefix("time") {
-          time = parseNumber(component.replacingOccurrences(of: "time: ", with: ""))
-        } else if component.hasPrefix("timing") {
-          var function = components.filter({ !$0.hasPrefix("time") }).joined(separator: ",")
+        if component.hasPrefix(Rhs.KeyFrame.Props.relativeStartTimeKey) {
+          relativeStartTime = parseNumber(component.replacingOccurrences(of: "\(Rhs.KeyFrame.Props.relativeStartTimeKey): ", with: ""))
+        } else if component.hasPrefix(Rhs.KeyFrame.Props.relativeDurationKey) {
+          relativeDuration = parseNumber(component.replacingOccurrences(of: "\(Rhs.KeyFrame.Props.relativeDurationKey): ", with: ""))
+        } else if component.hasPrefix(Rhs.KeyFrame.Props.animationValuesKey) {
+          var function = components.filter({ !$0.hasPrefix(Rhs.KeyFrame.Props.relativeStartTimeKey) && !$0.hasPrefix(Rhs.KeyFrame.Props.relativeDurationKey) }).joined(separator: ",")
           function = function.trimmingCharacters(in: CharacterSet.whitespaces)
           function = function.replacingOccurrences(of: " ", with: "")
-          function = function.replacingOccurrences(of: "timing:", with: "")
-          timing = try? valueFrom(function)
+          function = function.replacingOccurrences(of: "\(Rhs.KeyFrame.Props.animationValuesKey):", with: "")
+          function = function.replacingOccurrences(of: "\(Rhs.AnimationValue.Props.animationValueKey)", with: "\"\(Rhs.AnimationValue.Props.animationValueKey)")
+          function = function.replacingOccurrences(of: ")", with: ")\"")
+          if let yaml = try? Yaml.load(function), case let .array(a) = yaml {
+            values = try? valueFrom(a)
+          }
         }
       }
-      return .keyFrame(keyFrame: Rhs.KeyFrame(time: time, timing: timing))
+      return .keyFrame(keyFrame: Rhs.KeyFrame(relativeStartTime: relativeStartTime, relativeDuration: relativeDuration, values: values))
       
     } else if let components = argumentsFromString("enum", string: string) {
       assert(components.count == 1, "Not a valid enum. Format: enum(Type.Value)")
@@ -265,8 +292,9 @@ enum RhsValue {
     case .size(_, _): return "CGSize"
     case .rect(_, _, _, _): return "CGRect"
     case .edgeInset(_, _, _, _): return  Configuration.targetOsx ? "NSEdgeInsets" : "UIEdgeInsets"
-    case .timingFunction(_): return "CAMediaTimingFunction"
+    case .timingFunction(let function): return function.controlPoints != nil ? "UITimingCurveProvider" : "UIView.AnimationCurve"
     case .keyFrame(_): return "KeyFrame"
+    case .keyFrameValue(_): return "AnimationableProp"
     case .hash(let hash): for (_, rhs) in hash { return rhs.returnValue() }
     case .call(_, let type): return type
     case .array(let values):
@@ -333,6 +361,9 @@ extension RhsValue: Generatable {
       
     case .keyFrame(let keyFrame):
       return generateKeyFrame(prefix, keyFrame: keyFrame)
+      
+    case .keyFrameValue(let keyFrameValue):
+      return generateKeyFrameValue(prefix, keyFrameValue: keyFrameValue)
 
     case .call(let call, _):
       return generateCall(prefix, string: call)
@@ -395,22 +426,28 @@ extension RhsValue: Generatable {
   }
   
   func generateTimingFunction(_ prefix: String, function: Rhs.TimingFunction) -> String {
-    let timingFunctionClass = "CAMediaTimingFunction"
     
     //control points font
     if let controlPoints = function.controlPoints {
-      return "\(prefix)\(timingFunctionClass)(controlPoints: \(controlPoints.c1), \(controlPoints.c2), \(controlPoints.c3), \(controlPoints.c4))"
+      return "\(prefix)UICubicTimingParameters(controlPoint1: CGPoint(x: \(controlPoints.c1), y: \(controlPoints.c2)), controlPoint2: CGPoint(x: \(controlPoints.c3), y: \(controlPoints.c4)))"
     } else {
-      return "\(prefix)\(timingFunctionClass)(name: \(function.name!))"
+      return "\(prefix)\(function.name!)"
     }
   }
   
   func generateKeyFrame(_ prefix: String, keyFrame: Rhs.KeyFrame) -> String {
-    let time = keyFrame.time ?? 0.0
-    let timing = keyFrame.timing?.generate() ?? "nil"
-    return "\(prefix)KeyFrame(time: \(time), timing: \(timing))"
+//    let time = keyFrame.time ?? 0.0
+//    let timing = keyFrame.timing?.generate() ?? "nil"
+    let relativeStartTime = keyFrame.relativeStartTime ?? 0.0
+    let relativeDuration = keyFrame.relativeDuration ?? 0.0
+    let values = keyFrame.values?.generate() ?? "nil"
+    return "\(prefix)KeyFrame(relativeStartTime: \(relativeStartTime), relativeDuration: \(relativeDuration), values: \(values))"
   }
-
+  
+  func generateKeyFrameValue(_ prefix: String, keyFrameValue: Rhs.AnimationValue) -> String {
+    return "\(prefix)\(keyFrameValue.enumType)"
+  }
+    
   func generateImage(_ prefix: String, image: String) -> String {
     let colorClass = Configuration.targetOsx ? "NSImage" : "UImage"
     return "\(prefix)\(colorClass)(named: \"\(image)\")!"
@@ -1124,8 +1161,50 @@ extension Stylesheet: Generatable {
     header += "/// Your view should conform to 'AnimatorProxyComponent'.\n"
     header += "public protocol AnimatorProxyComponent: class {\n"
     header += "\tassociatedtype AnimatorProxyType\n"
-    header += "\tvar \(animatorName!.lowercased()): AnimatorProxyType { get }\n"
+    header += "\tvar \(animatorName!.firstLowercased): AnimatorProxyType { get }\n"
     header += "\n}\n\n"
+    
+    if superclassName == nil {
+      header += "\npublic struct KeyFrame {"
+      header += "\n\tvar relativeStartTime: CGFloat?"
+      header += "\n\tvar relativeDuration: CGFloat?"
+      header += "\n\tvar values: [AnimatableProp]?"
+      header += "\n}\n\n"
+      
+      header += "\npublic enum AnimatableProp {"
+      header += "\n\tcase opacity(from: CGFloat?, to: CGFloat)"
+      header += "\n\tcase frame(from: CGRect?, to: CGRect)"
+      header += "\n\tcase size(from: CGSize?, to: CGSize)"
+      header += "\n\tcase width(from: CGFloat?, to: CGFloat)"
+      header += "\n\tcase height(from: CGFloat?, to: CGFloat)"
+      header += "\n\tcase left(from: CGFloat?, to: CGFloat)"
+      header += "\n}\n\n"
+      
+      header += "\npublic extension AnimatableProp {"
+      header += "\n\tfunc applyFrom(to view: UIView) {"
+      header += "\n\t\tswitch self {"
+      header += "\n\t\tcase .opacity(let from, _):\tif let from = from { view.alpha = from }"
+      header += "\n\t\tcase .frame(let from, _):\tif let from = from { view.frame = from }"
+      header += "\n\t\tcase .size(let from, _):\tif let from = from { view.bounds.size = from }"
+      header += "\n\t\tcase .width(let from, _):\tif let from = from { view.bounds.size.width = from }"
+      header += "\n\t\tcase .height(let from, _):\tif let from = from { view.bounds.size.height = from }"
+      header += "\n\t\tcase .left(let from, _):\tif let from = from { view.frame.origin.x = from }"
+      header += "\n\t\t}"
+      header += "\n\t}\n"
+      
+      header += "\n\tfunc applyTo(to view: UIView) {"
+      header += "\n\t\tswitch self {"
+      header += "\n\t\tcase .opacity(_, let to):\tview.alpha = to"
+      header += "\n\t\tcase .frame(_, let to):\t\tview.frame = to"
+      header += "\n\t\tcase .size(_, let to):\t\tview.bounds.size = to"
+      header += "\n\t\tcase .width(_, let to):\t\tview.bounds.size.width = to"
+      header += "\n\t\tcase .height(_, let to):\tview.bounds.size.height = to"
+      header += "\n\t\tcase .left(_, let to):\t\tview.frame.origin.x = to"
+      header += "\n\t\t}"
+      header += "\n\t}\n"
+      header += "\n}\n\n"
+    }
+    
     return header
   }
   
@@ -1271,8 +1350,47 @@ extension Stylesheet: Generatable {
       "\t\t\tobjc_setAssociatedObject(self, &__AnimatorProxyHandle, newValue,"
       + " .OBJC_ASSOCIATION_RETAIN_NONATOMIC)\n"
     extensions += "\t\t}\n"
-    extensions += "\t}\n"
+    extensions += "\t}\n\n"
+    
+    for animation in animations {
+      let curveProperty = animation.properties.filter({ $0.key == "curve" }).first!
+      let durationProperty = animation.properties.filter({ $0.key == "duration" }).first!
+      let keyFramesProperty = animation.properties.filter({ $0.key == "keyFrames" }).first!
+      let useTimingParameters = curveProperty.rhs!.returnValue().hasPrefix("UITimingCurveProvider")
+      let animator = animatorName!.firstLowercased
+      let animationReference = "\(animator).\(animation.name)"
+      let duration = "\(animationReference).\(durationProperty.key)Property(traitCollection)"
+      let curve = "\(animationReference).\(curveProperty.key)Property(traitCollection)"
+      
+      extensions += "\tpublic func animate\(animation.name.firstUppercased)(with completion: @escaping () -> Void) -> UIViewPropertyAnimator {\n"
+      extensions += "\t\tlet duration = TimeInterval(\(duration))\n"
+      if useTimingParameters {
+        extensions += "\t\tlet propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: \(curve)) \n"
+      } else {
+        extensions += "\t\tlet propertyAnimator = UIViewPropertyAnimator(duration: duration, curve: \(curve))\n"
+      }
+      extensions += "\t\tpropertyAnimator.addAnimations { [weak self] in\n"
+      extensions += "\t\t\tguard let `self` = self else { return }\n"
+      extensions += "\t\t\tlet keyFrames = self.\(animationReference).\(keyFramesProperty.key)Property(self.traitCollection)\n"
+      extensions += "\t\t\tfor keyFrame in keyFrames {\n"
+      extensions += "\t\t\t\tlet relativeStartTime = Double(keyFrame.relativeStartTime ?? 0.0)\n"
+      extensions += "\t\t\t\tlet relativeDuration = Double(keyFrame.relativeDuration ?? CGFloat(duration))\n"
+      extensions += "\t\t\t\tkeyFrame.values?.forEach({ $0.applyFrom(to: self) })\n"
+      extensions += "\t\t\t\tUIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {\n"
+      extensions += "\t\t\t\t\tkeyFrame.values?.forEach({ $0.applyTo(to: self) })\n"
+      extensions += "\t\t\t\t}\n"
+      extensions += "\t\t\t}\n"
+      extensions += "\t\t}\n"
+      extensions += "\t\treturn propertyAnimator\n"
+      extensions += "\t}\n\n"
+    }
+    
+    
     extensions += "}\n"
+    
+
+    
+    
     return extensions
   }
   
@@ -1321,13 +1439,6 @@ extension Stylesheet: Generatable {
     }
     let superclassDeclaration = isOverride ? ": \(baseStylesheetName).\(name)AnimatorProxy" : ""
     wrapper += "\n\(indentation)\(objc)\(visibility) class \(styleClass)\(superclassDeclaration) {"
-    
-    if !isOverride {
-      wrapper += "\n\(indentation)\tpublic struct KeyFrame {"
-      wrapper += "\n\(indentation)\t\tvar time: Float?"
-      wrapper += "\n\(indentation)\t\tvar timing: CAMediaTimingFunction?"
-      wrapper += "\n\(indentation)\t}\n"
-    }
     
     if isOverridable {
       wrapper += "\n\(indentation)\tpublic init() {}"

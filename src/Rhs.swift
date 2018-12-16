@@ -171,14 +171,13 @@ struct Rhs {
         var name: String?
         
         init(name: String) {
-            let functionNames = ["default",
-                                 "easeIn",
-                                 "easeInEaseOut",
+            let functionNames = ["easeIn",
+                                 "easeInOut",
                                  "easeOut",
                                  "linear"]
             assert(functionNames.contains(name),
                    "\(name) is not a valid timing function. Allowed timing functions: \(functionNames)")
-            self.name = "CAMediaTimingFunctionName.\(name)"
+            self.name = "UIView.AnimationCurve.\(name)"
         }
         
         init(c1: Float, c2: Float, c3: Float, c4:Float) {
@@ -187,12 +186,53 @@ struct Rhs {
     }
     
     class KeyFrame {
-        var time: Float?
-        var timing: RhsValue?
         
-        init(time: Float?, timing: RhsValue?) {
-            self.time = time
-            self.timing = timing
+        struct Props {
+            static let keyFrameKey = "keyFrame"
+            static let relativeStartTimeKey = "relativeStartTime"
+            static let relativeDurationKey = "relativeDuration"
+            static let animationValuesKey = "animationValues"
+        }
+        
+        var relativeStartTime: Float?
+        var relativeDuration: Float?
+        var values: RhsValue?
+        
+        init(relativeStartTime: Float?, relativeDuration: Float?, values: RhsValue?) {
+            self.relativeStartTime = relativeStartTime
+            self.relativeDuration = relativeDuration
+            self.values = values
+        }
+    }
+    
+    class AnimationValue {
+        var type: String
+        var from: RhsValue?
+        var to: RhsValue
+        
+        struct Props {
+            static let animationValueKey = "animationValue"
+            static let typeKey = "type"
+            static let fromKey = "from"
+            static let toKey = "to"
+        }
+        
+        var enumType: String {
+            let types = ["opacity",
+                         "frame",
+                         "size",
+                         "width",
+                         "height",
+                         "left"]
+            assert(types.contains(type),
+                   "\(type) is not a valid animatable prop. Allowed animatable props: \(types)")
+            return ".\(type)(from: \((from?.generate() ?? "nil")), to: \(to.generate()))"
+        }
+        
+        init(type: String, from: RhsValue?, to: RhsValue) {
+            self.type = type
+            self.from = from
+            self.to = to
         }
     }
 }

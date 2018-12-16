@@ -9,6 +9,10 @@ extension StringProtocol {
         guard let first = first else { return "" }
         return String(first).capitalized + dropFirst()
     }
+    var firstLowercased: String {
+        guard let first = first else { return "" }
+        return String(first).lowercased() + dropFirst()
+    }
 }
 
 extension String {
@@ -51,13 +55,23 @@ func argumentsFromString(_ key: String, string: String) -> [String]? {
     return parsableString.components(separatedBy: ",")
 }
 
+func escape(_ key: String, string: String) -> String {
+    var input = string.trimmingCharacters(in: CharacterSet.whitespaces)
+    input = input.replacingOccurrences(of: " ", with: "")
+    return input.replacingOccurrences(of: "\(key):", with: "")
+}
+
 func argumentFromArray(_ key: String, string: String) -> String? {
     let input = string.replacingOccurrences(of: key.firstCapitalized, with: key);
     if !input.hasPrefix(key) {
         return nil
     }
     // Remove the parenthesis.
-    return input.replacingOccurrences(of: "\(key)(", with: "")
+    var parsableString = input.replacingOccurrences(of: "\(key)(", with: "")
+    if let index = parsableString.lastIndex(of: ")") {
+        parsableString.remove(at: index)
+    }
+    return parsableString
 }
 
 /// Parse a number from a string.
@@ -81,18 +95,31 @@ func preprocessInput(_ string: String) -> String {
     var result = string.replacingOccurrences(of: "#", with: "color(");
     result = result.replacingOccurrences(of: "$", with: "redirect(");
     
-    let pattern = "keyFrames:\\s+(.*?)\n"
-    let formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
-    let matches = formatter.matches(in: result, options: [], range: NSRange(location: 0, length: result.count))
+    var pattern = "animationValues:\\s+(.*?)\\}]"
+    var formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
+    var matches = formatter.matches(in: result, options: [], range: NSRange(location: 0, length: result.count))
+    var formattedResult = result
     for match in matches {
-        let template = "keyFrames: $1\n"
-//        let template = "keyFrames: $1\n"
-        let matchRange = Range(match.range, in: result)  // see above
-        var replacement = formatter.replacementString(for: match, in: result, offset: 0, template: template)
-        replacement = replacement.replacingOccurrences(of: "{", with: "\"keyFrame(")
-        replacement = replacement.replacingOccurrences(of: "}", with: ")\"")
-        result.replaceSubrange(matchRange!, with: replacement)
+        let template = "animationValues: $1}]"
+        let replacement = formatter.replacementString(for: match, in: result, offset: 0, template: template)
+        var newReplacement = replacement.replacingOccurrences(of: "{", with: "animationValue(")
+        newReplacement = newReplacement.replacingOccurrences(of: "}", with: ")")
+        formattedResult = formattedResult.replacingOccurrences(of: replacement, with: newReplacement)
     }
-    return result
+    result = formattedResult
+    
+    pattern = "keyFrames:\\s+(.*?)]\n"
+    formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
+    matches = formatter.matches(in: result, options: [], range: NSRange(location: 0, length: result.count))
+    formattedResult = result
+    for match in matches {
+        let template = "keyFrames: $1]\n"
+//        let template = "keyFrames: $1\n"
+        let replacement = formatter.replacementString(for: match, in: result, offset: 0, template: template)
+        var newReplacement = replacement.replacingOccurrences(of: "{", with: "\"keyFrame(")
+        newReplacement = newReplacement.replacingOccurrences(of: "}", with: ")\"")
+        formattedResult = formattedResult.replacingOccurrences(of: replacement, with: newReplacement)
+    }
+    return formattedResult
 }
 
