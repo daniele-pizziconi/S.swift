@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case skype
 	case teams
+	case skype
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.shared()
 		case .teams: return TeamsStyle.shared()
+		case .skype: return SkypeStyle.shared()
 		}
 	}
 }
@@ -205,29 +205,6 @@ public class TeamsStyle: NSObject {
 			set { _yellow = newValue }
 		}
 	}
-	//MARK: - TimingFunctions
-	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
-	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return TimingFunctionsAppearanceProxy()
-		}
-	public var TimingFunctions: TimingFunctionsAppearanceProxy {
-		get { return self.TimingFunctionsStyle() }
-		set { _TimingFunctions = newValue }
-	}
-	public class TimingFunctionsAppearanceProxy {
-
-		//MARK: easeIn 
-		public var _easeIn: AnimationCurveType?
-		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _easeIn { return override }
-			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
-			}
-		public var easeIn: AnimationCurveType {
-			get { return self.easeInProperty() }
-			set { _easeIn = newValue }
-		}
-	}
 	//MARK: - Metric
 	public var _Metric: MetricAppearanceProxy?
 	open func MetricStyle() -> MetricAppearanceProxy {
@@ -249,6 +226,29 @@ public class TeamsStyle: NSObject {
 		public var test: CGFloat {
 			get { return self.testProperty() }
 			set { _test = newValue }
+		}
+	}
+	//MARK: - TimingFunctions
+	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
+	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return TimingFunctionsAppearanceProxy()
+		}
+	public var TimingFunctions: TimingFunctionsAppearanceProxy {
+		get { return self.TimingFunctionsStyle() }
+		set { _TimingFunctions = newValue }
+	}
+	public class TimingFunctionsAppearanceProxy {
+
+		//MARK: easeIn 
+		public var _easeIn: AnimationCurveType?
+		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _easeIn { return override }
+			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
+			}
+		public var easeIn: AnimationCurveType {
+			get { return self.easeInProperty() }
+			set { _easeIn = newValue }
 		}
 	}
 	//MARK: - Animator
@@ -440,39 +440,6 @@ public class TeamsStyle: NSObject {
 			set { _repeatCount = newValue }
 		}
 
-		//MARK: curve 
-		public var _curve: AnimationCurveType?
-		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
-			}
-		public var curve: AnimationCurveType {
-			get { return self.curveProperty() }
-			set { _curve = newValue }
-		}
-
-		//MARK: delay 
-		public var _delay: CGFloat?
-		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
-			}
-		public var delay: CGFloat {
-			get { return self.delayProperty() }
-			set { _delay = newValue }
-		}
-
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return CGFloat(2.0)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
-		}
-
 		//MARK: keyFrames 
 		public var _keyFrames: [KeyFrame]?
 		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
@@ -487,6 +454,39 @@ public class TeamsStyle: NSObject {
 		public var keyFrames: [KeyFrame] {
 			get { return self.keyFramesProperty() }
 			set { _keyFrames = newValue }
+		}
+
+		//MARK: delay 
+		public var _delay: CGFloat?
+		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _delay { return override }
+			return CGFloat(0.0)
+			}
+		public var delay: CGFloat {
+			get { return self.delayProperty() }
+			set { _delay = newValue }
+		}
+
+		//MARK: curve 
+		public var _curve: AnimationCurveType?
+		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
+			}
+		public var curve: AnimationCurveType {
+			get { return self.curveProperty() }
+			set { _curve = newValue }
+		}
+
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return CGFloat(2.0)
+			}
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
 		}
 		}
 	
