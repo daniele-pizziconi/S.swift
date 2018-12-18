@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case teams
 	case skype
+	case teams
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .teams: return TeamsStyle.shared()
 		case .skype: return SkypeStyle.shared()
+		case .teams: return TeamsStyle.shared()
 		}
 	}
 }
@@ -170,6 +170,29 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
+	public class ColorAppearanceProxy {
+
+		//MARK: yellow 
+		public var _yellow: UIColor?
+		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _yellow { return override }
+			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+			}
+		public var yellow: UIColor {
+			get { return self.yellowProperty() }
+			set { _yellow = newValue }
+		}
+	}
 	//MARK: - Metric
 	public var _Metric: MetricAppearanceProxy?
 	open func MetricStyle() -> MetricAppearanceProxy {
@@ -214,29 +237,6 @@ public class TeamsStyle: NSObject {
 		public var easeIn: AnimationCurveType {
 			get { return self.easeInProperty() }
 			set { _easeIn = newValue }
-		}
-	}
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
-		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
-	}
-	public class ColorAppearanceProxy {
-
-		//MARK: yellow 
-		public var _yellow: UIColor?
-		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _yellow { return override }
-			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
-			}
-		public var yellow: UIColor {
-			get { return self.yellowProperty() }
-			set { _yellow = newValue }
 		}
 	}
 	//MARK: - Animator
@@ -413,39 +413,6 @@ public class TeamsStyle: NSObject {
 		}
 		public class basicAppearanceProxy {
 
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return CGFloat(2.0)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
-		}
-
-		//MARK: curve 
-		public var _curve: AnimationCurveType?
-		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
-			}
-		public var curve: AnimationCurveType {
-			get { return self.curveProperty() }
-			set { _curve = newValue }
-		}
-
-		//MARK: repeatCount 
-		public var _repeatCount: AnimationRepeatCount?
-		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.count(0)
-			}
-		public var repeatCount: AnimationRepeatCount {
-			get { return self.repeatCountProperty() }
-			set { _repeatCount = newValue }
-		}
-
 		//MARK: keyFrames 
 		public var _keyFrames: [KeyFrame]?
 		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
@@ -471,6 +438,39 @@ public class TeamsStyle: NSObject {
 		public var delay: CGFloat {
 			get { return self.delayProperty() }
 			set { _delay = newValue }
+		}
+
+		//MARK: curve 
+		public var _curve: AnimationCurveType?
+		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
+			}
+		public var curve: AnimationCurveType {
+			get { return self.curveProperty() }
+			set { _curve = newValue }
+		}
+
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return CGFloat(2.0)
+			}
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
+		}
+
+		//MARK: repeatCount 
+		public var _repeatCount: AnimationRepeatCount?
+		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.infinite
+			}
+		public var repeatCount: AnimationRepeatCount {
+			get { return self.repeatCountProperty() }
+			set { _repeatCount = newValue }
 		}
 		}
 	

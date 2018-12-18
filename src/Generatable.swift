@@ -1585,7 +1585,7 @@ extension Stylesheet: Generatable {
         let delay = "(\(delayProperty.key)Animation(of: type, for: view) ?? 0.0)"
         wrapper += "\n\(indentation)\t\t}, delayFactor: \(delay))"
       } else {
-        wrapper += "\n\(indentation)\t\t})}"
+        wrapper += "\n\(indentation)\t\t})"
       }
       wrapper += "\n\(indentation)\t\tpropertyAnimator.addCompletion({ [weak self] _ in"
       wrapper += "\n\(indentation)\t\t\tguard let `self` = self else { return }"
