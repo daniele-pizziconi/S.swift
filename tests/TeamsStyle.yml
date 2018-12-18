@@ -12,3 +12,5 @@ Metric:
     curve: $TimingFunctions.easeIn
     keyFrames: [{relativeStartTime: 0, animationValues: [{type: rotate, from: 0.0, to: 360.0]}]}]
     duration: 2.0
+    delay: 0.0
+    repeatCount: 0

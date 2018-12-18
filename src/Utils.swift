@@ -95,10 +95,23 @@ func preprocessInput(_ string: String) -> String {
     var result = string.replacingOccurrences(of: "#", with: "color(");
     result = result.replacingOccurrences(of: "$", with: "redirect(");
     
-    var pattern = "animationValues:\\s+(.*?)\\}]"
+    var pattern = "repeatCount:\\s+(.*?)\n"
     var formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
     var matches = formatter.matches(in: result, options: [], range: NSRange(location: 0, length: result.count))
     var formattedResult = result
+    for match in matches {
+        let template = "repeatCount: $1\n"
+        let replacement = formatter.replacementString(for: match, in: result, offset: 0, template: template)
+        var newReplacement = replacement.replacingOccurrences(of: "repeatCount: ", with: "repeatCount: repeatCount(")
+        newReplacement = newReplacement.replacingOccurrences(of: "\n", with: ")\n")
+        formattedResult = formattedResult.replacingOccurrences(of: replacement, with: newReplacement)
+    }
+    result = formattedResult
+    
+    pattern = "animationValues:\\s+(.*?)\\}]"
+    formatter = try! NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
+    matches = formatter.matches(in: result, options: [], range: NSRange(location: 0, length: result.count))
+    formattedResult = result
     for match in matches {
         let template = "animationValues: $1}]"
         let replacement = formatter.replacementString(for: match, in: result, offset: 0, template: template)
@@ -114,7 +127,6 @@ func preprocessInput(_ string: String) -> String {
     formattedResult = result
     for match in matches {
         let template = "keyFrames: $1]\n"
-//        let template = "keyFrames: $1\n"
         let replacement = formatter.replacementString(for: match, in: result, offset: 0, template: template)
         var newReplacement = replacement.replacingOccurrences(of: "{", with: "\"keyFrame(")
         newReplacement = newReplacement.replacingOccurrences(of: "}", with: ")\"")
