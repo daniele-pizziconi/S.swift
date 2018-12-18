@@ -1601,7 +1601,7 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\t\t\t\t}"
       wrapper += "\n\(indentation)\t\t\t\t}"
       wrapper += "\n\(indentation)\t\t\t})"
-      wrapper += "\n\(indentation)\t\t}, delayFactor: \(delay))"
+      wrapper += "\n\(indentation)\t\t}, delayFactor: delay)"
       wrapper += "\n\(indentation)\t\tif let repeatCount = propertyAnimator.repeatCount, case let .count(count) = repeatCount, count == 0 { return propertyAnimator }"
       wrapper += "\n\(indentation)\t\tpropertyAnimator.addCompletion({ _ in"
       wrapper += "\n\(indentation)\t\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.firstLowercased)Identifier }).first\n"
@@ -1619,7 +1619,7 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\treturn propertyAnimator"
       wrapper += "\n\(indentation)\t}\n"
       
-      wrapper += "\n\(indentation)\t\(visibility) func animate(view: UIView, type: AnimationType, state: AnimationState = .start) {"
+      wrapper += "\n\(indentation)\t\(visibility) func animate(view: UIView, type: AnimationType, state: AnimationState = .start, options: AnimationConfigOptions?) {"
       wrapper += "\n\(indentation)\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.firstLowercased)Identifier }).first"
       wrapper += "\n\(indentation)\t\tif currentContext != nil && state == .start { return }\n"
       wrapper += "\n\(indentation)\t\tswitch state {"
