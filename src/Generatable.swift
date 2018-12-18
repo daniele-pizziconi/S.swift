@@ -1627,7 +1627,7 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\tcase .start:"
       wrapper += "\n\(indentation)\t\t\tview.\(animatorName!.firstLowercased)Identifier = UUID().uuidString"
       wrapper += "\n\(indentation)\t\t\tlet context = AnimationContext(viewTag: view.\(animatorName!.firstLowercased)Identifier!, type: type)"
-      wrapper += "\n\(indentation)\t\t\tlet animation = view.\(animatorName!.firstLowercased).animator(type: type, for: view, options: options)"
+      wrapper += "\n\(indentation)\t\t\tlet animation = animator(type: type, for: view, options: options)"
       wrapper += "\n\(indentation)\t\t\tlet delay = options?.delay ?? \(delay)"
       wrapper += "\n\(indentation)\t\t\tanimation.startAnimation(afterDelay: TimeInterval(delay))"
       wrapper += "\n\(indentation)\t\t\tcontext.add(animation)"
