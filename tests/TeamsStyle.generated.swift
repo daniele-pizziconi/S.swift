@@ -170,29 +170,6 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
-		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
-	}
-	public class ColorAppearanceProxy {
-
-		//MARK: yellow 
-		public var _yellow: UIColor?
-		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _yellow { return override }
-			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
-			}
-		public var yellow: UIColor {
-			get { return self.yellowProperty() }
-			set { _yellow = newValue }
-		}
-	}
 	//MARK: - Metric
 	public var _Metric: MetricAppearanceProxy?
 	open func MetricStyle() -> MetricAppearanceProxy {
@@ -214,6 +191,29 @@ public class TeamsStyle: NSObject {
 		public var test: CGFloat {
 			get { return self.testProperty() }
 			set { _test = newValue }
+		}
+	}
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy()
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
+	public class ColorAppearanceProxy {
+
+		//MARK: yellow 
+		public var _yellow: UIColor?
+		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _yellow { return override }
+			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+			}
+		public var yellow: UIColor {
+			get { return self.yellowProperty() }
+			set { _yellow = newValue }
 		}
 	}
 	//MARK: - TimingFunctions
@@ -413,33 +413,6 @@ public class TeamsStyle: NSObject {
 		}
 		public class basicAppearanceProxy {
 
-		//MARK: keyFrames 
-		public var _keyFrames: [KeyFrame]?
-		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
-			[
-			.rotate(from: 
-			CGFloat(0.0), to: 
-			CGFloat(360.0))])]
-			}
-		public var keyFrames: [KeyFrame] {
-			get { return self.keyFramesProperty() }
-			set { _keyFrames = newValue }
-		}
-
-		//MARK: delay 
-		public var _delay: CGFloat?
-		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
-			}
-		public var delay: CGFloat {
-			get { return self.delayProperty() }
-			set { _delay = newValue }
-		}
-
 		//MARK: curve 
 		public var _curve: AnimationCurveType?
 		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
@@ -460,6 +433,33 @@ public class TeamsStyle: NSObject {
 		public var duration: CGFloat {
 			get { return self.durationProperty() }
 			set { _duration = newValue }
+		}
+
+		//MARK: delay 
+		public var _delay: CGFloat?
+		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _delay { return override }
+			return CGFloat(0.0)
+			}
+		public var delay: CGFloat {
+			get { return self.delayProperty() }
+			set { _delay = newValue }
+		}
+
+		//MARK: keyFrames 
+		public var _keyFrames: [KeyFrame]?
+		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
+			[
+			.rotate(from: 
+			CGFloat(0.0), to: 
+			CGFloat(360.0))])]
+			}
+		public var keyFrames: [KeyFrame] {
+			get { return self.keyFramesProperty() }
+			set { _keyFrames = newValue }
 		}
 
 		//MARK: repeatCount 
