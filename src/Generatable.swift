@@ -1192,6 +1192,17 @@ extension Stylesheet: Generatable {
       header += "\n\tcase stop"
       header += "\n}\n"
       
+      header += "\npublic struct AnimationConfigOptions {"
+      header += "\n\tlet repeatCount: AnimationRepeatCount?"
+      header += "\n\tlet delay: CGFloat?"
+      header += "\n\tlet duration: TimeInterval?\n"
+      header += "\n\tpublic init(duration: TimeInterval? = nil, delay: CGFloat? = nil, repeatCount: AnimationRepeatCount? = nil) {"
+      header += "\n\t\tself.duration = duration"
+      header += "\n\t\tself.delay = delay"
+      header += "\n\t\tself.repeatCount = repeatCount"
+      header += "\n\t}"
+      header += "\n}\n"
+      
       header += "\npublic enum AnimationRepeatCount {"
       header += "\n\tcase infinite"
       header += "\n\tcase count(Int)"
@@ -1383,7 +1394,7 @@ extension Stylesheet: Generatable {
     
     extensions += "\nextension \(viewClass): AnimatorProxyComponent {\n\n"
     
-    extensions += "\t\(visibility) var \(animatorName!.lowercased())Identifier: String? {\n"
+    extensions += "\t\(visibility) var \(animatorName!.firstLowercased)Identifier: String? {\n"
     extensions += "\t\tget {\n"
     extensions += "\t\t\tguard let identifier = objc_getAssociatedObject(self, &__AnimatorIdentifierHandle) as? String else { return nil }\n"
     extensions += "\t\t\treturn identifier\n"
@@ -1394,7 +1405,7 @@ extension Stylesheet: Generatable {
     extensions +=
       "\t\(visibility) typealias AnimatorProxyType = "
       + "\(name).\(animatorName!)AnimatorProxy\n"
-    extensions += "\t\(visibility) var \(animatorName!.lowercased()): AnimatorProxyType {\n"
+    extensions += "\t\(visibility) var \(animatorName!.firstLowercased): AnimatorProxyType {\n"
     extensions += "\t\tget {\n"
     
     extensions +=
@@ -1407,8 +1418,8 @@ extension Stylesheet: Generatable {
     extensions += "\t}\n\n"
     
     for animation in animations {
-      extensions += "\t\(visibility) func \(animation.name.firstLowercased)(state: AnimationState = .start) {\n"
-      extensions += "\t\tanimator.animate(view: self, type: .\(animation.name.firstLowercased), state: state)\n"
+      extensions += "\t\(visibility) func \(animation.name.firstLowercased)(state: AnimationState = .start, options: AnimationConfigOptions? = nil) {\n"
+      extensions += "\t\tanimator.animate(view: self, type: .\(animation.name.firstLowercased), state: state, options: options)\n"
       extensions += "\t}\n\n"
     }
     extensions += "}\n"
@@ -1428,6 +1439,37 @@ extension Stylesheet: Generatable {
       }.count > 0)
     let isOverride = (superclassName != nil && Generator.Stylesheets.filter { $0.name == superclassName }.count > 0)
     let name = animatorName!
+    
+    if !isOverride {
+      wrapper += "\n\(indentation)public typealias AnimationCompletion = () -> Void\n"
+      wrapper += "\n\(indentation)public final class AnimationContext: NSObject {"
+      wrapper += "\n\(indentation)\tprivate(set) public var viewTag: String"
+      wrapper += "\n\(indentation)\tprivate(set) public var type: AnimationType\n"
+      wrapper += "\n\(indentation)\tpublic init(viewTag: String, type: AnimationType) {"
+      wrapper += "\n\(indentation)\t\tself.viewTag = viewTag"
+      wrapper += "\n\(indentation)\t\tself.type = type"
+      wrapper += "\n\(indentation)\t}\n"
+      wrapper += "\n\(indentation)\tpublic var completion: AnimationCompletion?\n"
+      wrapper += "\n\(indentation)\tpublic func animation(of type: AnimationType) -> UIViewPropertyAnimator {"
+      wrapper += "\n\(indentation)\t\treturn animations.last!"
+      wrapper += "\n\(indentation)\t}\n"
+      wrapper += "\n\(indentation)\tpublic func add(_ animator: UIViewPropertyAnimator) {"
+      wrapper += "\n\(indentation)\t\tanimations.append(animator)"
+      wrapper += "\n\(indentation)\t}\n"
+      wrapper += "\n\(indentation)\tprivate var allAnimationsFinished: Bool = true"
+      wrapper += "\n\(indentation)\tprivate var animations = [UIViewPropertyAnimator]()"
+      wrapper += "\n\(indentation)\tprivate var lastAnimationStarted: Date?"
+      wrapper += "\n\(indentation)\tprivate var lastAnimationAborted: Date?\n"
+      wrapper += "\n\(indentation)\tstruct Keys {"
+      wrapper += "\n\(indentation)\t\tstatic let animationContextUUID = \"UUID\""
+      wrapper += "\n\(indentation)\t}"
+      wrapper += "\n\(indentation)}\n"
+      
+      wrapper += "\n\(indentation)\tpublic struct AnimatorContext {"
+      wrapper += "\n\(indentation)\t\tstatic var animatorContexts = [AnimationContext]()"
+      wrapper += "\n\(indentation)\t}"
+      wrapper += "\n\n"
+    }
     
     let visibility = isOverridable ? "open" : "public"
     let staticModifier = " static"
@@ -1466,35 +1508,6 @@ extension Stylesheet: Generatable {
     }
     
     if !isOverride {
-      wrapper += "\n\(indentation)\tpublic typealias AnimationCompletion = () -> Void\n"
-      wrapper += "\n\(indentation)\tpublic final class AnimationContext: NSObject {"
-      wrapper += "\n\(indentation)\t\tprivate(set) public var viewTag: String"
-      wrapper += "\n\(indentation)\t\tprivate(set) public var type: AnimationType\n"
-      wrapper += "\n\(indentation)\t\tpublic init(viewTag: String, type: AnimationType) {"
-      wrapper += "\n\(indentation)\t\t\tself.viewTag = viewTag"
-      wrapper += "\n\(indentation)\t\t\tself.type = type"
-      wrapper += "\n\(indentation)\t\t}\n"
-      wrapper += "\n\(indentation)\t\tpublic var completion: AnimationCompletion?\n"
-      wrapper += "\n\(indentation)\t\tpublic func animation(of type: AnimationType) -> UIViewPropertyAnimator {"
-      wrapper += "\n\(indentation)\t\t\treturn animations.last!"
-      wrapper += "\n\(indentation)\t\t}\n"
-      wrapper += "\n\(indentation)\t\tpublic func add(_ animator: UIViewPropertyAnimator) {"
-      wrapper += "\n\(indentation)\t\t\tanimations.append(animator)"
-      wrapper += "\n\(indentation)\t\t}\n"
-      wrapper += "\n\(indentation)\t\tprivate var allAnimationsFinished: Bool = true"
-      wrapper += "\n\(indentation)\t\tprivate var animations = [UIViewPropertyAnimator]()"
-      wrapper += "\n\(indentation)\t\tprivate var lastAnimationStarted: Date?"
-      wrapper += "\n\(indentation)\t\tprivate var lastAnimationAborted: Date?\n"
-      wrapper += "\n\(indentation)\t\tstruct Keys {"
-      wrapper += "\n\(indentation)\t\t\tstatic let animationContextUUID = \"UUID\""
-      wrapper += "\n\(indentation)\t\t}"
-      wrapper += "\n\(indentation)\t}\n"
-
-      wrapper += "\n\(indentation)\tpublic struct AnimatorContext {"
-      wrapper += "\n\(indentation)\t\tstatic var animatorContexts = [AnimationContext]()"
-      wrapper += "\n\(indentation)\t}"
-      wrapper += "\n"
-      
       let properties = animations.flatMap({ $0.properties })
       let durationProperty = properties.filter({ $0.key == "duration" }).first!
       let curveProperty = properties.filter({ $0.key == "curve" }).first!
@@ -1527,10 +1540,20 @@ extension Stylesheet: Generatable {
       
       let duration = "\(durationProperty.key)Animation(of: type, for: view)!"
       let curve = "\(curveProperty.key)Animation(of: type, for: view)!"
+      var delay = "0.0"
+      if let delayProperty = delayProperty {
+        delay = "(\(delayProperty.key)Animation(of: type, for: view) ?? 0.0)"
+      }
+      var repeatCount = "nil"
+      if let repeatCountProperty = repeatCountProperty {
+        repeatCount = "\(repeatCountProperty.key)Animation(of: type, for: view)"
+      }
       
-      wrapper += "\n\(indentation)\t\(visibility) func animator(type: AnimationType, for view: UIView) -> UIViewPropertyAnimator {"
-      wrapper += "\n\(indentation)\t\tlet duration = TimeInterval(\(duration))"
+      wrapper += "\n\(indentation)\t\(visibility) func animator(type: AnimationType, for view: UIView, options: AnimationConfigOptions?) -> UIViewPropertyAnimator {"
+      wrapper += "\n\(indentation)\t\tlet duration = options?.duration ?? TimeInterval(\(duration))"
       wrapper += "\n\(indentation)\t\tlet curve = \(curve)"
+      wrapper += "\n\(indentation)\t\tlet delay = options?.delay ?? \(delay)"
+      wrapper += "\n\(indentation)\t\tlet repeatCount = options?.repeatCount ?? \(repeatCount)"
       wrapper += "\n\(indentation)\t\tlet propertyAnimator: UIViewPropertyAnimator"
       wrapper += "\n\(indentation)\t\tswitch curve {"
       wrapper += "\n\(indentation)\t\t\tcase let .native(curve):"
@@ -1538,9 +1561,7 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\t\tcase let .timingParameters(curve):"
       wrapper += "\n\(indentation)\t\t\t\tpropertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: curve)"
       wrapper += "\n\(indentation)\t\t}"
-      if let repeatCountProperty = repeatCountProperty {
-        wrapper += "\n\(indentation)\t\tpropertyAnimator.repeatCount = \(repeatCountProperty.key)Animation(of: type, for: view)"
-      }
+      wrapper += "\n\(indentation)\t\tpropertyAnimator.repeatCount = repeatCount"
       wrapper += "\n\(indentation)\t\tpropertyAnimator.addAnimations({ [weak self] in"
       wrapper += "\n\(indentation)\t\t\tUIView.animateKeyframes(withDuration: duration, delay: 0, options: [], animations: {"
       wrapper += "\n\(indentation)\t\t\t\tguard let `self` = self else { return }"
@@ -1580,39 +1601,32 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\t\t\t\t}"
       wrapper += "\n\(indentation)\t\t\t\t}"
       wrapper += "\n\(indentation)\t\t\t})"
-      
-      if let delayProperty = delayProperty {
-        let delay = "(\(delayProperty.key)Animation(of: type, for: view) ?? 0.0)"
-        wrapper += "\n\(indentation)\t\t}, delayFactor: \(delay))"
-      } else {
-        wrapper += "\n\(indentation)\t\t})"
-      }
-      wrapper += "\n\(indentation)\t\tpropertyAnimator.addCompletion({ [weak self] _ in"
-      wrapper += "\n\(indentation)\t\t\tguard let `self` = self else { return }"
-      wrapper += "\n\(indentation)\t\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.lowercased())Identifier }).first\n"
+      wrapper += "\n\(indentation)\t\t}, delayFactor: \(delay))"
+      wrapper += "\n\(indentation)\t\tif let repeatCount = propertyAnimator.repeatCount, case let .count(count) = repeatCount, count == 0 { return propertyAnimator }"
+      wrapper += "\n\(indentation)\t\tpropertyAnimator.addCompletion({ _ in"
+      wrapper += "\n\(indentation)\t\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.firstLowercased)Identifier }).first\n"
       wrapper += "\n\(indentation)\t\t\tif let repeatCount = currentContext?.animation(of: type).repeatCount {"
-      wrapper += "\n\(indentation)\t\t\t\tlet nextAnimation = self.\(animatorName!.firstLowercased)(type: type, for: view)"
+      wrapper += "\n\(indentation)\t\t\t\tlet nextAnimation = self.\(animatorName!.firstLowercased)(type: type, for: view, options: options)"
       wrapper += "\n\(indentation)\t\t\t\tif case let .count(count) = repeatCount {"
       wrapper += "\n\(indentation)\t\t\t\t\tlet nextCount = count - 1"
       wrapper += "\n\(indentation)\t\t\t\t\tnextAnimation.repeatCount = nextCount > 0 ? .count(nextCount) : nil"
       wrapper += "\n\(indentation)\t\t\t\t}"
-      wrapper += "\n\(indentation)\t\t\t\tif let repeatCount = nextAnimation.repeatCount, case let .count(count) = repeatCount, count > 0 {"
-      wrapper += "\n\(indentation)\t\t\t\t\tnextAnimation.startAnimation()"
-      wrapper += "\n\(indentation)\t\t\t\t\tcurrentContext!.add(nextAnimation)"
-      wrapper += "\n\(indentation)\t\t\t\t}"
+      wrapper += "\n\(indentation)\t\t\t\tif let repeatCount = nextAnimation.repeatCount, case let .count(count) = repeatCount, count == 0 { return }"
+      wrapper += "\n\(indentation)\t\t\t\tnextAnimation.startAnimation()"
+      wrapper += "\n\(indentation)\t\t\t\tcurrentContext!.add(nextAnimation)"
       wrapper += "\n\(indentation)\t\t\t}"
       wrapper += "\n\(indentation)\t\t})"
       wrapper += "\n\(indentation)\t\treturn propertyAnimator"
       wrapper += "\n\(indentation)\t}\n"
       
       wrapper += "\n\(indentation)\t\(visibility) func animate(view: UIView, type: AnimationType, state: AnimationState = .start) {"
-      wrapper += "\n\(indentation)\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.lowercased())Identifier }).first"
+      wrapper += "\n\(indentation)\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.firstLowercased)Identifier }).first"
       wrapper += "\n\(indentation)\t\tif currentContext != nil && state == .start { return }\n"
       wrapper += "\n\(indentation)\t\tswitch state {"
       wrapper += "\n\(indentation)\t\tcase .start:"
-      wrapper += "\n\(indentation)\t\t\tview.\(animatorName!.lowercased())Identifier = UUID().uuidString"
-      wrapper += "\n\(indentation)\t\t\tlet context = AnimationContext(viewTag: view.\(animatorName!.lowercased())Identifier!, type: type)"
-      wrapper += "\n\(indentation)\t\t\tlet animation = animator(type: type, for: view)"
+      wrapper += "\n\(indentation)\t\t\tview.\(animatorName!.firstLowercased)Identifier = UUID().uuidString"
+      wrapper += "\n\(indentation)\t\t\tlet context = AnimationContext(viewTag: view.\(animatorName!.firstLowercased)Identifier!, type: type)"
+      wrapper += "\n\(indentation)\t\t\tlet animation = view.\(animatorName!.firstLowercased).animator(type: type, for: view, options: options)"
       wrapper += "\n\(indentation)\t\t\tanimation.startAnimation()"
       wrapper += "\n\(indentation)\t\t\tcontext.add(animation)"
       wrapper += "\n\(indentation)\t\t\tAnimatorContext.animatorContexts.append(context)"
