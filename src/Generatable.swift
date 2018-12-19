@@ -1655,7 +1655,7 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\t\t\tcurrentContext?.remove(animation!)"
       wrapper += "\n\(indentation)\t\t\t\tanimation = nil"
       wrapper += "\n\(indentation)\t\t\t}\n"
-      wrapper += "\n\(indentation)\t\t\tif fraction == 0 && animation == nil {"
+      wrapper += "\n\(indentation)\t\t\tif fraction == 0 || animation == nil {"
       wrapper += "\n\(indentation)\t\t\t\tview.animatorIdentifier = UUID().uuidString"
       wrapper += "\n\(indentation)\t\t\t\tlet context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)"
       wrapper += "\n\(indentation)\t\t\t\tanimation = animator(type: type, for: view, options: options)"

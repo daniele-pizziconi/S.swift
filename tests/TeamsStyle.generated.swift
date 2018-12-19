@@ -187,29 +187,6 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
-		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
-	}
-	public class MetricAppearanceProxy {
-
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
-			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
-		}
-	}
 	//MARK: - TimingFunctions
 	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
 	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
@@ -231,6 +208,29 @@ public class TeamsStyle: NSObject {
 		public var easeIn: AnimationCurveType {
 			get { return self.easeInProperty() }
 			set { _easeIn = newValue }
+		}
+	}
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
+		}
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
+	}
+	public class MetricAppearanceProxy {
+
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
+			}
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
 		}
 	}
 	//MARK: - Color
@@ -439,7 +439,7 @@ public class TeamsStyle: NSObject {
 					animation = nil
 				}
 
-				if fraction == 0 && animation == nil {
+				if fraction == 0 || animation == nil {
 					view.animatorIdentifier = UUID().uuidString
 					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
 					animation = animator(type: type, for: view, options: options)
@@ -468,6 +468,17 @@ public class TeamsStyle: NSObject {
 			set { _basic = newValue }
 		}
 		public class basicAppearanceProxy {
+
+		//MARK: curve 
+		public var _curve: AnimationCurveType?
+		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
+			}
+		public var curve: AnimationCurveType {
+			get { return self.curveProperty() }
+			set { _curve = newValue }
+		}
 
 		//MARK: delay 
 		public var _delay: CGFloat?
@@ -505,17 +516,6 @@ public class TeamsStyle: NSObject {
 		public var duration: CGFloat {
 			get { return self.durationProperty() }
 			set { _duration = newValue }
-		}
-
-		//MARK: curve 
-		public var _curve: AnimationCurveType?
-		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
-			}
-		public var curve: AnimationCurveType {
-			get { return self.curveProperty() }
-			set { _curve = newValue }
 		}
 
 		//MARK: repeatCount 
