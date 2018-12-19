@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case teams
 	case skype
+	case teams
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .teams: return TeamsStyle.shared()
 		case .skype: return SkypeStyle.shared()
+		case .teams: return TeamsStyle.shared()
 		}
 	}
 }
@@ -187,27 +187,27 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
+	//MARK: - TimingFunctions
+	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
+	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return TimingFunctionsAppearanceProxy()
 		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
+	public var TimingFunctions: TimingFunctionsAppearanceProxy {
+		get { return self.TimingFunctionsStyle() }
+		set { _TimingFunctions = newValue }
 	}
-	public class MetricAppearanceProxy {
+	public class TimingFunctionsAppearanceProxy {
 
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
+		//MARK: easeIn 
+		public var _easeIn: AnimationCurveType?
+		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _easeIn { return override }
+			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
 			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
+		public var easeIn: AnimationCurveType {
+			get { return self.easeInProperty() }
+			set { _easeIn = newValue }
 		}
 	}
 	//MARK: - Color
@@ -233,27 +233,27 @@ public class TeamsStyle: NSObject {
 			set { _yellow = newValue }
 		}
 	}
-	//MARK: - TimingFunctions
-	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
-	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return TimingFunctionsAppearanceProxy()
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
 		}
-	public var TimingFunctions: TimingFunctionsAppearanceProxy {
-		get { return self.TimingFunctionsStyle() }
-		set { _TimingFunctions = newValue }
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
 	}
-	public class TimingFunctionsAppearanceProxy {
+	public class MetricAppearanceProxy {
 
-		//MARK: easeIn 
-		public var _easeIn: AnimationCurveType?
-		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _easeIn { return override }
-			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
 			}
-		public var easeIn: AnimationCurveType {
-			get { return self.easeInProperty() }
-			set { _easeIn = newValue }
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
 		}
 	}
 	//MARK: - Animator
@@ -346,7 +346,9 @@ public class TeamsStyle: NSObject {
 					propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: curve)
 			}
 			propertyAnimator.repeatCount = repeatCount
-			propertyAnimator.scrubsLinearly = options?.scrubsLinearly ?? true
+			if #available(iOS 11.0, *) {
+				propertyAnimator.scrubsLinearly = options?.scrubsLinearly ?? true
+			}
 			propertyAnimator.addAnimations({ [weak self] in
 				UIView.animateKeyframes(withDuration: duration, delay: 0, options: [], animations: {
 					guard let `self` = self else { return }
@@ -471,28 +473,6 @@ public class TeamsStyle: NSObject {
 			set { _keyFrames = newValue }
 		}
 
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return CGFloat(2.0)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
-		}
-
-		//MARK: curve 
-		public var _curve: AnimationCurveType?
-		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
-			}
-		public var curve: AnimationCurveType {
-			get { return self.curveProperty() }
-			set { _curve = newValue }
-		}
-
 		//MARK: repeatCount 
 		public var _repeatCount: AnimationRepeatCount?
 		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
@@ -513,6 +493,28 @@ public class TeamsStyle: NSObject {
 		public var delay: CGFloat {
 			get { return self.delayProperty() }
 			set { _delay = newValue }
+		}
+
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return CGFloat(2.0)
+			}
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
+		}
+
+		//MARK: curve 
+		public var _curve: AnimationCurveType?
+		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
+			}
+		public var curve: AnimationCurveType {
+			get { return self.curveProperty() }
+			set { _curve = newValue }
 		}
 		}
 	
