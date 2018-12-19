@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case skype
 	case teams
+	case skype
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.shared()
 		case .teams: return TeamsStyle.shared()
+		case .skype: return SkypeStyle.shared()
 		}
 	}
 }
@@ -210,29 +210,6 @@ public class TeamsStyle: NSObject {
 			set { _easeIn = newValue }
 		}
 	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
-		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
-	}
-	public class MetricAppearanceProxy {
-
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
-			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
-		}
-	}
 	//MARK: - Color
 	public var _Color: ColorAppearanceProxy?
 	open func ColorStyle() -> ColorAppearanceProxy {
@@ -256,6 +233,29 @@ public class TeamsStyle: NSObject {
 			set { _yellow = newValue }
 		}
 	}
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
+		}
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
+	}
+	public class MetricAppearanceProxy {
+
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
+			}
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
+		}
+	}
 	//MARK: - Animator
 	public typealias AnimationCompletion = () -> Void
 
@@ -275,6 +275,13 @@ public class TeamsStyle: NSObject {
 		}
 
 		public func add(_ animator: UIViewPropertyAnimator) {
+			animator.addCompletion { [weak self] _ in
+				guard let `self` = self else { return }
+				self.remove(animator)
+				if self.animations.count == 0 {
+					AnimatorContext.animatorContexts.removeAll(where: { $0 == self })
+				}
+			}
 			animations.append(animator)
 		}
 
@@ -398,7 +405,7 @@ public class TeamsStyle: NSObject {
 			propertyAnimator.addCompletion({ _ in
 				let currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.animatorIdentifier }).first
 
-				if let repeatCount = currentContext?.animation(of: type).repeatCount {
+				if let repeatCount = currentContext?.animation(of: type).repeatCount, view.superview != nil {
 					let nextAnimation = self.animator(type: type, for: view, options: options)
 					if case let .count(count) = repeatCount {
 						let nextCount = count - 1
@@ -431,15 +438,34 @@ public class TeamsStyle: NSObject {
 				context.add(animation)
 				AnimatorContext.animatorContexts.append(context)
 			case .pause:
+				var animation = currentContext?.animation(of: type)
+				var fractionComplete: CGFloat?
+				if animation != nil && (view.layer.animationKeys() == nil || view.layer.animationKeys()?.count == 0) {
+					currentContext?.remove(animation!)
+					fractionComplete = animation?.fractionComplete
+					animation?.stopAnimation(false)
+					animation?.finishAnimation(at: .end)
+				}
+				if let fractionComplete = fractionComplete {
+					view.animatorIdentifier = UUID().uuidString
+					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
+					animation = animator(type: type, for: view, options: options)
+					animation!.fractionComplete = fractionComplete
+					context.add(animation!)
+					AnimatorContext.animatorContexts.append(context)
+				}
 				currentContext?.animation(of: type).pauseAnimation()
 			case .fractionComplete(let fraction):
 				var animation = currentContext?.animation(of: type)
+				var shouldRecreate = false
 				if animation != nil && (view.layer.animationKeys() == nil || view.layer.animationKeys()?.count == 0) {
 					currentContext?.remove(animation!)
-					animation = nil
+					animation?.stopAnimation(false)
+					animation?.finishAnimation(at: .end)
+					shouldRecreate = true
 				}
 
-				if fraction == 0 || animation == nil {
+				if (fraction == 0 && animation == nil) || shouldRecreate {
 					view.animatorIdentifier = UUID().uuidString
 					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
 					animation = animator(type: type, for: view, options: options)
@@ -469,6 +495,33 @@ public class TeamsStyle: NSObject {
 		}
 		public class basicAppearanceProxy {
 
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return CGFloat(2.0)
+			}
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
+		}
+
+		//MARK: keyFrames 
+		public var _keyFrames: [KeyFrame]?
+		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
+			[
+			.rotate(from: 
+			CGFloat(0.0), to: 
+			CGFloat(180.0))])]
+			}
+		public var keyFrames: [KeyFrame] {
+			get { return self.keyFramesProperty() }
+			set { _keyFrames = newValue }
+		}
+
 		//MARK: curve 
 		public var _curve: AnimationCurveType?
 		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
@@ -489,33 +542,6 @@ public class TeamsStyle: NSObject {
 		public var delay: CGFloat {
 			get { return self.delayProperty() }
 			set { _delay = newValue }
-		}
-
-		//MARK: keyFrames 
-		public var _keyFrames: [KeyFrame]?
-		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
-			[
-			.rotate(from: 
-			CGFloat(0.0), to: 
-			CGFloat(180.0))])]
-			}
-		public var keyFrames: [KeyFrame] {
-			get { return self.keyFramesProperty() }
-			set { _keyFrames = newValue }
-		}
-
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return CGFloat(2.0)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
 		}
 
 		//MARK: repeatCount 
