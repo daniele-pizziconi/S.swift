@@ -187,6 +187,29 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
+		}
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
+	}
+	public class MetricAppearanceProxy {
+
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
+			}
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
+		}
+	}
 	//MARK: - TimingFunctions
 	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
 	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
@@ -233,29 +256,6 @@ public class TeamsStyle: NSObject {
 			set { _yellow = newValue }
 		}
 	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
-		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
-	}
-	public class MetricAppearanceProxy {
-
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
-			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
-		}
-	}
 	//MARK: - Animator
 	public typealias AnimationCompletion = () -> Void
 
@@ -276,6 +276,10 @@ public class TeamsStyle: NSObject {
 
 		public func add(_ animator: UIViewPropertyAnimator) {
 			animations.append(animator)
+		}
+
+		public func remove(_ animator: UIViewPropertyAnimator) {
+			animations.removeAll(where: { $0 == animator })
 		}
 
 		private var allAnimationsFinished: Bool = true
@@ -430,6 +434,11 @@ public class TeamsStyle: NSObject {
 				currentContext?.animation(of: type).pauseAnimation()
 			case .fractionComplete(let fraction):
 				var animation = currentContext?.animation(of: type)
+				if animation != nil && (view.layer.animationKeys() == nil || view.layer.animationKeys()?.count == 0) {
+					currentContext?.remove(animation!)
+					animation = nil
+				}
+
 				if fraction == 0 && animation == nil {
 					view.animatorIdentifier = UUID().uuidString
 					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
@@ -438,6 +447,9 @@ public class TeamsStyle: NSObject {
 					AnimatorContext.animatorContexts.append(context)
 				}
 				if animation!.isRunning { animation?.pauseAnimation() }
+				if #available(iOS 11.0, *) {
+					animation?.pausesOnCompletion = true
+				}
 				animation?.fractionComplete = fraction
 			case .stop(let withoutFinishing):
 				guard let animator = currentContext?.animation(of: type), animator.isRunning else { return }
@@ -457,6 +469,17 @@ public class TeamsStyle: NSObject {
 		}
 		public class basicAppearanceProxy {
 
+		//MARK: delay 
+		public var _delay: CGFloat?
+		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _delay { return override }
+			return CGFloat(0.0)
+			}
+		public var delay: CGFloat {
+			get { return self.delayProperty() }
+			set { _delay = newValue }
+		}
+
 		//MARK: keyFrames 
 		public var _keyFrames: [KeyFrame]?
 		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
@@ -471,28 +494,6 @@ public class TeamsStyle: NSObject {
 		public var keyFrames: [KeyFrame] {
 			get { return self.keyFramesProperty() }
 			set { _keyFrames = newValue }
-		}
-
-		//MARK: repeatCount 
-		public var _repeatCount: AnimationRepeatCount?
-		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.infinite
-			}
-		public var repeatCount: AnimationRepeatCount {
-			get { return self.repeatCountProperty() }
-			set { _repeatCount = newValue }
-		}
-
-		//MARK: delay 
-		public var _delay: CGFloat?
-		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
-			}
-		public var delay: CGFloat {
-			get { return self.delayProperty() }
-			set { _delay = newValue }
 		}
 
 		//MARK: duration 
@@ -515,6 +516,17 @@ public class TeamsStyle: NSObject {
 		public var curve: AnimationCurveType {
 			get { return self.curveProperty() }
 			set { _curve = newValue }
+		}
+
+		//MARK: repeatCount 
+		public var _repeatCount: AnimationRepeatCount?
+		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.infinite
+			}
+		public var repeatCount: AnimationRepeatCount {
+			get { return self.repeatCountProperty() }
+			set { _repeatCount = newValue }
 		}
 		}
 	
