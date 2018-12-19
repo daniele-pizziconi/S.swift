@@ -105,24 +105,26 @@ public struct KeyFrame {
 	var values: [AnimatableProp]
 }
 
-public enum AnimationState {
+public enum AnimationAction {
 	case start
 	case pause
-	case stop
+	case stop(withoutFinishing: Bool)
+	case fractionComplete(CGFloat)
 }
 
 public struct AnimationConfigOptions {
 	let repeatCount: AnimationRepeatCount?
 	let delay: CGFloat?
 	let duration: TimeInterval?
-
 	let curve: AnimationCurveType?
+	let scrubsLinearly: Bool?
 
-	public init(duration: TimeInterval? = nil, delay: CGFloat? = nil, repeatCount: AnimationRepeatCount? = nil, curve: AnimationCurveType? = nil) {
+	public init(duration: TimeInterval? = nil, delay: CGFloat? = nil, repeatCount: AnimationRepeatCount? = nil, curve: AnimationCurveType? = nil, scrubsLinearly: Bool? = nil) {
 		self.duration = duration
 		self.delay = delay
 		self.repeatCount = repeatCount
 		self.curve = curve
+		self.scrubsLinearly = scrubsLinearly
 	}
 }
 
@@ -185,27 +187,27 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - TimingFunctions
-	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
-	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return TimingFunctionsAppearanceProxy()
+	//MARK: - Metric
+	public var _Metric: MetricAppearanceProxy?
+	open func MetricStyle() -> MetricAppearanceProxy {
+		if let override = _Metric { return override }
+			return MetricAppearanceProxy()
 		}
-	public var TimingFunctions: TimingFunctionsAppearanceProxy {
-		get { return self.TimingFunctionsStyle() }
-		set { _TimingFunctions = newValue }
+	public var Metric: MetricAppearanceProxy {
+		get { return self.MetricStyle() }
+		set { _Metric = newValue }
 	}
-	public class TimingFunctionsAppearanceProxy {
+	public class MetricAppearanceProxy {
 
-		//MARK: easeIn 
-		public var _easeIn: AnimationCurveType?
-		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _easeIn { return override }
-			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
+		//MARK: test 
+		public var _test: CGFloat?
+		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _test { return override }
+			return CGFloat(10.0)
 			}
-		public var easeIn: AnimationCurveType {
-			get { return self.easeInProperty() }
-			set { _easeIn = newValue }
+		public var test: CGFloat {
+			get { return self.testProperty() }
+			set { _test = newValue }
 		}
 	}
 	//MARK: - Color
@@ -231,27 +233,27 @@ public class TeamsStyle: NSObject {
 			set { _yellow = newValue }
 		}
 	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
+	//MARK: - TimingFunctions
+	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
+	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return TimingFunctionsAppearanceProxy()
 		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
+	public var TimingFunctions: TimingFunctionsAppearanceProxy {
+		get { return self.TimingFunctionsStyle() }
+		set { _TimingFunctions = newValue }
 	}
-	public class MetricAppearanceProxy {
+	public class TimingFunctionsAppearanceProxy {
 
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
+		//MARK: easeIn 
+		public var _easeIn: AnimationCurveType?
+		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _easeIn { return override }
+			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
 			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
+		public var easeIn: AnimationCurveType {
+			get { return self.easeInProperty() }
+			set { _easeIn = newValue }
 		}
 	}
 	//MARK: - Animator
@@ -344,6 +346,7 @@ public class TeamsStyle: NSObject {
 					propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: curve)
 			}
 			propertyAnimator.repeatCount = repeatCount
+			propertyAnimator.scrubsLinearly = options?.scrubsLinearly ?? true
 			propertyAnimator.addAnimations({ [weak self] in
 				UIView.animateKeyframes(withDuration: duration, delay: 0, options: [], animations: {
 					guard let `self` = self else { return }
@@ -403,20 +406,40 @@ public class TeamsStyle: NSObject {
 			return propertyAnimator
 		}
 
-		open func animate(view: UIView, type: AnimationType, state: AnimationState = .start, options: AnimationConfigOptions?) {
+		open func animate(view: UIView, type: AnimationType, action: AnimationAction = .start, options: AnimationConfigOptions?) {
 			let currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.animatorIdentifier }).first
-			if currentContext != nil && state == .start { return }
 
-			switch state {
+			switch action {
 			case .start:
+				if let animator = currentContext?.animation(of: type) {
+					if animator.isRunning == false {
+						animator.startAnimation()
+					}
+					return
+				}
 				view.animatorIdentifier = UUID().uuidString
 				let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
-				let animation = view.animator.animator(type: type, for: view, options: options)
+				let animation = animator(type: type, for: view, options: options)
 				let delay = options?.delay ?? (delayAnimation(of: type, for: view) ?? 0.0)
 				animation.startAnimation(afterDelay: TimeInterval(delay))
 				context.add(animation)
 				AnimatorContext.animatorContexts.append(context)
-			default: return
+			case .pause:
+				currentContext?.animation(of: type).pauseAnimation()
+			case .fractionComplete(let fraction):
+				var animation = currentContext?.animation(of: type)
+				if fraction == 0 && animation == nil {
+					view.animatorIdentifier = UUID().uuidString
+					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
+					animation = animator(type: type, for: view, options: options)
+					context.add(animation!)
+					AnimatorContext.animatorContexts.append(context)
+				}
+				if animation!.isRunning { animation?.pauseAnimation() }
+				animation?.fractionComplete = fraction
+			case .stop(let withoutFinishing):
+				guard let animator = currentContext?.animation(of: type), animator.isRunning else { return }
+				animator.stopAnimation(withoutFinishing)
 			}
 		}
 
@@ -431,28 +454,6 @@ public class TeamsStyle: NSObject {
 			set { _basic = newValue }
 		}
 		public class basicAppearanceProxy {
-
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return CGFloat(2.0)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
-		}
-
-		//MARK: delay 
-		public var _delay: CGFloat?
-		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
-			}
-		public var delay: CGFloat {
-			get { return self.delayProperty() }
-			set { _delay = newValue }
-		}
 
 		//MARK: keyFrames 
 		public var _keyFrames: [KeyFrame]?
@@ -470,15 +471,15 @@ public class TeamsStyle: NSObject {
 			set { _keyFrames = newValue }
 		}
 
-		//MARK: repeatCount 
-		public var _repeatCount: AnimationRepeatCount?
-		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.infinite
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return CGFloat(2.0)
 			}
-		public var repeatCount: AnimationRepeatCount {
-			get { return self.repeatCountProperty() }
-			set { _repeatCount = newValue }
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
 		}
 
 		//MARK: curve 
@@ -490,6 +491,28 @@ public class TeamsStyle: NSObject {
 		public var curve: AnimationCurveType {
 			get { return self.curveProperty() }
 			set { _curve = newValue }
+		}
+
+		//MARK: repeatCount 
+		public var _repeatCount: AnimationRepeatCount?
+		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.infinite
+			}
+		public var repeatCount: AnimationRepeatCount {
+			get { return self.repeatCountProperty() }
+			set { _repeatCount = newValue }
+		}
+
+		//MARK: delay 
+		public var _delay: CGFloat?
+		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _delay { return override }
+			return CGFloat(0.0)
+			}
+		public var delay: CGFloat {
+			get { return self.delayProperty() }
+			set { _delay = newValue }
 		}
 		}
 	
@@ -526,8 +549,8 @@ extension UIView: AnimatorProxyComponent {
 		set { objc_setAssociatedObject(self, &__AnimatorProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
 	}
 
-	public func basic(state: AnimationState = .start, options: AnimationConfigOptions? = nil) {
-		animator.animate(view: self, type: .basic, state: state, options: options)
+	public func basic(action: AnimationAction = .start, options: AnimationConfigOptions? = nil) {
+		animator.animate(view: self, type: .basic, action: action, options: options)
 	}
 
 }
