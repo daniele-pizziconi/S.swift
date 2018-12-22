@@ -10,12 +10,9 @@ public class SkypeStyle: TeamsStyle {
 		 struct __ { static let _sharedInstance = SkypeStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - SkypeStyleColor
-	override public func ColorStyle() -> TeamsStyle.ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return SkypeStyleColorAppearanceProxy()
-		}
-	public class SkypeStyleColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy {
+	//MARK: - Color
+	public static let Color = ColorAppearanceProxy()
+	public class ColorAppearanceProxy {
 
 		//MARK: red 
 		fileprivate var _red: UIColor?
@@ -35,12 +32,9 @@ public class SkypeStyle: TeamsStyle {
 		}
 	public class SkypeStyleAnimatorAnimatorProxy: TeamsStyle.AnimatorAnimatorProxy {
 
-		//MARK: - SkypeStylebasic
-		override public func basicStyle() -> TeamsStyle.AnimatorAnimatorProxy.basicAppearanceProxy {
-			if let override = _basic { return override }
-				return SkypeStylebasicAppearanceProxy()
-			}
-		public class SkypeStylebasicAppearanceProxy: TeamsStyle.AnimatorAnimatorProxy.basicAppearanceProxy {
+		//MARK: - basic
+		public static let basic = basicAppearanceProxy()
+		public class basicAppearanceProxy {
 
 		//MARK: test 
 		fileprivate var _test: CGFloat?

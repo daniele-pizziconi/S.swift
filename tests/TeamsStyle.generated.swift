@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case teams
 	case skype
+	case teams
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .teams: return TeamsStyle.shared()
 		case .skype: return SkypeStyle.shared()
+		case .teams: return TeamsStyle.shared()
 		}
 	}
 }
@@ -87,99 +87,6 @@ public extension AppearaceProxyComponent {
 	}
 }
 
-fileprivate var __AnimatorProxyHandle: UInt8 = 0
-fileprivate var __AnimatorRepeatCountHandle: UInt8 = 0
-fileprivate var __AnimatorIdentifierHandle: UInt8 = 0
-
-/// Your view should conform to 'AnimatorProxyComponent'.
-public protocol AnimatorProxyComponent: class {
-	associatedtype AnimatorProxyType
-	var animator: AnimatorProxyType { get }
-
-}
-
-
-public struct KeyFrame {
-	var relativeStartTime: CGFloat
-	var relativeDuration: CGFloat?
-	var values: [AnimatableProp]
-}
-
-public enum AnimationAction {
-	case start
-	case pause
-	case stop(withoutFinishing: Bool)
-	case fractionComplete(CGFloat)
-}
-
-public struct AnimationConfigOptions {
-	let repeatCount: AnimationRepeatCount?
-	let delay: CGFloat?
-	let duration: TimeInterval?
-	let curve: AnimationCurveType?
-	let scrubsLinearly: Bool?
-
-	public init(duration: TimeInterval? = nil, delay: CGFloat? = nil, repeatCount: AnimationRepeatCount? = nil, curve: AnimationCurveType? = nil, scrubsLinearly: Bool? = nil) {
-		self.duration = duration
-		self.delay = delay
-		self.repeatCount = repeatCount
-		self.curve = curve
-		self.scrubsLinearly = scrubsLinearly
-	}
-}
-
-public enum AnimationRepeatCount {
-	case infinite
-	case count(Int)
-}
-
-public enum AnimationCurveType {
-	case native(UIView.AnimationCurve)
-	case timingParameters(UITimingCurveProvider)
-}
-
-public enum AnimationType {
-	case basic
-}
-
-public enum AnimatableProp: Equatable {
-	case opacity(from: CGFloat?, to: CGFloat)
-	case frame(from: CGRect?, to: CGRect)
-	case size(from: CGSize?, to: CGSize)
-	case width(from: CGFloat?, to: CGFloat)
-	case height(from: CGFloat?, to: CGFloat)
-	case left(from: CGFloat?, to: CGFloat)
-	case rotate(from: CGFloat?, to: CGFloat)
-}
-
-
-public extension AnimatableProp {
-	func applyFrom(to view: UIView) {
-		switch self {
-		case .opacity(let from, _):	if let from = from { view.alpha = from }
-		case .frame(let from, _):	if let from = from { view.frame = from }
-		case .size(let from, _):	if let from = from { view.bounds.size = from }
-		case .width(let from, _):	if let from = from { view.bounds.size.width = from }
-		case .height(let from, _):	if let from = from { view.bounds.size.height = from }
-		case .left(let from, _):	if let from = from { view.frame.origin.x = from }
-		case .rotate(let from, _):	if let from = from { view.transform = view.transform.rotated(by: (from * .pi / 180.0)) }
-		}
-	}
-
-	func applyTo(to view: UIView) {
-		switch self {
-		case .opacity(_, let to):	view.alpha = to
-		case .frame(_, let to):		view.frame = to
-		case .size(_, let to):		view.bounds.size = to
-		case .width(_, let to):		view.bounds.size.width = to
-		case .height(_, let to):	view.bounds.size.height = to
-		case .left(_, let to):		view.frame.origin.x = to
-		case .rotate(_, let to):	view.transform = view.transform.rotated(by: (to * .pi / 180.0))
-		}
-	}
-
-}
-
 /// Entry point for the app stylesheet
 public class TeamsStyle: NSObject {
 
@@ -187,410 +94,381 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - TimingFunctions
-	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
-	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return TimingFunctionsAppearanceProxy()
+	//MARK: - Typography
+	public var _Typography: TypographyAppearanceProxy?
+	open func TypographyStyle() -> TypographyAppearanceProxy {
+		if let override = _Typography { return override }
+			return TypographyAppearanceProxy()
 		}
-	public var TimingFunctions: TimingFunctionsAppearanceProxy {
-		get { return self.TimingFunctionsStyle() }
-		set { _TimingFunctions = newValue }
+	public var Typography: TypographyAppearanceProxy {
+		get { return self.TypographyStyle() }
+		set { _Typography = newValue }
 	}
-	public class TimingFunctionsAppearanceProxy {
+	public class TypographyAppearanceProxy {
 
-		//MARK: easeIn 
-		public var _easeIn: AnimationCurveType?
-		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _easeIn { return override }
-			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
+		//MARK: - medium
+		public var _medium: mediumAppearanceProxy?
+		open func mediumStyle() -> mediumAppearanceProxy {
+			if let override = _medium { return override }
+				return mediumAppearanceProxy()
 			}
-		public var easeIn: AnimationCurveType {
-			get { return self.easeInProperty() }
-			set { _easeIn = newValue }
+		public var medium: mediumAppearanceProxy {
+			get { return self.mediumStyle() }
+			set { _medium = newValue }
+		}
+		public class mediumAppearanceProxy {
+
+			//MARK: bold 
+			public var _bold: UIFont?
+			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _bold { return override }
+					return UIFont.systemFont(ofSize: 14.0, weight: UIFont.Weight.bold)
+				}
+			public var bold: UIFont {
+				get { return self.boldProperty() }
+				set { _bold = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return UIFont.systemFont(ofSize: 14.0)
+				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: semibold 
+			public var _semibold: UIFont?
+			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _semibold { return override }
+					return UIFont.systemFont(ofSize: 14.0, weight: UIFont.Weight.semibold)
+				}
+			public var semibold: UIFont {
+				get { return self.semiboldProperty() }
+				set { _semibold = newValue }
+			}
+
+			//MARK: italic 
+			public var _italic: UIFont?
+			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _italic { return override }
+					return UIFont.systemFont(ofSize: 14.0)
+				}
+			public var italic: UIFont {
+				get { return self.italicProperty() }
+				set { _italic = newValue }
+			}
+		}
+
+
+		//MARK: - small
+		public var _small: smallAppearanceProxy?
+		open func smallStyle() -> smallAppearanceProxy {
+			if let override = _small { return override }
+				return smallAppearanceProxy()
+			}
+		public var small: smallAppearanceProxy {
+			get { return self.smallStyle() }
+			set { _small = newValue }
+		}
+		public class smallAppearanceProxy {
+
+			//MARK: bold 
+			public var _bold: UIFont?
+			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _bold { return override }
+					return UIFont.systemFont(ofSize: 12.0, weight: UIFont.Weight.bold)
+				}
+			public var bold: UIFont {
+				get { return self.boldProperty() }
+				set { _bold = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return UIFont.systemFont(ofSize: 12.0)
+				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: semibold 
+			public var _semibold: UIFont?
+			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _semibold { return override }
+					return UIFont.systemFont(ofSize: 12.0, weight: UIFont.Weight.semibold)
+				}
+			public var semibold: UIFont {
+				get { return self.semiboldProperty() }
+				set { _semibold = newValue }
+			}
+
+			//MARK: italic 
+			public var _italic: UIFont?
+			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _italic { return override }
+					return UIFont.systemFont(ofSize: 12.0)
+				}
+			public var italic: UIFont {
+				get { return self.italicProperty() }
+				set { _italic = newValue }
+			}
+		}
+
+
+		//MARK: - large
+		public var _large: largeAppearanceProxy?
+		open func largeStyle() -> largeAppearanceProxy {
+			if let override = _large { return override }
+				return largeAppearanceProxy()
+			}
+		public var large: largeAppearanceProxy {
+			get { return self.largeStyle() }
+			set { _large = newValue }
+		}
+		public class largeAppearanceProxy {
+
+			//MARK: bold 
+			public var _bold: UIFont?
+			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _bold { return override }
+					return UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.bold)
+				}
+			public var bold: UIFont {
+				get { return self.boldProperty() }
+				set { _bold = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return UIFont.systemFont(ofSize: 18.0)
+				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: semibold 
+			public var _semibold: UIFont?
+			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _semibold { return override }
+					return UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.semibold)
+				}
+			public var semibold: UIFont {
+				get { return self.semiboldProperty() }
+				set { _semibold = newValue }
+			}
+
+			//MARK: italic 
+			public var _italic: UIFont?
+			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _italic { return override }
+					return UIFont.systemFont(ofSize: 18.0)
+				}
+			public var italic: UIFont {
+				get { return self.italicProperty() }
+				set { _italic = newValue }
+			}
+		}
+
+
+		//MARK: - larger
+		public var _larger: largerAppearanceProxy?
+		open func largerStyle() -> largerAppearanceProxy {
+			if let override = _larger { return override }
+				return largerAppearanceProxy()
+			}
+		public var larger: largerAppearanceProxy {
+			get { return self.largerStyle() }
+			set { _larger = newValue }
+		}
+		public class largerAppearanceProxy {
+
+			//MARK: bold 
+			public var _bold: UIFont?
+			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _bold { return override }
+					return UIFont.systemFont(ofSize: 24.0, weight: UIFont.Weight.bold)
+				}
+			public var bold: UIFont {
+				get { return self.boldProperty() }
+				set { _bold = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return UIFont.systemFont(ofSize: 24.0)
+				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: semibold 
+			public var _semibold: UIFont?
+			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _semibold { return override }
+					return UIFont.systemFont(ofSize: 24.0, weight: UIFont.Weight.semibold)
+				}
+			public var semibold: UIFont {
+				get { return self.semiboldProperty() }
+				set { _semibold = newValue }
+			}
+
+			//MARK: italic 
+			public var _italic: UIFont?
+			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _italic { return override }
+					return UIFont.systemFont(ofSize: 24.0)
+				}
+			public var italic: UIFont {
+				get { return self.italicProperty() }
+				set { _italic = newValue }
+			}
+		}
+
+
+		//MARK: - smaller
+		public var _smaller: smallerAppearanceProxy?
+		open func smallerStyle() -> smallerAppearanceProxy {
+			if let override = _smaller { return override }
+				return smallerAppearanceProxy()
+			}
+		public var smaller: smallerAppearanceProxy {
+			get { return self.smallerStyle() }
+			set { _smaller = newValue }
+		}
+		public class smallerAppearanceProxy {
+
+			//MARK: bold 
+			public var _bold: UIFont?
+			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _bold { return override }
+					return UIFont.systemFont(ofSize: 10.0, weight: UIFont.Weight.bold)
+				}
+			public var bold: UIFont {
+				get { return self.boldProperty() }
+				set { _bold = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return UIFont.systemFont(ofSize: 10.0)
+				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: semibold 
+			public var _semibold: UIFont?
+			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _semibold { return override }
+					return UIFont.systemFont(ofSize: 10.0, weight: UIFont.Weight.semibold)
+				}
+			public var semibold: UIFont {
+				get { return self.semiboldProperty() }
+				set { _semibold = newValue }
+			}
+
+			//MARK: italic 
+			public var _italic: UIFont?
+			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _italic { return override }
+					return UIFont.systemFont(ofSize: 10.0)
+				}
+			public var italic: UIFont {
+				get { return self.italicProperty() }
+				set { _italic = newValue }
+			}
+		}
+
+	}
+	//MARK: - Button
+	public var _Button: ButtonAppearanceProxy?
+	open func ButtonStyle() -> ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return ButtonAppearanceProxy()
+		}
+	public var Button: ButtonAppearanceProxy {
+		get { return self.ButtonStyle() }
+		set { _Button = newValue }
+	}
+	public class ButtonAppearanceProxy {
+
+		//MARK: titleFont 
+		public var _titleFont: UIFont?
+		open func titleFontProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+			if let override = _titleFont { return override }
+			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad { 
+			return TeamsStyle.shared().Typography.large.boldProperty(traitCollection)
+			}
+			
+			return TeamsStyle.shared().Typography.medium.boldProperty(traitCollection)
+			}
+		public var titleFont: UIFont {
+			get { return self.titleFontProperty() }
+			set { _titleFont = newValue }
 		}
 	}
-	//MARK: - Color
-	public var _Color: ColorAppearanceProxy?
-	open func ColorStyle() -> ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return ColorAppearanceProxy()
-		}
-	public var Color: ColorAppearanceProxy {
-		get { return self.ColorStyle() }
-		set { _Color = newValue }
-	}
-	public class ColorAppearanceProxy {
-
-		//MARK: yellow 
-		public var _yellow: UIColor?
-		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _yellow { return override }
-			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
-			}
-		public var yellow: UIColor {
-			get { return self.yellowProperty() }
-			set { _yellow = newValue }
-		}
-	}
-	//MARK: - Metric
-	public var _Metric: MetricAppearanceProxy?
-	open func MetricStyle() -> MetricAppearanceProxy {
-		if let override = _Metric { return override }
-			return MetricAppearanceProxy()
-		}
-	public var Metric: MetricAppearanceProxy {
-		get { return self.MetricStyle() }
-		set { _Metric = newValue }
-	}
-	public class MetricAppearanceProxy {
-
-		//MARK: test 
-		public var _test: CGFloat?
-		open func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
-			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
-		}
-	}
-	//MARK: - Animator
-	public typealias AnimationCompletion = () -> Void
-
-	public final class AnimationContext: NSObject {
-		private(set) public var viewTag: String
-		private(set) public var type: AnimationType
-
-		public init(viewTag: String, type: AnimationType) {
-			self.viewTag = viewTag
-			self.type = type
-		}
-
-		public var completion: AnimationCompletion?
-
-		public func animation(of type: AnimationType) -> UIViewPropertyAnimator {
-			return animations.last!
-		}
-
-		public func add(_ animator: UIViewPropertyAnimator) {
-			animator.addCompletion { [weak self] _ in
-				guard let `self` = self else { return }
-				self.remove(animator)
-				if self.animations.count == 0 {
-					AnimatorContext.animatorContexts.removeAll(where: { $0 == self })
-				}
-			}
-			animations.append(animator)
-		}
-
-		public func remove(_ animator: UIViewPropertyAnimator) {
-			animations.removeAll(where: { $0 == animator })
-		}
-
-		private var allAnimationsFinished: Bool = true
-		private var animations = [UIViewPropertyAnimator]()
-		private var lastAnimationStarted: Date?
-		private var lastAnimationAborted: Date?
-
-		struct Keys {
-			static let animationContextUUID = "UUID"
-		}
-	}
-
-		public struct AnimatorContext {
-			static var animatorContexts = [AnimationContext]()
-		}
-
-
-	public var _Animator: AnimatorAnimatorProxy?
-	open func AnimatorAnimator() -> AnimatorAnimatorProxy {
-		if let override = _Animator { return override }
-			return AnimatorAnimatorProxy()
-		}
-	public var Animator: AnimatorAnimatorProxy {
-		get { return self.AnimatorAnimator() }
-		set { _Animator = newValue }
-	}
-	open class AnimatorAnimatorProxy {
-		public init() {}
-		open func durationAnimation(of type: AnimationType, for view: UIView) -> CGFloat? {
-			switch type {
-			case .basic: return view.animator.basicStyle().durationProperty(view.traitCollection)
-			}
-		}
-
-		open func curveAnimation(of type: AnimationType, for view: UIView) -> AnimationCurveType? {
-			switch type {
-			case .basic: return view.animator.basicStyle().curveProperty(view.traitCollection)
-			}
-		}
-
-		open func keyFramesAnimation(of type: AnimationType, for view: UIView) -> [KeyFrame]? {
-			switch type {
-			case .basic: return view.animator.basicStyle().keyFramesProperty(view.traitCollection)
-			}
-		}
-
-		open func repeatCountAnimation(of type: AnimationType, for view: UIView) -> AnimationRepeatCount? {
-			switch type {
-			case .basic: return view.animator.basicStyle().repeatCountProperty(view.traitCollection)
-			}
-		}
-
-		open func delayAnimation(of type: AnimationType, for view: UIView) -> CGFloat? {
-			switch type {
-			case .basic: return view.animator.basicStyle().delayProperty(view.traitCollection)
-			}
-		}
-
-		open func animator(type: AnimationType, for view: UIView, options: AnimationConfigOptions?) -> UIViewPropertyAnimator {
-			let duration = options?.duration ?? TimeInterval(durationAnimation(of: type, for: view)!)
-			let curve = options?.curve ?? curveAnimation(of: type, for: view)!
-			let repeatCount = options?.repeatCount ?? repeatCountAnimation(of: type, for: view)
-			let propertyAnimator: UIViewPropertyAnimator
-			switch curve {
-				case let .native(curve):
-					propertyAnimator = UIViewPropertyAnimator(duration: duration, curve: curve)
-				case let .timingParameters(curve):
-					propertyAnimator = UIViewPropertyAnimator(duration: duration, timingParameters: curve)
-			}
-			propertyAnimator.repeatCount = repeatCount
-			if #available(iOS 11.0, *) {
-				propertyAnimator.scrubsLinearly = options?.scrubsLinearly ?? true
-			}
-			propertyAnimator.addAnimations({ [weak self] in
-				UIView.animateKeyframes(withDuration: duration, delay: 0, options: [], animations: {
-					guard let `self` = self else { return }
-					var keyFrames = self.keyFramesAnimation(of: type, for: view)!
-					let onlyRotateValues: (AnimatableProp) -> Bool = { (value) in
-						switch value {
-						case let .rotate(_, to): return abs(to) > 180
-						default: return false
-						}
-					}
-					var normalizedKeyFrames = [KeyFrame]()
-					for var keyFrame in keyFrames {
-						keyFrame.values.forEach({ (value) in
-							switch value {
-							case let .rotate(from, to):
-								if abs(to) > 180 {
-									let split = 3
-									let relativeDuration = keyFrame.relativeDuration ?? 1.0
-									let relativeStartTime = keyFrame.relativeStartTime
-									for i in 0 ..< split {
-										let normalizedStartTime = relativeStartTime + (CGFloat(i) / CGFloat(split)) * (relativeDuration - relativeStartTime)
-										normalizedKeyFrames.append(KeyFrame(relativeStartTime: normalizedStartTime, relativeDuration: relativeDuration/CGFloat(split), values: [.rotate(from: from, to: to/CGFloat(split))]))
-									}
-								}
-							default: return
-							}
-						})
-						keyFrame.values = keyFrame.values.filter({ onlyRotateValues($0) == false })
-					}
-					keyFrames = keyFrames + normalizedKeyFrames
-
-					for keyFrame in keyFrames {
-						let relativeStartTime = Double(keyFrame.relativeStartTime)
-						let relativeDuration = Double(keyFrame.relativeDuration ?? 1.0)
-						keyFrame.values.forEach({ $0.applyFrom(to: view) })
-						UIView.addKeyframe(withRelativeStartTime: relativeStartTime, relativeDuration: relativeDuration) {
-							keyFrame.values.forEach({ $0.applyTo(to: view) })
-						}
-					}
-				})
-			})
-			if let repeatCount = propertyAnimator.repeatCount, case let .count(count) = repeatCount, count == 0 { return propertyAnimator }
-			propertyAnimator.addCompletion({ _ in
-				let currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.animatorIdentifier }).first
-
-				if let repeatCount = currentContext?.animation(of: type).repeatCount, view.superview != nil {
-					let nextAnimation = self.animator(type: type, for: view, options: options)
-					if case let .count(count) = repeatCount {
-						let nextCount = count - 1
-						nextAnimation.repeatCount = nextCount > 0 ? .count(nextCount) : nil
-					}
-					if let repeatCount = nextAnimation.repeatCount, case let .count(count) = repeatCount, count == 0 { return }
-					nextAnimation.startAnimation()
-					currentContext!.add(nextAnimation)
-				}
-			})
-			return propertyAnimator
-		}
-
-		open func animate(view: UIView, type: AnimationType, action: AnimationAction = .start, options: AnimationConfigOptions?) {
-			let currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.animatorIdentifier }).first
-
-			switch action {
-			case .start:
-				if let animator = currentContext?.animation(of: type) {
-					if animator.isRunning == false {
-						animator.startAnimation()
-					}
-					return
-				}
-				view.animatorIdentifier = UUID().uuidString
-				let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
-				let animation = animator(type: type, for: view, options: options)
-				let delay = options?.delay ?? (delayAnimation(of: type, for: view) ?? 0.0)
-				animation.startAnimation(afterDelay: TimeInterval(delay))
-				context.add(animation)
-				AnimatorContext.animatorContexts.append(context)
-			case .pause:
-				var animation = currentContext?.animation(of: type)
-				var fractionComplete: CGFloat?
-				if animation != nil && (view.layer.animationKeys() == nil || view.layer.animationKeys()?.count == 0) {
-					currentContext?.remove(animation!)
-					fractionComplete = animation?.fractionComplete
-					animation?.stopAnimation(false)
-					animation?.finishAnimation(at: .end)
-				}
-				if let fractionComplete = fractionComplete {
-					view.animatorIdentifier = UUID().uuidString
-					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
-					animation = animator(type: type, for: view, options: options)
-					animation!.fractionComplete = fractionComplete
-					context.add(animation!)
-					AnimatorContext.animatorContexts.append(context)
-				}
-				currentContext?.animation(of: type).pauseAnimation()
-			case .fractionComplete(let fraction):
-				var animation = currentContext?.animation(of: type)
-				var shouldRecreate = false
-				if animation != nil && (view.layer.animationKeys() == nil || view.layer.animationKeys()?.count == 0) {
-					currentContext?.remove(animation!)
-					animation?.stopAnimation(false)
-					animation?.finishAnimation(at: .end)
-					shouldRecreate = true
-				}
-
-				if (fraction == 0 && animation == nil) || shouldRecreate {
-					view.animatorIdentifier = UUID().uuidString
-					let context = AnimationContext(viewTag: view.animatorIdentifier!, type: type)
-					animation = animator(type: type, for: view, options: options)
-					context.add(animation!)
-					AnimatorContext.animatorContexts.append(context)
-				}
-				if animation!.isRunning { animation?.pauseAnimation() }
-				if #available(iOS 11.0, *) {
-					animation?.pausesOnCompletion = true
-				}
-				animation?.fractionComplete = fraction
-			case .stop(let withoutFinishing):
-				guard let animator = currentContext?.animation(of: type), animator.isRunning else { return }
-				animator.stopAnimation(withoutFinishing)
-			}
-		}
-
-		//MARK: - basic
-		public var _basic: basicAppearanceProxy?
-		open func basicStyle() -> basicAppearanceProxy {
-			if let override = _basic { return override }
-				return basicAppearanceProxy()
-			}
-		public var basic: basicAppearanceProxy {
-			get { return self.basicStyle() }
-			set { _basic = newValue }
-		}
-		public class basicAppearanceProxy {
-
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return CGFloat(2.0)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
-		}
-
-		//MARK: keyFrames 
-		public var _keyFrames: [KeyFrame]?
-		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
-			[
-			.rotate(from: 
-			CGFloat(0.0), to: 
-			CGFloat(180.0))])]
-			}
-		public var keyFrames: [KeyFrame] {
-			get { return self.keyFramesProperty() }
-			set { _keyFrames = newValue }
-		}
-
-		//MARK: curve 
-		public var _curve: AnimationCurveType?
-		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return TeamsStyle.shared().TimingFunctions.easeInProperty(traitCollection)
-			}
-		public var curve: AnimationCurveType {
-			get { return self.curveProperty() }
-			set { _curve = newValue }
-		}
-
-		//MARK: delay 
-		public var _delay: CGFloat?
-		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
-			}
-		public var delay: CGFloat {
-			get { return self.delayProperty() }
-			set { _delay = newValue }
-		}
-
-		//MARK: repeatCount 
-		public var _repeatCount: AnimationRepeatCount?
-		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.infinite
-			}
-		public var repeatCount: AnimationRepeatCount {
-			get { return self.repeatCountProperty() }
-			set { _repeatCount = newValue }
-		}
-		}
-	
 
 }
-}
-extension UIViewPropertyAnimator {
+extension Button: AppearaceProxyComponent {
 
-	public var repeatCount: AnimationRepeatCount? {
+	public typealias ApperanceProxyType = TeamsStyle.ButtonAppearanceProxy
+	public var appearanceProxy: ApperanceProxyType {
 		get {
-			guard let count = objc_getAssociatedObject(self, &__AnimatorRepeatCountHandle) as? AnimationRepeatCount else { return nil }
-			return count
+			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
+				if !themeAware { return proxy }
+
+
+				return proxy
+			}
+
+			return StylesheetManager.stylesheet(TeamsStyle.shared()).Button
 		}
-		set { objc_setAssociatedObject(self, &__AnimatorRepeatCountHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+		set {
+			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			didChangeAppearanceProxy()
+		}
 	}
-}
 
-extension UIView: AnimatorProxyComponent {
-
-	public var animatorIdentifier: String? {
+	public var themeAware: Bool {
 		get {
-			guard let identifier = objc_getAssociatedObject(self, &__AnimatorIdentifierHandle) as? String else { return nil }
-			return identifier
+			guard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) as? Bool else { return true }
+			return proxy
 		}
-		set { objc_setAssociatedObject(self, &__AnimatorIdentifierHandle, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC) }
+		set {
+			objc_setAssociatedObject(self, &__ThemeAwareHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			isObservingDidChangeTheme = newValue
+		}
 	}
 
-	public typealias AnimatorProxyType = TeamsStyle.AnimatorAnimatorProxy
-	public var animator: AnimatorProxyType {
+	fileprivate var isObservingDidChangeTheme: Bool {
 		get {
-			guard let a = objc_getAssociatedObject(self, &__AnimatorProxyHandle) as? AnimatorProxyType else { return StylesheetManager.stylesheet(TeamsStyle.shared()).Animator }
-			return a
+			guard let observing = objc_getAssociatedObject(self, &__ObservingDidChangeThemeHandle) as? Bool else { return false }
+			return observing
 		}
-		set { objc_setAssociatedObject(self, &__AnimatorProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+		set {
+			if newValue == isObservingDidChangeTheme { return }
+			if newValue {
+				NotificationCenter.default.addObserver(self, selector: #selector(didChangeAppearanceProxy), name: Notification.Name.didChangeTheme, object: nil)
+			} else {
+				NotificationCenter.default.removeObserver(self, name: Notification.Name.didChangeTheme, object: nil)
+			}
+			objc_setAssociatedObject(self, &__ObservingDidChangeThemeHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+		}
 	}
-
-	public func basic(action: AnimationAction = .start, options: AnimationConfigOptions? = nil) {
-		animator.animate(view: self, type: .basic, action: action, options: options)
-	}
-
 }

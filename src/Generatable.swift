@@ -818,6 +818,17 @@ class Stylesheet {
             }
           }
           property.rhs = .array(values: newValues)
+        } else if case let .hash(map) = rhs {
+          //          assert(false, "values: \(values)")
+          var newMap = [Condition: RhsValue]()
+          for (key, value) in map {
+            if let redirect = resolveRedirection(rhs: value) {
+              newMap[key] = redirect
+            } else {
+              newMap[key] = value
+            }
+          }
+          property.rhs = .hash(hash: newMap)
         }
       }
 
