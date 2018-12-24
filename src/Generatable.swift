@@ -582,23 +582,12 @@ extension Property: Generatable {
   }
 }
 
-//MARK: Animatio
-
-//class Animation: Style {
-//  let keyFrames: [Property]
-//  
-//  init(name: String, properties: [Property]) {
-//    
-//  }
-//}
-
-
 //MARK: Style
 
 class Style {
   var name: String
   var superclassName: String? = nil
-  let properties: [Property]
+  var properties: [Property]
   var isExtension = false
   var isAnimation = false
   var isOverridable = false
@@ -608,6 +597,8 @@ class Style {
   var nestedOverrideName: String?
   var nestedSuperclassName: String? = nil
   var viewClass: String = "UIView"
+  var isInjected = false
+  var belongsToStylesheetName: String?
 
   init(name: String, properties: [Property]) {
     var styleName = name.trimmingCharacters(in: CharacterSet.whitespaces)
@@ -690,11 +681,12 @@ extension Style: Generatable {
       if isNestedOverridable && !isNestedOverride {
         wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
       }
-      
+         
+      let injectedProxy = isNested ? "proxy: mainProxy" : "proxy: { return \(belongsToStylesheetName!).shared() }"
       wrapper +=
       "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
       wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
-      wrapper += "\n\(indentation)\t\treturn \(styleClass)()"
+      wrapper += "\n\(indentation)\t\treturn \(styleClass)(\(injectedProxy))"
       wrapper += "\n\(indentation)\t}"
       
       if isNestedOverridable && !isNestedOverride {
@@ -708,8 +700,14 @@ extension Style: Generatable {
     }
     let superclassDeclaration = isNestedOverride ? nestedSuperclass : superclass
     wrapper += "\n\(indentation)\(objc)\(visibility) class \(styleClass)\(superclassDeclaration) {"
-    
-    if isOverridable {
+
+    if superclassName == nil && !isNestedOverride && !isInjected {
+      let baseStyleName = Generator.Stylesheets.filter({ $0.superclassName == nil }).first!
+      wrapper += "\n\(indentation)\tlet mainProxy: () -> \(baseStyleName.name)"
+      wrapper += "\n\(indentation)\tinit(proxy: @escaping () -> \(baseStyleName.name)) {"
+      wrapper += "\n\(indentation)\t\tself.mainProxy = proxy"
+      wrapper += "\n\(indentation)\t}"
+    } else if isOverridable {
       wrapper += "\n\(indentation)\tpublic init() {}"
     }
     for property in properties {
@@ -735,8 +733,8 @@ extension Style: Generatable {
 class Stylesheet {
 
   let name: String
-  let styles: [Style]
-  let animations: [Style]
+  var styles: [Style]
+  var animations: [Style]
   let superclassName: String?
   let animatorName: String?
 
@@ -749,7 +747,59 @@ class Stylesheet {
     self.animatorName = animatorName
   }
   
+  fileprivate func normalized(styles: [Style], isAnimator: Bool) -> [Style] {
+    var normalizedStyles = styles
+    //generate all the styles from the base class
+    let baseStylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first!
+    let sourceArray = isAnimator ? baseStylesheet.animations : baseStylesheet.styles
+    
+    let baseStyles = sourceArray.filter({ style in
+      !styles.contains(where: { $0.name == style.name })
+    })
+    
+    for baseStyle in baseStyles {
+      let propertyWithNestedStyles = baseStyle.properties.filter({ $0.style != nil })
+      for property in propertyWithNestedStyles where property.style != nil {
+        let nestedStyle = property.style!
+        nestedStyle.belongsToStylesheetName = name
+        nestedStyle.isInjected = true
+        nestedStyle.properties = [Property]()
+        property.style = nestedStyle
+      }
+      baseStyle.belongsToStylesheetName = name
+      baseStyle.isInjected = true
+      baseStyle.properties = propertyWithNestedStyles
+    }
+    normalizedStyles.append(contentsOf: baseStyles)
+    
+    let nestedStyles = normalizedStyles.flatMap({ $0.properties }).flatMap({ $0.style })
+    for style in sourceArray {
+      for property in style.properties where property.style != nil {
+        let nestedStyle = property.style!
+        if !nestedStyles.contains(where: { $0.name == nestedStyle.name }) {
+          nestedStyle.belongsToStylesheetName = name
+          nestedStyle.isInjected = true
+          nestedStyle.properties = [Property]()
+          for normalizedStyle in normalizedStyles {
+            if normalizedStyle.name == style.name {
+              var properties = normalizedStyle.properties
+              properties.append(property)
+              normalizedStyle.properties = properties
+            }
+          }
+        }
+      }
+    }
+    return normalizedStyles
+  }
+  
   fileprivate func prepareGenerator() {
+    
+    if superclassName != nil && Configuration.runtimeSwappable {
+      styles = normalized(styles: styles, isAnimator: false)
+      animations = normalized(styles: styles, isAnimator: true)
+    }
+    
     [styles, animations].forEach { generatableArray in
       // Resolve the type for the redirected values.
       generatableArray.forEach({ resolveRedirection($0) })
@@ -786,18 +836,7 @@ class Stylesheet {
     let type = resolveRedirectedType(redirection)
     
     if Configuration.runtimeSwappable {
-      var name: String? = nil
-      let components = redirection.components(separatedBy: ".")
-      if let _ = styles.filter({ return $0.name == components[0] }).first {
-        name = self.name
-      } else if let baseStylesheet = Generator.Stylesheets.filter({ $0.name == superclassName }).first {
-        name = baseStylesheet.name
-      }
-      
-      if let name = name {
-        let stylesheet = Generator.Stylesheets.filter({ $0.superclassName != nil }).count > 0 ? "\(name).shared()." : "\(name).shared()."
-        redirection = "\(stylesheet)\(redirection)"
-      }
+      redirection = "mainProxy().\(redirection)"
     }
     return rhs.applyRedirection(RhsRedirectValue(redirection: redirection, type: type))
   }
@@ -808,7 +847,6 @@ class Stylesheet {
         if let redirect = resolveRedirection(rhs: rhs) {
           property.rhs = redirect
         } else if case let .array(values) = rhs {
-//          assert(false, "values: \(values)")
           var newValues = [RhsValue]()
           for value in values {
             if let redirect = resolveRedirection(rhs: value) {
@@ -819,7 +857,6 @@ class Stylesheet {
           }
           property.rhs = .array(values: newValues)
         } else if case let .hash(map) = rhs {
-          //          assert(false, "values: \(values)")
           var newMap = [Condition: RhsValue]()
           for (key, value) in map {
             if let redirect = resolveRedirection(rhs: value) {
@@ -1030,9 +1067,11 @@ extension Stylesheet: Generatable {
       stylesheet += "\t\treturn __._sharedInstance\n"
       stylesheet += "\t}\n"
     }
+    
     for style in styles {
       stylesheet += style.generate()
     }
+    
     if animatorName != nil {
       stylesheet += generateAnimator()
       for animation in animations {

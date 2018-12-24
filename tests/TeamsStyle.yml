@@ -1,11 +1,5 @@
-Typography:
-  smaller: [normal: "Font(System, 10)", semibold: "Font(System-semibold, 10)", bold: "Font(System-bold, 10)", italic: "Font(SystemItalic, 10)"]
-  small: [normal: "Font(System, 12)", semibold: "Font(System-semibold, 12)", bold: "Font(System-bold, 12)", italic: "Font(SystemItalic, 12)"]
-  medium: [normal: "Font(System, 14)", semibold: "Font(System-semibold, 14)", bold: "Font(System-bold, 14)", italic: "Font(SystemItalic, 14)"]
-  large: [normal: "Font(System, 18)", semibold: "Font(System-semibold, 18)", bold: "Font(System-bold, 18)", italic: "Font(SystemItalic, 18)"]
-  larger: [normal: "Font(System, 24)", semibold: "Font(System-semibold, 24)", bold: "Font(System-bold, 24)", italic: "Font(SystemItalic, 24)"]
+Color:
+  red: [normal: "#0078d4", prova: "#ffffff"]
 
-@appearance_proxy Button:
-  titleFont:
-    "idiom = pad": $Typography.large.bold
-    "default": $Typography.medium.bold
+NavigationBar: 
+  backgroundColor: $Color.red.normal

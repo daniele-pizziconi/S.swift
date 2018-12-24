@@ -63,6 +63,14 @@ public struct Generator: Generatable  {
         throw GeneratorError.malformedYaml(error: "The root object is not a dictionary.")
       }
       
+      var name = Configuration.stylesheetNames[i]
+      var superclassName: String? = nil
+      let components = name.components(separatedBy: ":")
+      if components.count == 2 {
+        name = components[0]
+        superclassName = components[1]
+      }
+      
       //filter the styles from the animations
       let mainStyles = main.filter({ !($0.key.string?.hasPrefix("__animator") ?? false) })
       for (key, values) in mainStyles {
@@ -70,6 +78,7 @@ public struct Generator: Generatable  {
           throw GeneratorError.malformedYaml(error: "Malformed style definition: \(key).")
         }
         let style = Style(name: keyString, properties: try createProperties(valuesDictionary))
+        style.belongsToStylesheetName = name
         styles.append(style)
       }
       
@@ -88,18 +97,12 @@ public struct Generator: Generatable  {
             throw GeneratorError.malformedYaml(error: "Malformed animation definition: \(key). Animator: \(animator), animatorDict: \(String(describing: animatorDict)), mainStyles: \(mainStyles), yaml: \(yaml)")
           }
           let style = Style(name: keyString, properties: try createProperties(valuesDictionary))
+          style.belongsToStylesheetName = name
           style.isAnimation = true
           animations.append(style)
         }
       }
 
-      var name = Configuration.stylesheetNames[i]
-      var superclassName: String? = nil
-      let components = name.components(separatedBy: ":")
-      if components.count == 2 {
-        name = components[0]
-        superclassName = components[1]
-      }
       Generator.Stylesheets.append(Stylesheet(name: name, styles: styles, animations: animations, superclassName: superclassName, animatorName: animatorName))
     }
   }

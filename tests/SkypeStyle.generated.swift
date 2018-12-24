@@ -10,44 +10,40 @@ public class SkypeStyle: TeamsStyle {
 		 struct __ { static let _sharedInstance = SkypeStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Color
-	public static let Color = ColorAppearanceProxy()
-	public class ColorAppearanceProxy {
+	//MARK: - SkypeStyleColor
+	override public func ColorStyle() -> TeamsStyle.ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return SkypeStyleColorAppearanceProxy(proxy: { return SkypeStyle.shared() })
+		}
+	public class SkypeStyleColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy {
 
-		//MARK: red 
-		fileprivate var _red: UIColor?
-		public func redProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+		//MARK: - SkypeStyleredColor
+		override public func redStyle() -> TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
 			if let override = _red { return override }
-			return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+				return SkypeStyleredColorAppearanceProxy(proxy: mainProxy)
 			}
-		public var red: UIColor {
-			get { return self.redProperty() }
-			set { _red = newValue }
+		public class SkypeStyleredColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
+
+			//MARK: prova 
+			override public func provaProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _prova { return override }
+					return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+				}
+
+			//MARK: normal 
+			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+				}
 		}
+
 	}
-	//MARK: - Animator
-	override public func AnimatorAnimator() -> TeamsStyle.AnimatorAnimatorProxy {
-		if let override = _Animator { return override }
-			return SkypeStyleAnimatorAnimatorProxy()
+	//MARK: - SkypeStyleNavigationBar
+	override open func NavigationBarStyle() -> TeamsStyle.NavigationBarAppearanceProxy {
+		if let override = _NavigationBar { return override }
+			return SkypeStyleNavigationBarAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
-	public class SkypeStyleAnimatorAnimatorProxy: TeamsStyle.AnimatorAnimatorProxy {
+	public class SkypeStyleNavigationBarAppearanceProxy: TeamsStyle.NavigationBarAppearanceProxy {
+	}
 
-		//MARK: - basic
-		public static let basic = basicAppearanceProxy()
-		public class basicAppearanceProxy {
-
-		//MARK: test 
-		fileprivate var _test: CGFloat?
-		public func testProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _test { return override }
-			return CGFloat(10.0)
-			}
-		public var test: CGFloat {
-			get { return self.testProperty() }
-			set { _test = newValue }
-		}
-		}
-	
-
-}
 }

@@ -1,6 +1,2 @@
 Color:
-  red: "#0078d4"
-
-@animator Animator:
-  basic:
-    test: 10
+  red: [normal: "#0078d4", prova: "#ffffff"]

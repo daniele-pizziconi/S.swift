@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case skype
 	case teams
+	case skype
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.shared()
 		case .teams: return TeamsStyle.shared()
+		case .skype: return SkypeStyle.shared()
 		}
 	}
 }
@@ -94,381 +94,88 @@ public class TeamsStyle: NSObject {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Typography
-	public var _Typography: TypographyAppearanceProxy?
-	open func TypographyStyle() -> TypographyAppearanceProxy {
-		if let override = _Typography { return override }
-			return TypographyAppearanceProxy()
+	//MARK: - NavigationBar
+	public var _NavigationBar: NavigationBarAppearanceProxy?
+	open func NavigationBarStyle() -> NavigationBarAppearanceProxy {
+		if let override = _NavigationBar { return override }
+			return NavigationBarAppearanceProxy(proxy: { return TeamsStyle.shared() })
 		}
-	public var Typography: TypographyAppearanceProxy {
-		get { return self.TypographyStyle() }
-		set { _Typography = newValue }
+	public var NavigationBar: NavigationBarAppearanceProxy {
+		get { return self.NavigationBarStyle() }
+		set { _NavigationBar = newValue }
 	}
-	public class TypographyAppearanceProxy {
-
-		//MARK: - medium
-		public var _medium: mediumAppearanceProxy?
-		open func mediumStyle() -> mediumAppearanceProxy {
-			if let override = _medium { return override }
-				return mediumAppearanceProxy()
-			}
-		public var medium: mediumAppearanceProxy {
-			get { return self.mediumStyle() }
-			set { _medium = newValue }
+	public class NavigationBarAppearanceProxy {
+		let mainProxy: () -> TeamsStyle
+		init(proxy: @escaping () -> TeamsStyle) {
+			self.mainProxy = proxy
 		}
-		public class mediumAppearanceProxy {
 
-			//MARK: bold 
-			public var _bold: UIFont?
-			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _bold { return override }
-					return UIFont.systemFont(ofSize: 14.0, weight: UIFont.Weight.bold)
+		//MARK: backgroundColor 
+		public var _backgroundColor: UIColor?
+		open func backgroundColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _backgroundColor { return override }
+			return mainProxy().Color.red.normalProperty(traitCollection)
+			}
+		public var backgroundColor: UIColor {
+			get { return self.backgroundColorProperty() }
+			set { _backgroundColor = newValue }
+		}
+	}
+	//MARK: - Color
+	public var _Color: ColorAppearanceProxy?
+	open func ColorStyle() -> ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return ColorAppearanceProxy(proxy: { return TeamsStyle.shared() })
+		}
+	public var Color: ColorAppearanceProxy {
+		get { return self.ColorStyle() }
+		set { _Color = newValue }
+	}
+	public class ColorAppearanceProxy {
+		let mainProxy: () -> TeamsStyle
+		init(proxy: @escaping () -> TeamsStyle) {
+			self.mainProxy = proxy
+		}
+
+		//MARK: - red
+		public var _red: redAppearanceProxy?
+		open func redStyle() -> redAppearanceProxy {
+			if let override = _red { return override }
+				return redAppearanceProxy(proxy: mainProxy)
+			}
+		public var red: redAppearanceProxy {
+			get { return self.redStyle() }
+			set { _red = newValue }
+		}
+		public class redAppearanceProxy {
+			let mainProxy: () -> TeamsStyle
+			init(proxy: @escaping () -> TeamsStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: prova 
+			public var _prova: UIColor?
+			open func provaProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _prova { return override }
+					return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
 				}
-			public var bold: UIFont {
-				get { return self.boldProperty() }
-				set { _bold = newValue }
+			public var prova: UIColor {
+				get { return self.provaProperty() }
+				set { _prova = newValue }
 			}
 
 			//MARK: normal 
-			public var _normal: UIFont?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+			public var _normal: UIColor?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _normal { return override }
-					return UIFont.systemFont(ofSize: 14.0)
+					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
 				}
-			public var normal: UIFont {
+			public var normal: UIColor {
 				get { return self.normalProperty() }
 				set { _normal = newValue }
 			}
-
-			//MARK: semibold 
-			public var _semibold: UIFont?
-			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _semibold { return override }
-					return UIFont.systemFont(ofSize: 14.0, weight: UIFont.Weight.semibold)
-				}
-			public var semibold: UIFont {
-				get { return self.semiboldProperty() }
-				set { _semibold = newValue }
-			}
-
-			//MARK: italic 
-			public var _italic: UIFont?
-			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _italic { return override }
-					return UIFont.systemFont(ofSize: 14.0)
-				}
-			public var italic: UIFont {
-				get { return self.italicProperty() }
-				set { _italic = newValue }
-			}
-		}
-
-
-		//MARK: - small
-		public var _small: smallAppearanceProxy?
-		open func smallStyle() -> smallAppearanceProxy {
-			if let override = _small { return override }
-				return smallAppearanceProxy()
-			}
-		public var small: smallAppearanceProxy {
-			get { return self.smallStyle() }
-			set { _small = newValue }
-		}
-		public class smallAppearanceProxy {
-
-			//MARK: bold 
-			public var _bold: UIFont?
-			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _bold { return override }
-					return UIFont.systemFont(ofSize: 12.0, weight: UIFont.Weight.bold)
-				}
-			public var bold: UIFont {
-				get { return self.boldProperty() }
-				set { _bold = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: UIFont?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return UIFont.systemFont(ofSize: 12.0)
-				}
-			public var normal: UIFont {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: semibold 
-			public var _semibold: UIFont?
-			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _semibold { return override }
-					return UIFont.systemFont(ofSize: 12.0, weight: UIFont.Weight.semibold)
-				}
-			public var semibold: UIFont {
-				get { return self.semiboldProperty() }
-				set { _semibold = newValue }
-			}
-
-			//MARK: italic 
-			public var _italic: UIFont?
-			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _italic { return override }
-					return UIFont.systemFont(ofSize: 12.0)
-				}
-			public var italic: UIFont {
-				get { return self.italicProperty() }
-				set { _italic = newValue }
-			}
-		}
-
-
-		//MARK: - large
-		public var _large: largeAppearanceProxy?
-		open func largeStyle() -> largeAppearanceProxy {
-			if let override = _large { return override }
-				return largeAppearanceProxy()
-			}
-		public var large: largeAppearanceProxy {
-			get { return self.largeStyle() }
-			set { _large = newValue }
-		}
-		public class largeAppearanceProxy {
-
-			//MARK: bold 
-			public var _bold: UIFont?
-			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _bold { return override }
-					return UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.bold)
-				}
-			public var bold: UIFont {
-				get { return self.boldProperty() }
-				set { _bold = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: UIFont?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return UIFont.systemFont(ofSize: 18.0)
-				}
-			public var normal: UIFont {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: semibold 
-			public var _semibold: UIFont?
-			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _semibold { return override }
-					return UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.semibold)
-				}
-			public var semibold: UIFont {
-				get { return self.semiboldProperty() }
-				set { _semibold = newValue }
-			}
-
-			//MARK: italic 
-			public var _italic: UIFont?
-			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _italic { return override }
-					return UIFont.systemFont(ofSize: 18.0)
-				}
-			public var italic: UIFont {
-				get { return self.italicProperty() }
-				set { _italic = newValue }
-			}
-		}
-
-
-		//MARK: - larger
-		public var _larger: largerAppearanceProxy?
-		open func largerStyle() -> largerAppearanceProxy {
-			if let override = _larger { return override }
-				return largerAppearanceProxy()
-			}
-		public var larger: largerAppearanceProxy {
-			get { return self.largerStyle() }
-			set { _larger = newValue }
-		}
-		public class largerAppearanceProxy {
-
-			//MARK: bold 
-			public var _bold: UIFont?
-			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _bold { return override }
-					return UIFont.systemFont(ofSize: 24.0, weight: UIFont.Weight.bold)
-				}
-			public var bold: UIFont {
-				get { return self.boldProperty() }
-				set { _bold = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: UIFont?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return UIFont.systemFont(ofSize: 24.0)
-				}
-			public var normal: UIFont {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: semibold 
-			public var _semibold: UIFont?
-			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _semibold { return override }
-					return UIFont.systemFont(ofSize: 24.0, weight: UIFont.Weight.semibold)
-				}
-			public var semibold: UIFont {
-				get { return self.semiboldProperty() }
-				set { _semibold = newValue }
-			}
-
-			//MARK: italic 
-			public var _italic: UIFont?
-			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _italic { return override }
-					return UIFont.systemFont(ofSize: 24.0)
-				}
-			public var italic: UIFont {
-				get { return self.italicProperty() }
-				set { _italic = newValue }
-			}
-		}
-
-
-		//MARK: - smaller
-		public var _smaller: smallerAppearanceProxy?
-		open func smallerStyle() -> smallerAppearanceProxy {
-			if let override = _smaller { return override }
-				return smallerAppearanceProxy()
-			}
-		public var smaller: smallerAppearanceProxy {
-			get { return self.smallerStyle() }
-			set { _smaller = newValue }
-		}
-		public class smallerAppearanceProxy {
-
-			//MARK: bold 
-			public var _bold: UIFont?
-			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _bold { return override }
-					return UIFont.systemFont(ofSize: 10.0, weight: UIFont.Weight.bold)
-				}
-			public var bold: UIFont {
-				get { return self.boldProperty() }
-				set { _bold = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: UIFont?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return UIFont.systemFont(ofSize: 10.0)
-				}
-			public var normal: UIFont {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: semibold 
-			public var _semibold: UIFont?
-			open func semiboldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _semibold { return override }
-					return UIFont.systemFont(ofSize: 10.0, weight: UIFont.Weight.semibold)
-				}
-			public var semibold: UIFont {
-				get { return self.semiboldProperty() }
-				set { _semibold = newValue }
-			}
-
-			//MARK: italic 
-			public var _italic: UIFont?
-			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _italic { return override }
-					return UIFont.systemFont(ofSize: 10.0)
-				}
-			public var italic: UIFont {
-				get { return self.italicProperty() }
-				set { _italic = newValue }
-			}
 		}
 
 	}
-	//MARK: - Button
-	public var _Button: ButtonAppearanceProxy?
-	open func ButtonStyle() -> ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return ButtonAppearanceProxy()
-		}
-	public var Button: ButtonAppearanceProxy {
-		get { return self.ButtonStyle() }
-		set { _Button = newValue }
-	}
-	public class ButtonAppearanceProxy {
 
-		//MARK: titleFont 
-		public var _titleFont: UIFont?
-		open func titleFontProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-			if let override = _titleFont { return override }
-			if UIDevice.current.userInterfaceIdiom == UIUserInterfaceIdiom.pad { 
-			return TeamsStyle.shared().Typography.large.boldProperty(traitCollection)
-			}
-			
-			return TeamsStyle.shared().Typography.medium.boldProperty(traitCollection)
-			}
-		public var titleFont: UIFont {
-			get { return self.titleFontProperty() }
-			set { _titleFont = newValue }
-		}
-	}
-
-}
-extension Button: AppearaceProxyComponent {
-
-	public typealias ApperanceProxyType = TeamsStyle.ButtonAppearanceProxy
-	public var appearanceProxy: ApperanceProxyType {
-		get {
-			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
-				if !themeAware { return proxy }
-
-
-				return proxy
-			}
-
-			return StylesheetManager.stylesheet(TeamsStyle.shared()).Button
-		}
-		set {
-			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			didChangeAppearanceProxy()
-		}
-	}
-
-	public var themeAware: Bool {
-		get {
-			guard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) as? Bool else { return true }
-			return proxy
-		}
-		set {
-			objc_setAssociatedObject(self, &__ThemeAwareHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			isObservingDidChangeTheme = newValue
-		}
-	}
-
-	fileprivate var isObservingDidChangeTheme: Bool {
-		get {
-			guard let observing = objc_getAssociatedObject(self, &__ObservingDidChangeThemeHandle) as? Bool else { return false }
-			return observing
-		}
-		set {
-			if newValue == isObservingDidChangeTheme { return }
-			if newValue {
-				NotificationCenter.default.addObserver(self, selector: #selector(didChangeAppearanceProxy), name: Notification.Name.didChangeTheme, object: nil)
-			} else {
-				NotificationCenter.default.removeObserver(self, name: Notification.Name.didChangeTheme, object: nil)
-			}
-			objc_setAssociatedObject(self, &__ObservingDidChangeThemeHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-		}
-	}
 }
