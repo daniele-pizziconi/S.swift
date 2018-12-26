@@ -681,7 +681,7 @@ extension Style: Generatable {
       if isNestedOverridable && !isNestedOverride {
         wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
       }
-         
+
       let injectedProxy = isNested ? "proxy: mainProxy" : "proxy: { return \(belongsToStylesheetName!).shared() }"
       wrapper +=
       "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
@@ -757,33 +757,38 @@ class Stylesheet {
       !styles.contains(where: { $0.name == style.name })
     })
     
+    var injectedStyles = [Style]()
     for baseStyle in baseStyles {
-      let propertyWithNestedStyles = baseStyle.properties.filter({ $0.style != nil })
-      for property in propertyWithNestedStyles where property.style != nil {
-        let nestedStyle = property.style!
+      var injectedProperties = [Property]()
+      for property in baseStyle.properties.filter({ $0.style != nil }) where property.style != nil {
+        let nestedStyle = Style(name: property.style!.name, properties: [])
         nestedStyle.belongsToStylesheetName = name
         nestedStyle.isInjected = true
         nestedStyle.properties = [Property]()
-        property.style = nestedStyle
+        let injectedProperty = Property(key: property.key, rhs: property.rhs, style: nestedStyle)
+        injectedProperties.append(injectedProperty)
       }
-      baseStyle.belongsToStylesheetName = name
-      baseStyle.isInjected = true
-      baseStyle.properties = propertyWithNestedStyles
+      
+      let injectedStyle = Style(name: baseStyle.name, properties: injectedProperties)
+      injectedStyle.belongsToStylesheetName = name
+      injectedStyle.isInjected = true
+      injectedStyles.append(injectedStyle)
     }
-    normalizedStyles.append(contentsOf: baseStyles)
+    normalizedStyles.append(contentsOf: injectedStyles)
     
     let nestedStyles = normalizedStyles.flatMap({ $0.properties }).flatMap({ $0.style })
     for style in sourceArray {
       for property in style.properties where property.style != nil {
         let nestedStyle = property.style!
         if !nestedStyles.contains(where: { $0.name == nestedStyle.name }) {
-          nestedStyle.belongsToStylesheetName = name
-          nestedStyle.isInjected = true
-          nestedStyle.properties = [Property]()
           for normalizedStyle in normalizedStyles {
             if normalizedStyle.name == style.name {
+              let injectedNestedStyle = Style(name: nestedStyle.name, properties: [])
+              injectedNestedStyle.belongsToStylesheetName = name
+              injectedNestedStyle.isInjected = true
+              let injectedProperty = Property(key: property.key, rhs: property.rhs, style: injectedNestedStyle)
               var properties = normalizedStyle.properties
-              properties.append(property)
+              properties.append(injectedProperty)
               normalizedStyle.properties = properties
             }
           }
@@ -835,7 +840,7 @@ class Stylesheet {
     var redirection = rhs.redirection!
     let type = resolveRedirectedType(redirection)
     
-    if Configuration.runtimeSwappable {
+    if Configuration.runtimeSwappable && !redirection.hasPrefix("mainProxy()") {
       redirection = "mainProxy().\(redirection)"
     }
     return rhs.applyRedirection(RhsRedirectValue(redirection: redirection, type: type))
@@ -976,10 +981,10 @@ class Stylesheet {
 
   // Recursively resolves the return type for this redirected property.
   fileprivate func resolveRedirectedType(_ redirection: String) -> String {
-
-//    assert(false, "redirection \(redirection)")
-    
-    let components = redirection.components(separatedBy: ".")
+    var components = redirection.components(separatedBy: ".")
+    if components.first!.hasPrefix("mainProxy()") {
+      components.removeFirst()
+    }
     assert(components.count == 2 || components.count == 3, "Redirect \(redirection) invalid")
   
     var property: Property? = nil
@@ -1009,7 +1014,7 @@ class Stylesheet {
         }
       }
     }
-    
+
     if let rhs = property!.rhs, rhs.isRedirect {
       return resolveRedirectedType(property!.rhs!.redirection!)
     } else {

@@ -1,2 +1,5 @@
 Color:
-  red: [normal: "#0078d4", prova: "#ffffff"]
+  brand: [normal: "#0078d4", b02: "#009AE3", b04: "#009AE3", b06: "#0060aa", b08: "#8B8CC7", b12: "#BDBDE6", b14: "#E2E2F6", b16: "#F4F4FC"]
+
+@appearance_proxy Button:
+  color: [normal: $Color.brand.normal, active: $Color.white, activeDisabled: $Color.white, hover: $Color.brand.b06, focus: $Color.brand.b06, disabled: $Color.gray.g06]

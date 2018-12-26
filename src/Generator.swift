@@ -77,7 +77,11 @@ public struct Generator: Generatable  {
         guard let valuesDictionary = values.dictionary, let keyString = key.string else {
           throw GeneratorError.malformedYaml(error: "Malformed style definition: \(key).")
         }
-        let style = Style(name: keyString, properties: try createProperties(valuesDictionary))
+        let properties = try createProperties(valuesDictionary)
+        for property in properties where property.style != nil {
+          property.style?.belongsToStylesheetName = name
+        }
+        let style = Style(name: keyString, properties: properties)
         style.belongsToStylesheetName = name
         styles.append(style)
       }
