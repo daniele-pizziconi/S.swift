@@ -1677,7 +1677,7 @@ extension Stylesheet: Generatable {
       wrapper += "\n\(indentation)\t\tif let repeatCount = propertyAnimator.repeatCount, case let .count(count) = repeatCount, count == 0 { return propertyAnimator }"
       wrapper += "\n\(indentation)\t\tpropertyAnimator.addCompletion({ _ in"
       wrapper += "\n\(indentation)\t\t\tlet currentContext = AnimatorContext.animatorContexts.filter({ $0.type == type && $0.viewTag == view.\(animatorName!.firstLowercased)Identifier }).first\n"
-      wrapper += "\n\(indentation)\t\t\tif let repeatCount = currentContext?.animation(of: type).repeatCount, view.superview != nil {"
+      wrapper += "\n\(indentation)\t\t\tif let repeatCount = currentContext?.animation(of: type).repeatCount, view.superview != nil && view.window != nil {"
       wrapper += "\n\(indentation)\t\t\t\tlet nextAnimation = self.\(animatorName!.firstLowercased)(type: type, for: view, options: options)"
       wrapper += "\n\(indentation)\t\t\t\tif case let .count(count) = repeatCount {"
       wrapper += "\n\(indentation)\t\t\t\t\tlet nextCount = count - 1"
