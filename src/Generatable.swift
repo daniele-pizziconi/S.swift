@@ -802,7 +802,7 @@ class Stylesheet {
     
     if superclassName != nil && Configuration.runtimeSwappable {
       styles = normalized(styles: styles, isAnimator: false)
-      animations = normalized(styles: styles, isAnimator: true)
+      animations = normalized(styles: animations, isAnimator: true)
     }
     
     [styles, animations].forEach { generatableArray in
