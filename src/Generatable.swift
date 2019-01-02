@@ -414,12 +414,12 @@ extension RhsValue: Generatable {
     //system font
     if font.isSystemFont || font.isSystemBoldFont || font.isSystemItalicFont {
       var function: String? = nil
-      if font.isSystemFont {
-        function = "systemFont"
-      } else if font.isSystemBoldFont {
+      if font.isSystemBoldFont {
         function = "boldSystemFont"
       } else if font.isSystemItalicFont {
         function = "italicSystemFont"
+      } else if font.isSystemFont {
+        function = "systemFont"
       }
       let weight = font.hasWeight ? ", weight: \(font.weight!)" : ""
       return "\(prefix)\(fontClass).\(function!)(ofSize: \(font.fontSize)\(weight))"
