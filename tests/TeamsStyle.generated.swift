@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case skype
 	case teams
+	case skype
 
 	public var stylesheet: TeamsStyle {
 		switch self {
-		case .skype: return SkypeStyle.shared()
 		case .teams: return TeamsStyle.shared()
+		case .skype: return SkypeStyle.shared()
 		}
 	}
 }
@@ -90,15 +90,15 @@ public extension AppearaceProxyComponent {
 #if os(iOS)
 private let defaultSizes: [UIFont.TextStyle: CGFloat] = {
 	var sizes: [UIFont.TextStyle: CGFloat] = [.caption2: 11,
-.caption1: 12,
-.footnote: 13,
-.subheadline: 15,
-.callout: 16,
-.body: 17,
-.headline: 17,
-.title3: 20,
-.title2: 22,
-.title1: 28]
+	.caption1: 12,
+	.footnote: 13,
+	.subheadline: 15,
+	.callout: 16,
+	.body: 17,
+	.headline: 17,
+	.title3: 20,
+	.title2: 22,
+	.title1: 28]
 	if #available(iOS 11.0, *) {
 		sizes[.largeTitle] = 34
 	}
@@ -107,54 +107,18 @@ private let defaultSizes: [UIFont.TextStyle: CGFloat] = {
 #elseif os(tvOS)
 private let defaultSizes: [UIFont.TextStyle: CGFloat] =
 	[.caption2: 23,
-	.caption1: 25,
-	.footnote: 29,
-	.subheadline: 29,
-	.body: 29,
-	.callout: 31,
-	.headline: 38,
-	.title3: 48,
-	.title2: 57,
-	.title1: 76]
+		.caption1: 25,
+		.footnote: 29,
+		.subheadline: 29,
+		.body: 29,
+		.callout: 31,
+		.headline: 38,
+		.title3: 48,
+		.title2: 57,
+		.title1: 76]
 #elseif os(tvOS)
 private let defaultSizes: [UIFont.TextStyle: CGFloat] = {
 	if #available(watchOS 5.0, *) {
-		switch WKInterfaceDevice.current().preferredContentSizeCategory {
-		case "UICTContentSizeCategoryS":
-			return [.footnote: 12,
-			.caption2: 13,
-			.caption1: 14,
-			.body: 15,
-			.headline: 15,
-			.title3: 18,
-			.title2: 26,
-			.title1: 30,
-			.largeTitle: 32]
-		case "UICTContentSizeCategoryL":
-			return [.footnote: 13,
-			.caption2: 14,
-			.caption1: 15,
-			.body: 16,
-			.headline: 16,
-			.title3: 19,
-			.title2: 27,
-			.title1: 34,
-			.largeTitle: 36]
-		case "UICTContentSizeCategoryXL":
-			return [.footnote: 14,
-			.caption2: 15,
-			.caption1: 16,
-			.body: 17,
-			.headline: 17,
-			.title3: 20,
-			.title2: 30,
-			.title1: 38,
-			.largeTitle: 40]
-		default:
-			return [:]
-		}
-	} else {
-		/// No `largeTitle` before watchOS 5
 		switch WKInterfaceDevice.current().preferredContentSizeCategory {
 		case "UICTContentSizeCategoryS":
 			return [.footnote: 12,
@@ -164,7 +128,8 @@ private let defaultSizes: [UIFont.TextStyle: CGFloat] = {
 				.headline: 15,
 				.title3: 18,
 				.title2: 26,
-				.title1: 30]
+				.title1: 30,
+				.largeTitle: 32]
 		case "UICTContentSizeCategoryL":
 			return [.footnote: 13,
 				.caption2: 14,
@@ -173,7 +138,42 @@ private let defaultSizes: [UIFont.TextStyle: CGFloat] = {
 				.headline: 16,
 				.title3: 19,
 				.title2: 27,
-				.title1: 34]
+				.title1: 34,
+				.largeTitle: 36]
+		case "UICTContentSizeCategoryXL":
+			return [.footnote: 14,
+				.caption2: 15,
+				.caption1: 16,
+				.body: 17,
+				.headline: 17,
+				.title3: 20,
+				.title2: 30,
+				.title1: 38,
+				.largeTitle: 40]
+		default:
+			return [:]
+		}
+	} else {
+		/// No `largeTitle` before watchOS 5
+		switch WKInterfaceDevice.current().preferredContentSizeCategory {
+		case "UICTContentSizeCategoryS":
+			return [.footnote: 12,
+					.caption2: 13,
+					.caption1: 14,
+					.body: 15,
+					.headline: 15,
+					.title3: 18,
+					.title2: 26,
+					.title1: 30]
+		case "UICTContentSizeCategoryL":
+			return [.footnote: 13,
+					.caption2: 14,
+					.caption1: 15,
+					.body: 16,
+					.headline: 16,
+					.title3: 19,
+					.title2: 27,
+					.title1: 34]
 		default:
 			return [:]
 		}
@@ -335,26 +335,15 @@ public class TeamsStyle: NSObject {
 				self.mainProxy = proxy
 			}
 
-			//MARK: tiny 
-			public var _tiny: CGFloat?
-			open func tinyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _tiny { return override }
-					return CGFloat(1.5)
+			//MARK: debug 
+			public var _debug: CGFloat?
+			open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _debug { return override }
+					return CGFloat(10.0)
 				}
-			public var tiny: CGFloat {
-				get { return self.tinyProperty() }
-				set { _tiny = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: CGFloat?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _normal { return override }
-					return CGFloat(3.0)
-				}
-			public var normal: CGFloat {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
+			public var debug: CGFloat {
+				get { return self.debugProperty() }
+				set { _debug = newValue }
 			}
 
 			//MARK: short 
@@ -368,6 +357,17 @@ public class TeamsStyle: NSObject {
 				set { _short = newValue }
 			}
 
+			//MARK: normal 
+			public var _normal: CGFloat?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _normal { return override }
+					return CGFloat(3.0)
+				}
+			public var normal: CGFloat {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
 			//MARK: long 
 			public var _long: CGFloat?
 			open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -379,115 +379,15 @@ public class TeamsStyle: NSObject {
 				set { _long = newValue }
 			}
 
-			//MARK: debug 
-			public var _debug: CGFloat?
-			open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _debug { return override }
-					return CGFloat(10.0)
+			//MARK: tiny 
+			public var _tiny: CGFloat?
+			open func tinyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _tiny { return override }
+					return CGFloat(1.5)
 				}
-			public var debug: CGFloat {
-				get { return self.debugProperty() }
-				set { _debug = newValue }
-			}
-		}
-
-	}
-	//MARK: - Button
-	public var _Button: ButtonAppearanceProxy?
-	open func ButtonStyle() -> ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return ButtonAppearanceProxy(proxy: { return TeamsStyle.shared() })
-		}
-	public var Button: ButtonAppearanceProxy {
-		get { return self.ButtonStyle() }
-		set { _Button = newValue }
-	}
-	public class ButtonAppearanceProxy {
-		let mainProxy: () -> TeamsStyle
-		init(proxy: @escaping () -> TeamsStyle) {
-			self.mainProxy = proxy
-		}
-
-		//MARK: - color
-		public var _color: colorAppearanceProxy?
-		open func colorStyle() -> colorAppearanceProxy {
-			if let override = _color { return override }
-				return colorAppearanceProxy(proxy: mainProxy)
-			}
-		public var color: colorAppearanceProxy {
-			get { return self.colorStyle() }
-			set { _color = newValue }
-		}
-		public class colorAppearanceProxy {
-			let mainProxy: () -> TeamsStyle
-			init(proxy: @escaping () -> TeamsStyle) {
-				self.mainProxy = proxy
-			}
-
-			//MARK: focus 
-			public var _focus: UIColor?
-			open func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _focus { return override }
-					return mainProxy().Color.black.normalProperty(traitCollection)
-				}
-			public var focus: UIColor {
-				get { return self.focusProperty() }
-				set { _focus = newValue }
-			}
-
-			//MARK: hover 
-			public var _hover: UIColor?
-			open func hoverProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _hover { return override }
-					return mainProxy().Color.black.normalProperty(traitCollection)
-				}
-			public var hover: UIColor {
-				get { return self.hoverProperty() }
-				set { _hover = newValue }
-			}
-
-			//MARK: active 
-			public var _active: UIColor?
-			open func activeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _active { return override }
-					return mainProxy().Color.black.normalProperty(traitCollection)
-				}
-			public var active: UIColor {
-				get { return self.activeProperty() }
-				set { _active = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: UIColor?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return mainProxy().Color.black.normalProperty(traitCollection)
-				}
-			public var normal: UIColor {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: disabled 
-			public var _disabled: UIColor?
-			open func disabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _disabled { return override }
-					return mainProxy().Color.gray.g06Property(traitCollection)
-				}
-			public var disabled: UIColor {
-				get { return self.disabledProperty() }
-				set { _disabled = newValue }
-			}
-
-			//MARK: activeDisabled 
-			public var _activeDisabled: UIColor?
-			open func activeDisabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _activeDisabled { return override }
-					return mainProxy().Color.black.normalProperty(traitCollection)
-				}
-			public var activeDisabled: UIColor {
-				get { return self.activeDisabledProperty() }
-				set { _activeDisabled = newValue }
+			public var tiny: CGFloat {
+				get { return self.tinyProperty() }
+				set { _tiny = newValue }
 			}
 		}
 
@@ -564,57 +464,6 @@ public class TeamsStyle: NSObject {
 			self.mainProxy = proxy
 		}
 
-		//MARK: transparent 
-		public var _transparent: UIColor?
-		open func transparentProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _transparent { return override }
-			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
-			}
-		public var transparent: UIColor {
-			get { return self.transparentProperty() }
-			set { _transparent = newValue }
-		}
-
-		//MARK: - green
-		public var _green: greenAppearanceProxy?
-		open func greenStyle() -> greenAppearanceProxy {
-			if let override = _green { return override }
-				return greenAppearanceProxy(proxy: mainProxy)
-			}
-		public var green: greenAppearanceProxy {
-			get { return self.greenStyle() }
-			set { _green = newValue }
-		}
-		public class greenAppearanceProxy {
-			let mainProxy: () -> TeamsStyle
-			init(proxy: @escaping () -> TeamsStyle) {
-				self.mainProxy = proxy
-			}
-
-			//MARK: normal 
-			public var _normal: UIColor?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.57254905, green: 0.7647059, blue: 0.3254902, alpha: 1.0)
-				}
-			public var normal: UIColor {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: g04 
-			public var _g04: UIColor?
-			open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g04 { return override }
-					return UIColor(red: 0.13725491, green: 0.48235294, blue: 0.29411766, alpha: 1.0)
-				}
-			public var g04: UIColor {
-				get { return self.g04Property() }
-				set { _g04 = newValue }
-			}
-		}
-
-
 		//MARK: - brand
 		public var _brand: brandAppearanceProxy?
 		open func brandStyle() -> brandAppearanceProxy {
@@ -629,6 +478,50 @@ public class TeamsStyle: NSObject {
 			let mainProxy: () -> TeamsStyle
 			init(proxy: @escaping () -> TeamsStyle) {
 				self.mainProxy = proxy
+			}
+
+			//MARK: b16 
+			public var _b16: UIColor?
+			open func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b16 { return override }
+					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
+				}
+			public var b16: UIColor {
+				get { return self.b16Property() }
+				set { _b16 = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIColor?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.38431373, green: 0.39215687, blue: 0.654902, alpha: 1.0)
+				}
+			public var normal: UIColor {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: b02 
+			public var _b02: UIColor?
+			open func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b02 { return override }
+					return UIColor(red: 0.2, green: 0.20392157, blue: 0.2901961, alpha: 1.0)
+				}
+			public var b02: UIColor {
+				get { return self.b02Property() }
+				set { _b02 = newValue }
+			}
+
+			//MARK: b12 
+			public var _b12: UIColor?
+			open func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b12 { return override }
+					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
+				}
+			public var b12: UIColor {
+				get { return self.b12Property() }
+				set { _b12 = newValue }
 			}
 
 			//MARK: b04 
@@ -664,17 +557,6 @@ public class TeamsStyle: NSObject {
 				set { _b14 = newValue }
 			}
 
-			//MARK: b02 
-			public var _b02: UIColor?
-			open func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b02 { return override }
-					return UIColor(red: 0.2, green: 0.20392157, blue: 0.2901961, alpha: 1.0)
-				}
-			public var b02: UIColor {
-				get { return self.b02Property() }
-				set { _b02 = newValue }
-			}
-
 			//MARK: b08 
 			public var _b08: UIColor?
 			open func b08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -685,198 +567,8 @@ public class TeamsStyle: NSObject {
 				get { return self.b08Property() }
 				set { _b08 = newValue }
 			}
-
-			//MARK: b12 
-			public var _b12: UIColor?
-			open func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b12 { return override }
-					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
-				}
-			public var b12: UIColor {
-				get { return self.b12Property() }
-				set { _b12 = newValue }
-			}
-
-			//MARK: b16 
-			public var _b16: UIColor?
-			open func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b16 { return override }
-					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
-				}
-			public var b16: UIColor {
-				get { return self.b16Property() }
-				set { _b16 = newValue }
-			}
-
-			//MARK: normal 
-			public var _normal: UIColor?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.38431373, green: 0.39215687, blue: 0.654902, alpha: 1.0)
-				}
-			public var normal: UIColor {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
 		}
 
-
-		//MARK: - gray
-		public var _gray: grayAppearanceProxy?
-		open func grayStyle() -> grayAppearanceProxy {
-			if let override = _gray { return override }
-				return grayAppearanceProxy(proxy: mainProxy)
-			}
-		public var gray: grayAppearanceProxy {
-			get { return self.grayStyle() }
-			set { _gray = newValue }
-		}
-		public class grayAppearanceProxy {
-			let mainProxy: () -> TeamsStyle
-			init(proxy: @escaping () -> TeamsStyle) {
-				self.mainProxy = proxy
-			}
-
-			//MARK: g08 
-			public var _g08: UIColor?
-			open func g08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g08 { return override }
-					return UIColor(red: 0.88235295, green: 0.8745098, blue: 0.8666667, alpha: 1.0)
-				}
-			public var g08: UIColor {
-				get { return self.g08Property() }
-				set { _g08 = newValue }
-			}
-
-			//MARK: g04 
-			public var _g04: UIColor?
-			open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g04 { return override }
-					return UIColor(red: 0.5921569, green: 0.58431375, blue: 0.5764706, alpha: 1.0)
-				}
-			public var g04: UIColor {
-				get { return self.g04Property() }
-				set { _g04 = newValue }
-			}
-
-			//MARK: g14 
-			public var _g14: UIColor?
-			open func g14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g14 { return override }
-					return UIColor(red: 0.98039216, green: 0.9764706, blue: 0.972549, alpha: 1.0)
-				}
-			public var g14: UIColor {
-				get { return self.g14Property() }
-				set { _g14 = newValue }
-			}
-
-			//MARK: g06 
-			public var _g06: UIColor?
-			open func g06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g06 { return override }
-					return UIColor(red: 0.78431374, green: 0.7764706, blue: 0.76862746, alpha: 1.0)
-				}
-			public var g06: UIColor {
-				get { return self.g06Property() }
-				set { _g06 = newValue }
-			}
-
-			//MARK: g09 
-			public var _g09: UIColor?
-			open func g09Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g09 { return override }
-					return UIColor(red: 0.92941177, green: 0.92156863, blue: 0.9137255, alpha: 1.0)
-				}
-			public var g09: UIColor {
-				get { return self.g09Property() }
-				set { _g09 = newValue }
-			}
-
-			//MARK: g10 
-			public var _g10: UIColor?
-			open func g10Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g10 { return override }
-					return UIColor(red: 0.9529412, green: 0.9490196, blue: 0.94509804, alpha: 1.0)
-				}
-			public var g10: UIColor {
-				get { return self.g10Property() }
-				set { _g10 = newValue }
-			}
-
-			//MARK: g03 
-			public var _g03: UIColor?
-			open func g03Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g03 { return override }
-					return UIColor(red: 0.3764706, green: 0.36862746, blue: 0.36078432, alpha: 1.0)
-				}
-			public var g03: UIColor {
-				get { return self.g03Property() }
-				set { _g03 = newValue }
-			}
-
-			//MARK: g02 
-			public var _g02: UIColor?
-			open func g02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g02 { return override }
-					return UIColor(red: 0.28235295, green: 0.27450982, blue: 0.26666668, alpha: 1.0)
-				}
-			public var g02: UIColor {
-				get { return self.g02Property() }
-				set { _g02 = newValue }
-			}
-		}
-
-
-		//MARK: - red
-		public var _red: redAppearanceProxy?
-		open func redStyle() -> redAppearanceProxy {
-			if let override = _red { return override }
-				return redAppearanceProxy(proxy: mainProxy)
-			}
-		public var red: redAppearanceProxy {
-			get { return self.redStyle() }
-			set { _red = newValue }
-		}
-		public class redAppearanceProxy {
-			let mainProxy: () -> TeamsStyle
-			init(proxy: @escaping () -> TeamsStyle) {
-				self.mainProxy = proxy
-			}
-
-			//MARK: normal 
-			public var _normal: UIColor?
-			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.76862746, green: 0.19215687, blue: 0.29411766, alpha: 1.0)
-				}
-			public var normal: UIColor {
-				get { return self.normalProperty() }
-				set { _normal = newValue }
-			}
-
-			//MARK: r08 
-			public var _r08: UIColor?
-			open func r08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _r08 { return override }
-					return UIColor(red: 0.9529412, green: 0.8392157, blue: 0.85882354, alpha: 1.0)
-				}
-			public var r08: UIColor {
-				get { return self.r08Property() }
-				set { _r08 = newValue }
-			}
-		}
-
-
-		//MARK: orange04 
-		public var _orange04: UIColor?
-		open func orange04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _orange04 { return override }
-			return UIColor(red: 0.8, green: 0.2901961, blue: 0.19215687, alpha: 1.0)
-			}
-		public var orange04: UIColor {
-			get { return self.orange04Property() }
-			set { _orange04 = newValue }
-		}
 
 		//MARK: magenta 
 		public var _magenta: UIColor?
@@ -900,28 +592,6 @@ public class TeamsStyle: NSObject {
 			set { _orchid = newValue }
 		}
 
-		//MARK: white 
-		public var _white: UIColor?
-		open func whiteProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _white { return override }
-			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-			}
-		public var white: UIColor {
-			get { return self.whiteProperty() }
-			set { _white = newValue }
-		}
-
-		//MARK: yellow 
-		public var _yellow: UIColor?
-		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _yellow { return override }
-			return UIColor(red: 0.972549, green: 0.8235294, blue: 0.16470589, alpha: 1.0)
-			}
-		public var yellow: UIColor {
-			get { return self.yellowProperty() }
-			set { _yellow = newValue }
-		}
-
 		//MARK: - black
 		public var _black: blackAppearanceProxy?
 		open func blackStyle() -> blackAppearanceProxy {
@@ -936,17 +606,6 @@ public class TeamsStyle: NSObject {
 			let mainProxy: () -> TeamsStyle
 			init(proxy: @escaping () -> TeamsStyle) {
 				self.mainProxy = proxy
-			}
-
-			//MARK: overlayLight 
-			public var _overlayLight: UIColor?
-			open func overlayLightProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _overlayLight { return override }
-					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1882353)
-				}
-			public var overlayLight: UIColor {
-				get { return self.overlayLightProperty() }
-				set { _overlayLight = newValue }
 			}
 
 			//MARK: overlayMid 
@@ -982,6 +641,17 @@ public class TeamsStyle: NSObject {
 				set { _normal = newValue }
 			}
 
+			//MARK: overlayLight 
+			public var _overlayLight: UIColor?
+			open func overlayLightProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _overlayLight { return override }
+					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1882353)
+				}
+			public var overlayLight: UIColor {
+				get { return self.overlayLightProperty() }
+				set { _overlayLight = newValue }
+			}
+
 			//MARK: overlay 
 			public var _overlay: UIColor?
 			open func overlayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -991,6 +661,336 @@ public class TeamsStyle: NSObject {
 			public var overlay: UIColor {
 				get { return self.overlayProperty() }
 				set { _overlay = newValue }
+			}
+		}
+
+
+		//MARK: orange04 
+		public var _orange04: UIColor?
+		open func orange04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _orange04 { return override }
+			return UIColor(red: 0.8, green: 0.2901961, blue: 0.19215687, alpha: 1.0)
+			}
+		public var orange04: UIColor {
+			get { return self.orange04Property() }
+			set { _orange04 = newValue }
+		}
+
+		//MARK: - gray
+		public var _gray: grayAppearanceProxy?
+		open func grayStyle() -> grayAppearanceProxy {
+			if let override = _gray { return override }
+				return grayAppearanceProxy(proxy: mainProxy)
+			}
+		public var gray: grayAppearanceProxy {
+			get { return self.grayStyle() }
+			set { _gray = newValue }
+		}
+		public class grayAppearanceProxy {
+			let mainProxy: () -> TeamsStyle
+			init(proxy: @escaping () -> TeamsStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: g14 
+			public var _g14: UIColor?
+			open func g14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g14 { return override }
+					return UIColor(red: 0.98039216, green: 0.9764706, blue: 0.972549, alpha: 1.0)
+				}
+			public var g14: UIColor {
+				get { return self.g14Property() }
+				set { _g14 = newValue }
+			}
+
+			//MARK: g09 
+			public var _g09: UIColor?
+			open func g09Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g09 { return override }
+					return UIColor(red: 0.92941177, green: 0.92156863, blue: 0.9137255, alpha: 1.0)
+				}
+			public var g09: UIColor {
+				get { return self.g09Property() }
+				set { _g09 = newValue }
+			}
+
+			//MARK: g06 
+			public var _g06: UIColor?
+			open func g06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g06 { return override }
+					return UIColor(red: 0.78431374, green: 0.7764706, blue: 0.76862746, alpha: 1.0)
+				}
+			public var g06: UIColor {
+				get { return self.g06Property() }
+				set { _g06 = newValue }
+			}
+
+			//MARK: g08 
+			public var _g08: UIColor?
+			open func g08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g08 { return override }
+					return UIColor(red: 0.88235295, green: 0.8745098, blue: 0.8666667, alpha: 1.0)
+				}
+			public var g08: UIColor {
+				get { return self.g08Property() }
+				set { _g08 = newValue }
+			}
+
+			//MARK: g04 
+			public var _g04: UIColor?
+			open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g04 { return override }
+					return UIColor(red: 0.5921569, green: 0.58431375, blue: 0.5764706, alpha: 1.0)
+				}
+			public var g04: UIColor {
+				get { return self.g04Property() }
+				set { _g04 = newValue }
+			}
+
+			//MARK: g03 
+			public var _g03: UIColor?
+			open func g03Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g03 { return override }
+					return UIColor(red: 0.3764706, green: 0.36862746, blue: 0.36078432, alpha: 1.0)
+				}
+			public var g03: UIColor {
+				get { return self.g03Property() }
+				set { _g03 = newValue }
+			}
+
+			//MARK: g10 
+			public var _g10: UIColor?
+			open func g10Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g10 { return override }
+					return UIColor(red: 0.9529412, green: 0.9490196, blue: 0.94509804, alpha: 1.0)
+				}
+			public var g10: UIColor {
+				get { return self.g10Property() }
+				set { _g10 = newValue }
+			}
+
+			//MARK: g02 
+			public var _g02: UIColor?
+			open func g02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g02 { return override }
+					return UIColor(red: 0.28235295, green: 0.27450982, blue: 0.26666668, alpha: 1.0)
+				}
+			public var g02: UIColor {
+				get { return self.g02Property() }
+				set { _g02 = newValue }
+			}
+		}
+
+
+		//MARK: - red
+		public var _red: redAppearanceProxy?
+		open func redStyle() -> redAppearanceProxy {
+			if let override = _red { return override }
+				return redAppearanceProxy(proxy: mainProxy)
+			}
+		public var red: redAppearanceProxy {
+			get { return self.redStyle() }
+			set { _red = newValue }
+		}
+		public class redAppearanceProxy {
+			let mainProxy: () -> TeamsStyle
+			init(proxy: @escaping () -> TeamsStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: r08 
+			public var _r08: UIColor?
+			open func r08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _r08 { return override }
+					return UIColor(red: 0.9529412, green: 0.8392157, blue: 0.85882354, alpha: 1.0)
+				}
+			public var r08: UIColor {
+				get { return self.r08Property() }
+				set { _r08 = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIColor?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.76862746, green: 0.19215687, blue: 0.29411766, alpha: 1.0)
+				}
+			public var normal: UIColor {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+		}
+
+
+		//MARK: white 
+		public var _white: UIColor?
+		open func whiteProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _white { return override }
+			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+			}
+		public var white: UIColor {
+			get { return self.whiteProperty() }
+			set { _white = newValue }
+		}
+
+		//MARK: yellow 
+		public var _yellow: UIColor?
+		open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _yellow { return override }
+			return UIColor(red: 0.972549, green: 0.8235294, blue: 0.16470589, alpha: 1.0)
+			}
+		public var yellow: UIColor {
+			get { return self.yellowProperty() }
+			set { _yellow = newValue }
+		}
+
+		//MARK: transparent 
+		public var _transparent: UIColor?
+		open func transparentProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _transparent { return override }
+			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
+			}
+		public var transparent: UIColor {
+			get { return self.transparentProperty() }
+			set { _transparent = newValue }
+		}
+
+		//MARK: - green
+		public var _green: greenAppearanceProxy?
+		open func greenStyle() -> greenAppearanceProxy {
+			if let override = _green { return override }
+				return greenAppearanceProxy(proxy: mainProxy)
+			}
+		public var green: greenAppearanceProxy {
+			get { return self.greenStyle() }
+			set { _green = newValue }
+		}
+		public class greenAppearanceProxy {
+			let mainProxy: () -> TeamsStyle
+			init(proxy: @escaping () -> TeamsStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: g04 
+			public var _g04: UIColor?
+			open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g04 { return override }
+					return UIColor(red: 0.13725491, green: 0.48235294, blue: 0.29411766, alpha: 1.0)
+				}
+			public var g04: UIColor {
+				get { return self.g04Property() }
+				set { _g04 = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIColor?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.57254905, green: 0.7647059, blue: 0.3254902, alpha: 1.0)
+				}
+			public var normal: UIColor {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+		}
+
+	}
+	//MARK: - Button
+	public var _Button: ButtonAppearanceProxy?
+	open func ButtonStyle() -> ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return ButtonAppearanceProxy(proxy: { return TeamsStyle.shared() })
+		}
+	public var Button: ButtonAppearanceProxy {
+		get { return self.ButtonStyle() }
+		set { _Button = newValue }
+	}
+	public class ButtonAppearanceProxy {
+		let mainProxy: () -> TeamsStyle
+		init(proxy: @escaping () -> TeamsStyle) {
+			self.mainProxy = proxy
+		}
+
+		//MARK: - color
+		public var _color: colorAppearanceProxy?
+		open func colorStyle() -> colorAppearanceProxy {
+			if let override = _color { return override }
+				return colorAppearanceProxy(proxy: mainProxy)
+			}
+		public var color: colorAppearanceProxy {
+			get { return self.colorStyle() }
+			set { _color = newValue }
+		}
+		public class colorAppearanceProxy {
+			let mainProxy: () -> TeamsStyle
+			init(proxy: @escaping () -> TeamsStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: focus 
+			public var _focus: UIColor?
+			open func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _focus { return override }
+					return mainProxy().Color.black.normalProperty(traitCollection)
+				}
+			public var focus: UIColor {
+				get { return self.focusProperty() }
+				set { _focus = newValue }
+			}
+
+			//MARK: activeDisabled 
+			public var _activeDisabled: UIColor?
+			open func activeDisabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _activeDisabled { return override }
+					return mainProxy().Color.black.normalProperty(traitCollection)
+				}
+			public var activeDisabled: UIColor {
+				get { return self.activeDisabledProperty() }
+				set { _activeDisabled = newValue }
+			}
+
+			//MARK: disabled 
+			public var _disabled: UIColor?
+			open func disabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _disabled { return override }
+					return mainProxy().Color.gray.g06Property(traitCollection)
+				}
+			public var disabled: UIColor {
+				get { return self.disabledProperty() }
+				set { _disabled = newValue }
+			}
+
+			//MARK: normal 
+			public var _normal: UIColor?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return mainProxy().Color.black.normalProperty(traitCollection)
+				}
+			public var normal: UIColor {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: hover 
+			public var _hover: UIColor?
+			open func hoverProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _hover { return override }
+					return mainProxy().Color.black.normalProperty(traitCollection)
+				}
+			public var hover: UIColor {
+				get { return self.hoverProperty() }
+				set { _hover = newValue }
+			}
+
+			//MARK: active 
+			public var _active: UIColor?
+			open func activeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _active { return override }
+					return mainProxy().Color.black.normalProperty(traitCollection)
+				}
+			public var active: UIColor {
+				get { return self.activeProperty() }
+				set { _active = newValue }
 			}
 		}
 
@@ -1265,28 +1265,6 @@ public class TeamsStyle: NSObject {
 				self.mainProxy = proxy
 			}
 
-		//MARK: curve 
-		public var _curve: AnimationCurveType?
-		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
-			}
-		public var curve: AnimationCurveType {
-			get { return self.curveProperty() }
-			set { _curve = newValue }
-		}
-
-		//MARK: repeatCount 
-		public var _repeatCount: AnimationRepeatCount?
-		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.count(0)
-			}
-		public var repeatCount: AnimationRepeatCount {
-			get { return self.repeatCountProperty() }
-			set { _repeatCount = newValue }
-		}
-
 		//MARK: duration 
 		public var _duration: CGFloat?
 		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -1296,6 +1274,17 @@ public class TeamsStyle: NSObject {
 		public var duration: CGFloat {
 			get { return self.durationProperty() }
 			set { _duration = newValue }
+		}
+
+		//MARK: delay 
+		public var _delay: CGFloat?
+		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _delay { return override }
+			return CGFloat(0.0)
+			}
+		public var delay: CGFloat {
+			get { return self.delayProperty() }
+			set { _delay = newValue }
 		}
 
 		//MARK: keyFrames 
@@ -1314,15 +1303,26 @@ public class TeamsStyle: NSObject {
 			set { _keyFrames = newValue }
 		}
 
-		//MARK: delay 
-		public var _delay: CGFloat?
-		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
+		//MARK: repeatCount 
+		public var _repeatCount: AnimationRepeatCount?
+		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.count(0)
 			}
-		public var delay: CGFloat {
-			get { return self.delayProperty() }
-			set { _delay = newValue }
+		public var repeatCount: AnimationRepeatCount {
+			get { return self.repeatCountProperty() }
+			set { _repeatCount = newValue }
+		}
+
+		//MARK: curve 
+		public var _curve: AnimationCurveType?
+		open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
+			}
+		public var curve: AnimationCurveType {
+			get { return self.curveProperty() }
+			set { _curve = newValue }
 		}
 		}
 	
