@@ -158,12 +158,13 @@ enum RhsValue {
   static func valueFrom(_ string: String) throws  -> RhsValue  {
 
     if let components = argumentsFromString("font", string: string) {
-      assert(components.count == 2, "Not a valid font. Format: Font(\"FontName\", size)")
+      assert(components.count == 2 || components.count == 3, "Not a valid font. Format: Font(\"FontName\", size)")
       let second = Float(parseNumber(components[1]))
       if second > 0 {
         return .font(font: Rhs.Font(name: components[0], size: second))
       } else {
-        return .font(font: Rhs.Font(name: components[0], style: escape("font", string: components[1])))
+        let traits = components.count == 3 ? escape("font", string: components[2]) : nil
+        return .font(font: Rhs.Font(name: components[0], style: escape("font", string: components[1]), traits: traits))
       }
     } else if let components = argumentsFromString("color", string: string) {
       assert(components.count == 1, "Not a valid color. Format: \"#rrggbb\" or \"#rrggbbaa\"")
@@ -416,11 +417,16 @@ extension RhsValue: Generatable {
     let fontClass = Configuration.targetOsx ? "NSFont" : "UIFont"
 
     if font.isScalableFont {
+      var generated: String
       if font.isSystemPreferred {
-        return "\(prefix)\(fontClass).preferredFont(forTextStyle: \(font.style!), compatibleWith: traitCollection)"
+        generated = "\(prefix)\(fontClass).preferredFont(forTextStyle: \(font.style!), compatibleWith: traitCollection)"
       } else {
-        return "\(prefix)\(fontClass).scaledFont(name: \"\(font.fontName)\", textStyle: \(font.style!), traitCollection: traitCollection)"
+        generated = "\(prefix)\(fontClass).scaledFont(name: \"\(font.fontName)\", textStyle: \(font.style!), traitCollection: traitCollection)"
       }
+      if let traits = font.traits {
+        generated.append(".with(traits: \(traits))")
+      }
+      return generated
     } else {
       //system font
       if font.isSystemFont || font.isSystemBoldFont || font.isSystemItalicFont {
@@ -1339,6 +1345,11 @@ extension Stylesheet: Generatable {
     header += "\t\t\t}\n"
     header += "\t\t\treturn customFont\n"
     header += "\t\t}\n"
+    header += "\t}\n\n"
+    
+    header += "\tpublic func with(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {\n"
+    header += "\t\tlet descriptor = fontDescriptor.withSymbolicTraits(traits)\n"
+    header += "\t\treturn UIFont(descriptor: descriptor!, size: 0)\n"
     header += "\t}\n"
     header += "}\n\n"
     

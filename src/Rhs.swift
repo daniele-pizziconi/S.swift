@@ -120,6 +120,7 @@ struct Rhs {
         let fontName: String
         let fontSize: Float?
         let fontStyle: String?
+        let fontTraits: String?
         
         var isSystemPreferred: Bool {
             return self.fontName.contains("PreferredSystem")
@@ -192,10 +193,32 @@ struct Rhs {
             return "\(prefix).TextStyle.\(style)"
         }
         
-        init(name fontName: String, size: Float? = nil, style: String? = nil) {
+        var traits: String? {
+            if !isScalableFont || fontTraits == nil {
+                return nil
+            }
+            
+            let components = fontTraits!.components(separatedBy: "-")
+            var string = "["
+            for component in components {
+                let supportedTraits = ["italic",
+                                       "bold",
+                                       "expanded",
+                                       "condensed"]
+                assert(supportedTraits.contains(component),
+                       "\(component) is not a valid system font trait. Allowed traits: \(supportedTraits)")
+                string.append("UIFontDescriptor.SymbolicTraits.\(component), ")
+            }
+            string = String(string.dropLast(2))
+            string.append("]")
+            return string
+        }
+        
+        init(name fontName: String, size: Float? = nil, style: String? = nil, traits: String? = nil) {
             self.fontName = fontName
             self.fontSize = size
             self.fontStyle = style
+            self.fontTraits = traits
         }
     }
     
