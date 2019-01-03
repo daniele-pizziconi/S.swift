@@ -32,106 +32,6 @@ public class SkypeStyle: TeamsStyle {
 		}
 
 	}
-	//MARK: - SkypeStyleColor
-	override public func ColorStyle() -> TeamsStyle.ColorAppearanceProxy {
-		if let override = _Color { return override }
-			return SkypeStyleColorAppearanceProxy(proxy: { return SkypeStyle.shared() })
-		}
-	public class SkypeStyleColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy {
-
-		//MARK: - SkypeStylebrandColor
-		override public func brandStyle() -> TeamsStyle.ColorAppearanceProxy.brandAppearanceProxy {
-			if let override = _brand { return override }
-				return SkypeStylebrandColorAppearanceProxy(proxy: mainProxy)
-			}
-		public class SkypeStylebrandColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.brandAppearanceProxy {
-
-			//MARK: b12 
-			override public func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b12 { return override }
-					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
-				}
-
-			//MARK: b14 
-			override public func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b14 { return override }
-					return UIColor(red: 0.8862745, green: 0.8862745, blue: 0.9647059, alpha: 1.0)
-				}
-
-			//MARK: normal 
-			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
-				}
-
-			//MARK: b06 
-			override public func b06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b06 { return override }
-					return UIColor(red: 0.0, green: 0.3764706, blue: 0.6666667, alpha: 1.0)
-				}
-
-			//MARK: b08 
-			override public func b08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b08 { return override }
-					return UIColor(red: 0.54509807, green: 0.54901963, blue: 0.78039217, alpha: 1.0)
-				}
-
-			//MARK: b16 
-			override public func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b16 { return override }
-					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
-				}
-
-			//MARK: b02 
-			override public func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b02 { return override }
-					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
-				}
-
-			//MARK: b04 
-			override public func b04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b04 { return override }
-					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
-				}
-		}
-
-
-		//MARK: - SkypeStylegrayColor
-		override public func grayStyle() -> TeamsStyle.ColorAppearanceProxy.grayAppearanceProxy {
-			if let override = _gray { return override }
-				return SkypeStylegrayColorAppearanceProxy(proxy: mainProxy)
-			}
-		public class SkypeStylegrayColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.grayAppearanceProxy {
-		}
-
-
-		//MARK: - SkypeStylegreenColor
-		override public func greenStyle() -> TeamsStyle.ColorAppearanceProxy.greenAppearanceProxy {
-			if let override = _green { return override }
-				return SkypeStylegreenColorAppearanceProxy(proxy: mainProxy)
-			}
-		public class SkypeStylegreenColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.greenAppearanceProxy {
-		}
-
-
-		//MARK: - SkypeStyleblackColor
-		override public func blackStyle() -> TeamsStyle.ColorAppearanceProxy.blackAppearanceProxy {
-			if let override = _black { return override }
-				return SkypeStyleblackColorAppearanceProxy(proxy: mainProxy)
-			}
-		public class SkypeStyleblackColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.blackAppearanceProxy {
-		}
-
-
-		//MARK: - SkypeStyleredColor
-		override public func redStyle() -> TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
-			if let override = _red { return override }
-				return SkypeStyleredColorAppearanceProxy(proxy: mainProxy)
-			}
-		public class SkypeStyleredColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
-		}
-
-	}
 	//MARK: - SkypeStyleButton
 	override public func ButtonStyle() -> TeamsStyle.ButtonAppearanceProxy {
 		if let override = _Button { return override }
@@ -146,10 +46,10 @@ public class SkypeStyle: TeamsStyle {
 			}
 		public class SkypeStylecolorButtonAppearanceProxy: TeamsStyle.ButtonAppearanceProxy.colorAppearanceProxy {
 
-			//MARK: normal 
-			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return mainProxy().Color.brand.normalProperty(traitCollection)
+			//MARK: focus 
+			override public func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _focus { return override }
+					return mainProxy().Color.brand.b06Property(traitCollection)
 				}
 
 			//MARK: hover 
@@ -164,10 +64,10 @@ public class SkypeStyle: TeamsStyle {
 					return mainProxy().Color.whiteProperty(traitCollection)
 				}
 
-			//MARK: activeDisabled 
-			override public func activeDisabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _activeDisabled { return override }
-					return mainProxy().Color.whiteProperty(traitCollection)
+			//MARK: normal 
+			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return mainProxy().Color.brand.normalProperty(traitCollection)
 				}
 
 			//MARK: disabled 
@@ -176,20 +76,113 @@ public class SkypeStyle: TeamsStyle {
 					return mainProxy().Color.gray.g06Property(traitCollection)
 				}
 
-			//MARK: focus 
-			override public func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _focus { return override }
-					return mainProxy().Color.brand.b06Property(traitCollection)
+			//MARK: activeDisabled 
+			override public func activeDisabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _activeDisabled { return override }
+					return mainProxy().Color.whiteProperty(traitCollection)
 				}
 		}
 
 	}
-	//MARK: - SkypeStyleTimingFunctions
-	override public func TimingFunctionsStyle() -> TeamsStyle.TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return SkypeStyleTimingFunctionsAppearanceProxy(proxy: { return SkypeStyle.shared() })
+	//MARK: - SkypeStyleColor
+	override public func ColorStyle() -> TeamsStyle.ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return SkypeStyleColorAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
-	public class SkypeStyleTimingFunctionsAppearanceProxy: TeamsStyle.TimingFunctionsAppearanceProxy {
+	public class SkypeStyleColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy {
+
+		//MARK: - SkypeStylebrandColor
+		override public func brandStyle() -> TeamsStyle.ColorAppearanceProxy.brandAppearanceProxy {
+			if let override = _brand { return override }
+				return SkypeStylebrandColorAppearanceProxy(proxy: mainProxy)
+			}
+		public class SkypeStylebrandColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.brandAppearanceProxy {
+
+			//MARK: b04 
+			override public func b04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b04 { return override }
+					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
+				}
+
+			//MARK: b06 
+			override public func b06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b06 { return override }
+					return UIColor(red: 0.0, green: 0.3764706, blue: 0.6666667, alpha: 1.0)
+				}
+
+			//MARK: b14 
+			override public func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b14 { return override }
+					return UIColor(red: 0.8862745, green: 0.8862745, blue: 0.9647059, alpha: 1.0)
+				}
+
+			//MARK: b02 
+			override public func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b02 { return override }
+					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
+				}
+
+			//MARK: b08 
+			override public func b08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b08 { return override }
+					return UIColor(red: 0.54509807, green: 0.54901963, blue: 0.78039217, alpha: 1.0)
+				}
+
+			//MARK: b12 
+			override public func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b12 { return override }
+					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
+				}
+
+			//MARK: b16 
+			override public func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b16 { return override }
+					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
+				}
+
+			//MARK: normal 
+			override public func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+				}
+		}
+
+
+		//MARK: - SkypeStylegreenColor
+		override public func greenStyle() -> TeamsStyle.ColorAppearanceProxy.greenAppearanceProxy {
+			if let override = _green { return override }
+				return SkypeStylegreenColorAppearanceProxy(proxy: mainProxy)
+			}
+		public class SkypeStylegreenColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.greenAppearanceProxy {
+		}
+
+
+		//MARK: - SkypeStylegrayColor
+		override public func grayStyle() -> TeamsStyle.ColorAppearanceProxy.grayAppearanceProxy {
+			if let override = _gray { return override }
+				return SkypeStylegrayColorAppearanceProxy(proxy: mainProxy)
+			}
+		public class SkypeStylegrayColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.grayAppearanceProxy {
+		}
+
+
+		//MARK: - SkypeStyleredColor
+		override public func redStyle() -> TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
+			if let override = _red { return override }
+				return SkypeStyleredColorAppearanceProxy(proxy: mainProxy)
+			}
+		public class SkypeStyleredColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.redAppearanceProxy {
+		}
+
+
+		//MARK: - SkypeStyleblackColor
+		override public func blackStyle() -> TeamsStyle.ColorAppearanceProxy.blackAppearanceProxy {
+			if let override = _black { return override }
+				return SkypeStyleblackColorAppearanceProxy(proxy: mainProxy)
+			}
+		public class SkypeStyleblackColorAppearanceProxy: TeamsStyle.ColorAppearanceProxy.blackAppearanceProxy {
+		}
+
 	}
 	//MARK: - SkypeStyleTypography
 	override public func TypographyStyle() -> TeamsStyle.TypographyAppearanceProxy {
@@ -207,6 +200,13 @@ public class SkypeStyle: TeamsStyle {
 		}
 
 	}
+	//MARK: - SkypeStyleTimingFunctions
+	override public func TimingFunctionsStyle() -> TeamsStyle.TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return SkypeStyleTimingFunctionsAppearanceProxy(proxy: { return SkypeStyle.shared() })
+		}
+	public class SkypeStyleTimingFunctionsAppearanceProxy: TeamsStyle.TimingFunctionsAppearanceProxy {
+	}
 	//MARK: - Animator
 	override public func AnimatorAnimator() -> TeamsStyle.AnimatorAnimatorProxy {
 		if let override = _Animator { return override }
@@ -220,23 +220,6 @@ public class SkypeStyle: TeamsStyle {
 				return SkypeStylerotateAppearanceProxy(proxy: { return SkypeStyle.shared() })
 			}
 		public class SkypeStylerotateAppearanceProxy: TeamsStyle.AnimatorAnimatorProxy.rotateAppearanceProxy {
-
-		//MARK: keyFrames 
-		override public func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
-			[
-			.rotate(from: 
-			CGFloat(0.0), to: 
-			CGFloat(360.0))])]
-			}
-
-		//MARK: delay 
-		override public func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _delay { return override }
-			return CGFloat(0.0)
-			}
 
 		//MARK: curve 
 		override public func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
@@ -254,6 +237,23 @@ public class SkypeStyle: TeamsStyle {
 		override public func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
 			if let override = _duration { return override }
 			return mainProxy().Duration.interval.longProperty(traitCollection)
+			}
+
+		//MARK: keyFrames 
+		override public func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
+			[
+			.rotate(from: 
+			CGFloat(0.0), to: 
+			CGFloat(360.0))])]
+			}
+
+		//MARK: delay 
+		override public func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _delay { return override }
+			return CGFloat(0.0)
 			}
 		}
 	

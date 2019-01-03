@@ -207,7 +207,7 @@ struct Rhs {
                                        "condensed"]
                 assert(supportedTraits.contains(component),
                        "\(component) is not a valid system font trait. Allowed traits: \(supportedTraits)")
-                string.append("UIFontDescriptor.SymbolicTraits.\(component), ")
+                string.append("UIFontDescriptor.SymbolicTraits.trait\(component.firstUppercased), ")
             }
             string = String(string.dropLast(2))
             string.append("]")
