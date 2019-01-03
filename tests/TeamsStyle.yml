@@ -11,6 +11,9 @@ Color:
   white: "#ffffff"
   yellow: "#F8D22A"
 
+Typography:
+  textStyles: [title1: "Font(PreferredSystem, body)", title2: "Font(Menlo, body)"]
+
 Duration:
   interval: [tiny: 1.5, short: 2.34, normal: 3.0, long: 4.34, debug: 10.0]
 

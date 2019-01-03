@@ -118,7 +118,16 @@ struct Rhs {
     class Font {
         
         let fontName: String
-        let fontSize: Float
+        let fontSize: Float?
+        let fontStyle: String?
+        
+        var isSystemPreferred: Bool {
+            return self.fontName.contains("PreferredSystem")
+        }
+        
+        var isScalableFont: Bool {
+            return fontStyle != nil
+        }
         
         var isSystemFont: Bool {
             return self.fontName.contains("System")
@@ -160,9 +169,33 @@ struct Rhs {
             return "\(prefix).Weight.\(weight)"
         }
         
-        init(name fontName: String, size fontSize: Float) {
+        var style: String? {
+            if !self.isScalableFont {
+                return nil
+            }
+
+            let styles = ["caption2",
+                          "caption1",
+                          "footnote",
+                          "subheadline",
+                          "callout",
+                          "body",
+                          "headline",
+                          "title3",
+                          "title2",
+                          "title1"]
+            let style = fontStyle!
+            assert(styles.contains(style),
+                   "\(style) is not a valid system font style. Allowed styles: \(styles)")
+            
+            let prefix = Configuration.targetOsx ? "NSFont" : "UIFont"
+            return "\(prefix).TextStyle.\(style)"
+        }
+        
+        init(name fontName: String, size: Float? = nil, style: String? = nil) {
             self.fontName = fontName
-            self.fontSize = fontSize
+            self.fontSize = size
+            self.fontStyle = style
         }
     }
     

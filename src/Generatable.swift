@@ -159,8 +159,12 @@ enum RhsValue {
 
     if let components = argumentsFromString("font", string: string) {
       assert(components.count == 2, "Not a valid font. Format: Font(\"FontName\", size)")
-      return .font(font: Rhs.Font(name: components[0], size:Float(parseNumber(components[1]))))
-
+      let second = Float(parseNumber(components[1]))
+      if second > 0 {
+        return .font(font: Rhs.Font(name: components[0], size: second))
+      } else {
+        return .font(font: Rhs.Font(name: components[0], style: escape("font", string: components[1])))
+      }
     } else if let components = argumentsFromString("color", string: string) {
       assert(components.count == 1, "Not a valid color. Format: \"#rrggbb\" or \"#rrggbbaa\"")
       return .color(color: Rhs.Color(rgba: "#\(components[0])"))
@@ -411,22 +415,30 @@ extension RhsValue: Generatable {
   func generateFont(_ prefix: String, font: Rhs.Font) -> String {
     let fontClass = Configuration.targetOsx ? "NSFont" : "UIFont"
 
-    //system font
-    if font.isSystemFont || font.isSystemBoldFont || font.isSystemItalicFont {
-      var function: String? = nil
-      if font.isSystemBoldFont {
-        function = "boldSystemFont"
-      } else if font.isSystemItalicFont {
-        function = "italicSystemFont"
-      } else if font.isSystemFont {
-        function = "systemFont"
+    if font.isScalableFont {
+      if font.isSystemPreferred {
+        return "\(prefix)\(fontClass).preferredFont(forTextStyle: \(font.style!), compatibleWith: traitCollection)"
+      } else {
+        return "\(prefix)\(fontClass).scaledFont(name: \"\(font.fontName)\", textStyle: \(font.style!), traitCollection: traitCollection)"
       }
-      let weight = font.hasWeight ? ", weight: \(font.weight!)" : ""
-      return "\(prefix)\(fontClass).\(function!)(ofSize: \(font.fontSize)\(weight))"
+    } else {
+      //system font
+      if font.isSystemFont || font.isSystemBoldFont || font.isSystemItalicFont {
+        var function: String? = nil
+        if font.isSystemBoldFont {
+          function = "boldSystemFont"
+        } else if font.isSystemItalicFont {
+          function = "italicSystemFont"
+        } else if font.isSystemFont {
+          function = "systemFont"
+        }
+        let weight = font.hasWeight ? ", weight: \(font.weight!)" : ""
+        return "\(prefix)\(fontClass).\(function!)(ofSize: \(font.fontSize!)\(weight))"
+      }
+      
+      //font with name
+      return "\(prefix)\(fontClass)(name: \"\(font.fontName)\", size: \(font.fontSize!))!"
     }
-
-    //font with name
-    return "\(prefix)\(fontClass)(name: \"\(font.fontName)\", size: \(font.fontSize))!"
   }
   
   func generateColor(_ prefix: String, color: Rhs.Color) -> String {
@@ -1218,6 +1230,117 @@ extension Stylesheet: Generatable {
       header += "\t}\n"
       header += "}\n\n"
     }
+    
+    header += "#if os(iOS)\n"
+    header += "private let defaultSizes: [UIFont.TextStyle: CGFloat] = {\n"
+    header += "\tvar sizes: [UIFont.TextStyle: CGFloat] = [.caption2: 11,\n"
+    header += ".caption1: 12,\n"
+    header += ".footnote: 13,\n"
+    header += ".subheadline: 15,\n"
+    header += ".callout: 16,\n"
+    header += ".body: 17,\n"
+    header += ".headline: 17,\n"
+    header += ".title3: 20,\n"
+    header += ".title2: 22,\n"
+    header += ".title1: 28]\n"
+    header += "\tif #available(iOS 11.0, *) {\n"
+    header += "\t\tsizes[.largeTitle] = 34\n"
+    header += "\t}\n"
+    header += "\treturn sizes\n"
+    header += "}()\n"
+    header += "#elseif os(tvOS)\n"
+    header += "private let defaultSizes: [UIFont.TextStyle: CGFloat] =\n"
+    header += "\t[.caption2: 23,\n"
+    header += "\t.caption1: 25,\n"
+    header += "\t.footnote: 29,\n"
+    header += "\t.subheadline: 29,\n"
+    header += "\t.body: 29,\n"
+    header += "\t.callout: 31,\n"
+    header += "\t.headline: 38,\n"
+    header += "\t.title3: 48,\n"
+    header += "\t.title2: 57,\n"
+    header += "\t.title1: 76]\n"
+    header += "#elseif os(tvOS)\n"
+    header += "private let defaultSizes: [UIFont.TextStyle: CGFloat] = {\n"
+    header += "\tif #available(watchOS 5.0, *) {\n"
+    header += "\t\tswitch WKInterfaceDevice.current().preferredContentSizeCategory {\n"
+    header += "\t\tcase \"UICTContentSizeCategoryS\":\n"
+    header += "\t\t\treturn [.footnote: 12,\n"
+    header += "\t\t\t.caption2: 13,\n"
+    header += "\t\t\t.caption1: 14,\n"
+    header += "\t\t\t.body: 15,\n"
+    header += "\t\t\t.headline: 15,\n"
+    header += "\t\t\t.title3: 18,\n"
+    header += "\t\t\t.title2: 26,\n"
+    header += "\t\t\t.title1: 30,\n"
+    header += "\t\t\t.largeTitle: 32]\n"
+    header += "\t\tcase \"UICTContentSizeCategoryL\":\n"
+    header += "\t\t\treturn [.footnote: 13,\n"
+    header += "\t\t\t.caption2: 14,\n"
+    header += "\t\t\t.caption1: 15,\n"
+    header += "\t\t\t.body: 16,\n"
+    header += "\t\t\t.headline: 16,\n"
+    header += "\t\t\t.title3: 19,\n"
+    header += "\t\t\t.title2: 27,\n"
+    header += "\t\t\t.title1: 34,\n"
+    header += "\t\t\t.largeTitle: 36]\n"
+    header += "\t\tcase \"UICTContentSizeCategoryXL\":\n"
+    header += "\t\t\treturn [.footnote: 14,\n"
+    header += "\t\t\t.caption2: 15,\n"
+    header += "\t\t\t.caption1: 16,\n"
+    header += "\t\t\t.body: 17,\n"
+    header += "\t\t\t.headline: 17,\n"
+    header += "\t\t\t.title3: 20,\n"
+    header += "\t\t\t.title2: 30,\n"
+    header += "\t\t\t.title1: 38,\n"
+    header += "\t\t\t.largeTitle: 40]\n"
+    header += "\t\tdefault:\n"
+    header += "\t\t\treturn [:]\n"
+    header += "\t\t}\n"
+    header += "\t} else {\n"
+    header += "\t\t/// No `largeTitle` before watchOS 5\n"
+    header += "\t\tswitch WKInterfaceDevice.current().preferredContentSizeCategory {\n"
+    header += "\t\tcase \"UICTContentSizeCategoryS\":\n"
+    header += "\t\t\treturn [.footnote: 12,\n"
+    header += "\t\t\t\t.caption2: 13,\n"
+    header += "\t\t\t\t.caption1: 14,\n"
+    header += "\t\t\t\t.body: 15,\n"
+    header += "\t\t\t\t.headline: 15,\n"
+    header += "\t\t\t\t.title3: 18,\n"
+    header += "\t\t\t\t.title2: 26,\n"
+    header += "\t\t\t\t.title1: 30]\n"
+    header += "\t\tcase \"UICTContentSizeCategoryL\":\n"
+    header += "\t\t\treturn [.footnote: 13,\n"
+    header += "\t\t\t\t.caption2: 14,\n"
+    header += "\t\t\t\t.caption1: 15,\n"
+    header += "\t\t\t\t.body: 16,\n"
+    header += "\t\t\t\t.headline: 16,\n"
+    header += "\t\t\t\t.title3: 19,\n"
+    header += "\t\t\t\t.title2: 27,\n"
+    header += "\t\t\t\t.title1: 34]\n"
+    header += "\t\tdefault:\n"
+    header += "\t\t\treturn [:]\n"
+    header += "\t\t}\n"
+    header += "\t}\n"
+    header += "}()\n"
+    header += "#endif\n"
+    header += "\n"
+    header += "public extension UIFont {\n"
+    header += "\tstatic func scaledFont(name: String, textStyle: UIFont.TextStyle, traitCollection: UITraitCollection? = nil) -> UIFont {\n"
+    header += "\t\tif #available(iOS 11.0, *) {\n"
+    header += "\t\t\tguard let defaultSize = defaultSizes[textStyle], let customFont = UIFont(name: name, size: defaultSize) else {\n"
+    header += "\t\t\t\tfatalError(\"Failed to load the \\(name) font.\")\n"
+    header += "\t\t\t}\n"
+    header += "\t\t\treturn UIFontMetrics(forTextStyle: textStyle).scaledFont(for: customFont, compatibleWith: traitCollection)\n"
+    header += "\t\t} else {\n"
+    header += "\t\t\tlet fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: textStyle, compatibleWith: traitCollection)\n"
+    header += "\t\t\tguard let customFont = UIFont(name: name, size: fontDescriptor.pointSize) else {\n"
+    header += "\t\t\t\tfatalError(\"Failed to load the \\(name) font.\")\n"
+    header += "\t\t\t}\n"
+    header += "\t\t\treturn customFont\n"
+    header += "\t\t}\n"
+    header += "\t}\n"
+    header += "}\n\n"
     
     return header
   }
