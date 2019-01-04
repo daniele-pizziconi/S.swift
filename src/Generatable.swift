@@ -419,7 +419,7 @@ extension RhsValue: Generatable {
     if font.isScalableFont {
       var generated: String
       if font.isSystemPreferred {
-        generated = "\(prefix)\(fontClass).preferredFont(forTextStyle: \(font.style!), compatibleWith: traitCollection)"
+        generated = "\(prefix)\(fontClass).preferredFont(forTextStyle: \(font.style!), compatibleWith: traitCollection, scalable: true)"
       } else {
         generated = "\(prefix)\(fontClass).scaledFont(name: \"\(font.fontName)\", textStyle: \(font.style!), traitCollection: traitCollection)"
       }
@@ -1331,6 +1331,7 @@ extension Stylesheet: Generatable {
     header += "}()\n"
     header += "#endif\n"
     header += "\n"
+    header += "\(visibility) var __ScalableHandle: UInt8 = 0\n"
     header += "public extension UIFont {\n"
     header += "\tstatic func scaledFont(name: String, textStyle: UIFont.TextStyle, traitCollection: UITraitCollection? = nil) -> UIFont {\n"
     header += "\t\tif #available(iOS 11.0, *) {\n"
@@ -1350,7 +1351,24 @@ extension Stylesheet: Generatable {
     header += "\tpublic func with(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {\n"
     header += "\t\tlet descriptor = fontDescriptor.withSymbolicTraits(traits)\n"
     header += "\t\treturn UIFont(descriptor: descriptor!, size: 0)\n"
-    header += "\t}\n"
+    header += "\t}\n\n"
+    
+    header += "\tpublic class func preferredFont(forTextStyle style: UIFont.TextStyle, compatibleWith traitCollection: UITraitCollection?, scalable: Bool) -> UIFont {\n"
+    header += "\t\tlet font = UIFont.preferredFont(forTextStyle: style, compatibleWith: traitCollection)\n"
+    header += "\t\tfont.isScalable = true\n"
+    header += "\t\treturn font\n"
+    header += "\t}\n\n"
+    
+    header += "\tpublic convenience init?(name: String, scalable: Bool) {\n"
+    header += "\t\tself.init(name: name, size: 4)\n"
+    header += "\t\tself.isScalable = scalable\n"
+    header += "\t}\n\n"
+    
+    header += "\tpublic var isScalable: Bool {\n"
+    header += "\t\tget { return objc_getAssociatedObject(self, &__ScalableHandle) as? Bool ?? false }\n"
+    header += "\t\tset { objc_setAssociatedObject(self, &__ScalableHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }\n"
+    header += "\t}\n\n"
+    
     header += "}\n\n"
     
     return header
