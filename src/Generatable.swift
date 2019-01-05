@@ -1166,17 +1166,17 @@ extension Stylesheet: Generatable {
     header += "\tstatic let didChangeTheme = Notification.Name(\"\(baseEnumCase)stylesheet.theme\")\n"
     header += "}\n\n"
   
-    header += "public class StylesheetManager {\n"
+    header += "public class \(Configuration.stylesheetManagerName!) {\n"
     header +=
     "\t@objc dynamic public class func stylesheet(_ stylesheet: \(baseStyleName.name)) -> \(baseStyleName.name) {\n"
-    header += "\t\treturn StylesheetManager.default.theme.stylesheet\n"
+    header += "\t\treturn \(Configuration.stylesheetManagerName!).default.theme.stylesheet\n"
     header += "\t}\n\n"
     header += "\tprivate struct DefaultKeys {\n"
     header += "\t\tstatic let theme = \"\(baseEnumCase)theme\"\n"
     header += "\t}\n\n"
-    header += "\tpublic static let `default` = StylesheetManager()\n"
+    header += "\tpublic static let `default` = \(Configuration.stylesheetManagerName!)()\n"
     header += "\tpublic static var S: \(baseStyleName.name) {\n"
-    header += "\t\treturn StylesheetManager.default.theme.stylesheet\n"
+    header += "\t\treturn \(Configuration.stylesheetManagerName!).default.theme.stylesheet\n"
     header += "\t}\n\n"
     header += "\tpublic var theme: Theme {\n"
     header += "\t\tdidSet {\n"
@@ -1204,7 +1204,7 @@ extension Stylesheet: Generatable {
   
   func generateRuntimeSwappableHeader() -> String {
     var header = ""
-    header += "public class StylesheetManager {\n"
+    header += "public class \(Configuration.stylesheetManagerName!) {\n"
     header +=
     "\t@objc dynamic public class func stylesheet(_ stylesheet: \(name)) -> \(name) {\n"
     header += "\t\treturn stylesheet\n"
@@ -1484,7 +1484,7 @@ extension Stylesheet: Generatable {
       if let superclassName = superclassName, let _ = Generator.Stylesheets.filter({ $0.name == superclassName }).first?.styles.filter({ $0.name == style.name }).first {
         continue
       }
-      let stylesheetName = Configuration.runtimeSwappable && (style.isNestedOverride || style.isNestedOverridable) ? "StylesheetManager.stylesheet(\(name).shared())" : name
+      let stylesheetName = Configuration.runtimeSwappable && (style.isNestedOverride || style.isNestedOverridable) ? "\(Configuration.stylesheetManagerName!).stylesheet(\(name).shared())" : name
       let visibility = Configuration.publicExtensions ? "public" : ""
 
       let extendedStylesInBaseStylesheet = styles.filter({ $0.superclassName == style.name })
@@ -1597,7 +1597,7 @@ extension Stylesheet: Generatable {
       guard let superclassName = stylesheet.superclassName, superclassName == self.name, stylesheet.animatorName != nil else { return false }
       return true
       }.count > 0)
-    let stylesheetName = shouldAccessInstance ? "StylesheetManager.stylesheet(\(name).shared())" : name
+    let stylesheetName = shouldAccessInstance ? "\(Configuration.stylesheetManagerName!).stylesheet(\(name).shared())" : name
     var extensions = ""
     
     extensions += "\nextension UIViewPropertyAnimator {\n\n"

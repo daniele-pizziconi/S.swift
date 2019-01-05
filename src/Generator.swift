@@ -10,6 +10,7 @@ public struct Configuration {
   public static var files: [String] = []
   public static var importFrameworks: String?
   public static var stylesheetNames: [String] = ["S"]
+  public static var stylesheetManagerName: String?
 }
 
 public enum GeneratorError: Error {

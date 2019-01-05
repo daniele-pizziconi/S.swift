@@ -246,7 +246,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$SRCROOT/sgen $SRCROOT --files BaseStyle.yml TeamsStyle.yml SkypeStyle.yml --names BaseStyle TeamsStyle:BaseStyle SkypeStyle:BaseStyle --platform ios --appearance_proxy --app_extension --runtime_swappable\n";
+			shellScript = "$SRCROOT/sgen $SRCROOT --files BaseStyle.yml TeamsStyle.yml SkypeStyle.yml --names BaseStyle TeamsStyle:BaseStyle SkypeStyle:BaseStyle --platform ios --appearance_proxy --app_extension --runtime_swappable StyleManager\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

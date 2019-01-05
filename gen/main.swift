@@ -82,7 +82,7 @@ func generate(files: [String]) {
 var args = [String](CommandLine.arguments)
 if args.count == 1 {
   print("\n")
-  print("usage: sgen PROJECT_PATH (--file FILENAME) --name STYLESHEET_NAME (--platform ios|osx) (--appearance_proxy internal|public) (--app_extension) (--objc) --import FRAMEWORKS (--runtime_swappable)")
+  print("usage: sgen PROJECT_PATH (--file FILENAME) --name STYLESHEET_NAME (--platform ios|osx) (--appearance_proxy internal|public) (--app_extension) (--objc) --import FRAMEWORKS (--runtime_swappable (STYLESHEET_MANAGER_MANE)")
   print("--file: If you're targetting one single file.")
   print("--name: The default is S.")
   print("--platform: use the **platform** argument to target the desired platform. The default one is **ios**")
@@ -145,7 +145,10 @@ if args.contains("--import") {
 }
 
 if args.contains("--runtime_swappable") {
-  Configuration.runtimeSwappable = true
+  if let idx = args.index(of: "--runtime_swappable") {
+    Configuration.runtimeSwappable = true
+    Configuration.stylesheetManagerName = args[idx+1]
+  }
 }
 
 let path = args[1]
