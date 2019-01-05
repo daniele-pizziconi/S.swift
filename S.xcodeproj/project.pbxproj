@@ -23,6 +23,7 @@
 		16F9E05B1C772B080083C55D /* Yaml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F9E05A1C772B080083C55D /* Yaml.swift */; };
 		6405DC1121ACBC7E00C72B4B /* SkypeStyle.yml in Resources */ = {isa = PBXBuildFile; fileRef = 6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */; };
 		64539E3421AB4A8100482BB6 /* Generatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1646022F1C77334800FC9992 /* Generatable.swift */; };
+		64EE571E21E0D32600DD2F8F /* BaseStyle.yml in Resources */ = {isa = PBXBuildFile; fileRef = 64EE571D21E0D32600DD2F8F /* BaseStyle.yml */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,6 +54,8 @@
 		16F9E05A1C772B080083C55D /* Yaml.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Yaml.swift; sourceTree = "<group>"; };
 		6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SkypeStyle.yml; sourceTree = "<group>"; };
 		6405DC1221ACBD8B00C72B4B /* SkypeStyle.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkypeStyle.generated.swift; sourceTree = "<group>"; };
+		64EE571D21E0D32600DD2F8F /* BaseStyle.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BaseStyle.yml; sourceTree = "<group>"; };
+		64EE571F21E0D46800DD2F8F /* BaseStyle.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseStyle.generated.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,10 +79,12 @@
 		164CA27E1EB5E44D0014ED69 /* tests */ = {
 			isa = PBXGroup;
 			children = (
+				64EE571F21E0D46800DD2F8F /* BaseStyle.generated.swift */,
 				164CA2801EB5E44D0014ED69 /* TeamsStyle.generated.swift */,
 				6405DC1221ACBD8B00C72B4B /* SkypeStyle.generated.swift */,
-				6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */,
+				64EE571D21E0D32600DD2F8F /* BaseStyle.yml */,
 				164CA2811EB5E44D0014ED69 /* TeamsStyle.yml */,
+				6405DC1021ACBC7D00C72B4B /* SkypeStyle.yml */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -221,6 +226,7 @@
 			files = (
 				6405DC1121ACBC7E00C72B4B /* SkypeStyle.yml in Resources */,
 				164CA2841EB5E44D0014ED69 /* TeamsStyle.yml in Resources */,
+				64EE571E21E0D32600DD2F8F /* BaseStyle.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,7 +246,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$SRCROOT/sgen $SRCROOT --files TeamsStyle.yml SkypeStyle.yml --names TeamsStyle SkypeStyle:TeamsStyle --platform ios --appearance_proxy --app_extension --runtime_swappable\n";
+			shellScript = "$SRCROOT/sgen $SRCROOT --files BaseStyle.yml TeamsStyle.yml SkypeStyle.yml --names BaseStyle TeamsStyle:BaseStyle SkypeStyle:BaseStyle --platform ios --appearance_proxy --app_extension --runtime_swappable\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

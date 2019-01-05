@@ -1114,14 +1114,20 @@ extension Stylesheet: Generatable {
   
   func generateStylesheetManager() -> String {
     let baseStyleName = Generator.Stylesheets.filter({ $0.superclassName == nil }).first!
-    var baseEnumCase = baseStyleName.name.replacingOccurrences(of: "Style", with: "")
-    baseEnumCase = baseEnumCase.prefix(1).lowercased() + baseEnumCase.dropFirst()
-
+    var baseEnumCase = baseStyleName.name.firstLowercased
+    if baseStyleName.name.contains("Style") && name.count > 5 {
+      baseEnumCase = baseStyleName.name.replacingOccurrences(of: "Style", with: "")
+      baseEnumCase = baseEnumCase.prefix(1).lowercased() + baseEnumCase.dropFirst()
+    }
+    
     var cases = [String: String]()
     for i in 0..<Configuration.stylesheetNames.count {
       var name = Configuration.stylesheetNames[i]
-      var enumCase = name.replacingOccurrences(of: "Style", with: "")
-      enumCase = enumCase.prefix(1).lowercased() + enumCase.dropFirst()
+      var enumCase = name.firstLowercased
+      if name.contains("Style") && name.count > 5 {
+        enumCase = name.replacingOccurrences(of: "Style", with: "")
+        enumCase = enumCase.prefix(1).lowercased() + enumCase.dropFirst()
+      }
       if let components = Optional(enumCase.components(separatedBy: ":")), components.count > 1 {
         enumCase = components.first!
         name = name.components(separatedBy: ":").first!
@@ -1157,7 +1163,7 @@ extension Stylesheet: Generatable {
     header += "}\n\n"
     
     header += "public extension Notification.Name {\n"
-    header += "\tstatic let didChangeTheme = Notification.Name(\"stylesheet.theme\")\n"
+    header += "\tstatic let didChangeTheme = Notification.Name(\"\(baseEnumCase)stylesheet.theme\")\n"
     header += "}\n\n"
   
     header += "public class StylesheetManager {\n"
@@ -1166,7 +1172,7 @@ extension Stylesheet: Generatable {
     header += "\t\treturn StylesheetManager.default.theme.stylesheet\n"
     header += "\t}\n\n"
     header += "\tprivate struct DefaultKeys {\n"
-    header += "\t\tstatic let theme = \"theme\"\n"
+    header += "\t\tstatic let theme = \"\(baseEnumCase)theme\"\n"
     header += "\t}\n\n"
     header += "\tpublic static let `default` = StylesheetManager()\n"
     header += "\tpublic static var S: \(baseStyleName.name) {\n"
