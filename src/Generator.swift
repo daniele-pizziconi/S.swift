@@ -11,6 +11,8 @@ public struct Configuration {
   public static var importFrameworks: String?
   public static var stylesheetNames: [String] = ["S"]
   public static var stylesheetManagerName: String?
+  public static var importStylesheetManagerName: String?
+  public static var importStylesheetNames: [String] = ["S"]
 }
 
 public enum GeneratorError: Error {

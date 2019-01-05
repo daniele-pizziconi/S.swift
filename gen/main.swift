@@ -144,10 +144,26 @@ if args.contains("--import") {
   }
 }
 
+if args.contains("--importNames") {
+  if var idx = args.index(of: "--importNames") {
+    Configuration.importStylesheetNames = []
+    while !args[idx+1].starts(with: "--") && idx < args.count {
+      Configuration.importStylesheetNames.append(args[idx+1])
+      idx = idx.advanced(by: 1)
+    }
+  }
+}
+
 if args.contains("--runtime_swappable") {
   if let idx = args.index(of: "--runtime_swappable") {
     Configuration.runtimeSwappable = true
     Configuration.stylesheetManagerName = args[idx+1]
+  }
+}
+
+if args.contains("--importManager") {
+  if let idx = args.index(of: "--importManager") {
+    Configuration.importStylesheetManagerName = args[idx+1]
   }
 }
 

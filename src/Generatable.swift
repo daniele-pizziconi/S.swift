@@ -519,7 +519,11 @@ extension RhsValue: Generatable {
   }
 
   func generateCall(_ prefix: String, string: String) -> String {
-    return "\(prefix)\(string)"
+    var redirection = string
+    if let importStylesheetManager = Configuration.importStylesheetManagerName, string.hasPrefix("Style") {
+      redirection = redirection.replacingOccurrences(of: "Style", with: "\(importStylesheetManager).S")
+    }
+    return "\(prefix)\(redirection)"
   }
   
   func generateArray(_ prefix: String, values: [RhsValue]) -> String {
@@ -1121,6 +1125,7 @@ extension Stylesheet: Generatable {
     }
     
     var cases = [String: String]()
+    var enumCases = [String]()
     for i in 0..<Configuration.stylesheetNames.count {
       var name = Configuration.stylesheetNames[i]
       var enumCase = name.firstLowercased
@@ -1132,26 +1137,30 @@ extension Stylesheet: Generatable {
         enumCase = components.first!
         name = name.components(separatedBy: ":").first!
       }
+      enumCases.append(enumCase)
       cases[name] = enumCase
     }
     
     var header = ""
-    header += "fileprivate extension UserDefaults {\n"
-    header += "\tsubscript<T>(key: String) -> T? {\n"
-    header += "\t\tget { return value(forKey: key) as? T }\n"
-    header += "\t\tset { set(newValue, forKey: key) }\n"
-    header += "\t}\n\n"
-    header += "\tsubscript<T: RawRepresentable>(key: String) -> T? {\n"
-    header += "\t\tget {\n"
-    header += "\t\t\tif let rawValue = value(forKey: key) as? T.RawValue {\n"
-    header += "\t\t\t\treturn T(rawValue: rawValue)\n"
-    header += "\t\t\t}\n"
-    header += "\t\t\treturn nil\n"
-    header += "\t\t}\n"
-    header += "\t\tset { self[key] = newValue?.rawValue }\n"
-    header += "\t}\n"
-    header += "}\n\n"
     
+    if Configuration.importStylesheetManagerName == nil {
+      header += "fileprivate extension UserDefaults {\n"
+      header += "\tsubscript<T>(key: String) -> T? {\n"
+      header += "\t\tget { return value(forKey: key) as? T }\n"
+      header += "\t\tset { set(newValue, forKey: key) }\n"
+      header += "\t}\n\n"
+      header += "\tsubscript<T: RawRepresentable>(key: String) -> T? {\n"
+      header += "\t\tget {\n"
+      header += "\t\t\tif let rawValue = value(forKey: key) as? T.RawValue {\n"
+      header += "\t\t\t\treturn T(rawValue: rawValue)\n"
+      header += "\t\t\t}\n"
+      header += "\t\t\treturn nil\n"
+      header += "\t\t}\n"
+      header += "\t\tset { self[key] = newValue?.rawValue }\n"
+      header += "\t}\n"
+      header += "}\n\n"
+    }
+  
     header += "public enum Theme: Int {\n"
     cases.forEach({ header += "\tcase \($1)\n" })
     header += "\n"
@@ -1162,31 +1171,61 @@ extension Stylesheet: Generatable {
     header += "\t}\n"
     header += "}\n\n"
     
-    header += "public extension Notification.Name {\n"
-    header += "\tstatic let didChangeTheme = Notification.Name(\"\(baseEnumCase)stylesheet.theme\")\n"
-    header += "}\n\n"
-  
+    if Configuration.importStylesheetManagerName == nil {
+      header += "public extension Notification.Name {\n"
+      header += "\tstatic let didChangeTheme = Notification.Name(\"stylesheet.theme\")\n"
+      header += "}\n\n"
+    }
+    
+
     header += "public class \(Configuration.stylesheetManagerName!) {\n"
     header +=
     "\t@objc dynamic public class func stylesheet(_ stylesheet: \(baseStyleName.name)) -> \(baseStyleName.name) {\n"
     header += "\t\treturn \(Configuration.stylesheetManagerName!).default.theme.stylesheet\n"
     header += "\t}\n\n"
-    header += "\tprivate struct DefaultKeys {\n"
-    header += "\t\tstatic let theme = \"\(baseEnumCase)theme\"\n"
-    header += "\t}\n\n"
+    
+    if Configuration.importStylesheetManagerName == nil {
+      header += "\tprivate struct DefaultKeys {\n"
+      header += "\t\tstatic let theme = \"theme\"\n"
+      header += "\t}\n\n"
+    }
+
     header += "\tpublic static let `default` = \(Configuration.stylesheetManagerName!)()\n"
     header += "\tpublic static var S: \(baseStyleName.name) {\n"
     header += "\t\treturn \(Configuration.stylesheetManagerName!).default.theme.stylesheet\n"
     header += "\t}\n\n"
     header += "\tpublic var theme: Theme {\n"
-    header += "\t\tdidSet {\n"
-    header += "\t\t\tNotificationCenter.default.post(name: .didChangeTheme, object: theme)\n"
-    header += "\t\t\tUserDefaults.standard[DefaultKeys.theme] = theme\n"
-    header += "\t\t}\n"
+    if Configuration.importStylesheetManagerName == nil {
+      header += "\t\tdidSet {\n"
+      header += "\t\t\tNotificationCenter.default.post(name: .didChangeTheme, object: theme)\n"
+      header += "\t\t\tUserDefaults.standard[DefaultKeys.theme] = theme\n"
+      header += "\t\t}\n"
+    } else {
+      
+      var importCases = [String: String]()
+      for i in 0..<Configuration.importStylesheetNames.count {
+        let name = Configuration.importStylesheetNames[i]
+        var enumCase = name.firstLowercased
+        if name.contains("Style") && name.count > 5 {
+          enumCase = name.replacingOccurrences(of: "Style", with: "")
+          enumCase = enumCase.prefix(1).lowercased() + enumCase.dropFirst()
+        }
+        if let components = Optional(enumCase.components(separatedBy: ":")), components.count > 1 {
+          enumCase = components.first!
+        }
+        importCases[enumCases[i]] = enumCase
+      }
+      header += "\t\tswitch \(Configuration.importStylesheetManagerName!).default.theme {\n"
+      importCases.forEach({ header += "\t\tcase .\($1): return .\($0)\n" })
+      header += "\t\t}\n"
+    }
     header += "\t}\n\n"
-    header += "\tpublic init() {\n"
-    header += "\t\tself.theme = UserDefaults.standard[DefaultKeys.theme] ?? .\(baseEnumCase)\n"
-    header += "\t}\n"
+    
+    if Configuration.importStylesheetManagerName == nil {
+      header += "\tpublic init() {\n"
+      header += "\t\tself.theme = UserDefaults.standard[DefaultKeys.theme] ?? .\(baseEnumCase)\n"
+      header += "\t}\n"
+    }
     header += "}\n\n"
     return header
   }
