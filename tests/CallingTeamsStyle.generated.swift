@@ -32,7 +32,7 @@ public class CallingTeamsStyle: CallingBaseStyle {
 	//MARK: - CallingTeamsStyleCallDefaultButton
 	override open func CallDefaultButtonStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 		if let override = _CallDefaultButton { return override }
-			return CallingTeamsStyleCallDefaultButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+			return CallingTeamsStyleCallDefaultButtonAppearanceProxy(proxy: { return TeamsStyle.shared() })
 		}
 	open class CallingTeamsStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 

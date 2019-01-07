@@ -805,12 +805,43 @@ class Stylesheet {
         nestedStyle.belongsToStylesheetName = name
         nestedStyle.isInjected = true
         nestedStyle.properties = [Property]()
+        
+        if let importStylesheetNames = Configuration.importStylesheetNames, property.style!.isExternalOverride {
+          let index = Configuration.stylesheetNames.firstIndex { (stylesheetName) -> Bool in
+            let components = stylesheetName.components(separatedBy: ":")
+            if components.count == 2 {
+              return components.first! == name
+            } else {
+              return stylesheetName == name
+            }
+          }
+          if let index = index {
+            nestedStyle.extendsStylesheetName = importStylesheetNames[index]
+          }
+          nestedStyle.isExternalOverride = true
+        }
+        
         let injectedProperty = Property(key: property.key, rhs: property.rhs, style: nestedStyle)
         injectedProperties.append(injectedProperty)
       }
       
       let injectedStyle = Style(name: baseStyle.name, properties: injectedProperties)
       injectedStyle.belongsToStylesheetName = name
+      
+      if let importStylesheetNames = Configuration.importStylesheetNames, baseStyle.isExternalOverride {
+        let index = Configuration.stylesheetNames.firstIndex { (stylesheetName) -> Bool in
+          let components = stylesheetName.components(separatedBy: ":")
+          if components.count == 2 {
+            return components.first! == name
+          } else {
+            return stylesheetName == name
+          }
+        }
+        if let index = index {
+          injectedStyle.extendsStylesheetName = importStylesheetNames[index]
+        }
+        injectedStyle.isExternalOverride = true
+      }
       injectedStyle.isInjected = true
       injectedStyles.append(injectedStyle)
     }

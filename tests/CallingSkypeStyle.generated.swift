@@ -42,7 +42,7 @@ public class CallingSkypeStyle: CallingBaseStyle {
 	//MARK: - CallingSkypeStyleCallDefaultButton
 	override open func CallDefaultButtonStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 		if let override = _CallDefaultButton { return override }
-			return CallingSkypeStyleCallDefaultButtonAppearanceProxy(proxy: { return CallingSkypeStyle.shared() })
+			return CallingSkypeStyleCallDefaultButtonAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
 	open class CallingSkypeStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 
