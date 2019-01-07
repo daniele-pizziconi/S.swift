@@ -86,6 +86,9 @@ public struct Generator: Generatable  {
         }
         let style = Style(name: keyString, properties: properties)
         style.belongsToStylesheetName = name
+        if let extendedStylesheets = Configuration.importStylesheetNames {
+          style.extendsStylesheetName = extendedStylesheets[i]
+        }
         styles.append(style)
       }
       
@@ -105,6 +108,9 @@ public struct Generator: Generatable  {
           }
           let style = Style(name: keyString, properties: try createProperties(valuesDictionary))
           style.belongsToStylesheetName = name
+          if let extendedStylesheets = Configuration.importStylesheetNames {
+            style.extendsStylesheetName = extendedStylesheets[i]
+          }
           style.isAnimation = true
           animations.append(style)
         }

@@ -608,6 +608,7 @@ extension Property: Generatable {
 
 class Style {
   var name: String
+  var isExternalOverride = false
   var superclassName: String? = nil
   var properties: [Property]
   var isExtension = false
@@ -621,6 +622,7 @@ class Style {
   var viewClass: String = "UIView"
   var isInjected = false
   var belongsToStylesheetName: String?
+  var extendsStylesheetName: String?
 
   init(name: String, properties: [Property]) {
     var styleName = name.trimmingCharacters(in: CharacterSet.whitespaces)
@@ -658,11 +660,16 @@ class Style {
     // Superclass defined.
     if let components = Optional(styleName.components(separatedBy: "extends")), components.count == 2 {
       styleName = components[0].replacingOccurrences(of: " ", with: "")
-      var extendedClass = components[1]
-      if Configuration.importStylesheetNames != nil && extendedClass.hasPrefix("S") {
-        extendedClass = extendedClass.replace(prefix: "S", with: Configuration.importStylesheetNames!.first!)
+      if Configuration.importStylesheetNames != nil && components[1].hasPrefix("S") {
+        let extendedClass = components[1].replace(prefix: "S", with: Configuration.importStylesheetNames!.first!)
+        superclassName = extendedClass.replacingOccurrences(of: " ", with: "")
+        isExternalOverride = true
+        for property in properties where property.style != nil {
+          property.style!.isExternalOverride = true
+        }
+      } else {
+        superclassName = components[1].replacingOccurrences(of: " ", with: "")
       }
-      superclassName = extendedClass.replacingOccurrences(of: " ", with: "")
     }
     if isOverridable {
       properties.forEach({ $0.isOverridable = true })
@@ -707,8 +714,15 @@ extension Style: Generatable {
       if isNestedOverridable && !isNestedOverride {
         wrapper += "\n\(indentation)public var _\(name): \(styleClass)?"
       }
+      let injectedProxy: String
+      if isNested {
+        injectedProxy = "proxy: mainProxy"
+      } else if isExternalOverride {
+        injectedProxy = "proxy: { return \(extendsStylesheetName!).shared() }"
+      } else {
+        injectedProxy = "proxy: { return \(belongsToStylesheetName!).shared() }"
+      }
 
-      let injectedProxy = isNested ? "proxy: mainProxy" : "proxy: { return \(belongsToStylesheetName!).shared() }"
       wrapper +=
       "\n\(indentation)\(override)\(visibility) func \(name)Style() -> \(returnClass) {"
       wrapper += "\n\(indentation)\tif let override = _\(name) { return override }"
@@ -948,13 +962,21 @@ class Stylesheet {
         }
         markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
       }
-      
-      property.isOverride = propertyIsOverride(property.key, superclass: superclassName, nestedSuperclassName: style.nestedSuperclassName, isStyleProperty: searchInStyles)
+      if style.isExternalOverride {
+        property.isOverride = true
+      } else {
+        property.isOverride = propertyIsOverride(property.key, superclass: superclassName, nestedSuperclassName: style.nestedSuperclassName, isStyleProperty: searchInStyles)
+      }
     }
   }
   
   fileprivate func styleIsOverride(_ style: Style, superStyle: Style) -> (isOverride: Bool, superclassName: String?, styleName: String?) {
     guard let _ = superStyle.superclassName else { return (false, nil, nil) }
+    
+    if superStyle.isExternalOverride {
+      return (true, "\(superStyle.superclassName!)AppearanceProxy.\(style.name)", "\(superStyle.extendsStylesheetName!)\(style.name)")
+    }
+    
     let stylesBase = style.isAnimation ? animations : styles
     
     let nestedStyles = stylesBase.flatMap{ $0.properties }.filter{

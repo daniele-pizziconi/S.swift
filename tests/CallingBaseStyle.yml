@@ -1,0 +1,2 @@
+CallDefaultButton extends S.Button:
+  color: [normal: #ffffff]
