@@ -12,7 +12,7 @@ public struct Configuration {
   public static var stylesheetNames: [String] = ["S"]
   public static var stylesheetManagerName: String?
   public static var importStylesheetManagerName: String?
-  public static var importStylesheetNames: [String] = ["S"]
+  public static var importStylesheetNames: [String]?
 }
 
 public enum GeneratorError: Error {

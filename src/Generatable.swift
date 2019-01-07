@@ -520,8 +520,8 @@ extension RhsValue: Generatable {
 
   func generateCall(_ prefix: String, string: String) -> String {
     var redirection = string
-    if let importStylesheetManager = Configuration.importStylesheetManagerName, string.hasPrefix("Style") {
-      redirection = redirection.replace(prefix: "Style", with: "\(importStylesheetManager).S")
+    if let importStylesheetManager = Configuration.importStylesheetManagerName, string.hasPrefix("S") {
+      redirection = redirection.replace(prefix: "S", with: "\(importStylesheetManager).S")
     }
     return "\(prefix)\(redirection)"
   }
@@ -632,7 +632,7 @@ class Style {
       isExtension = true
     }
     let openPrefix = "__open"
-    if styleName.contains(openPrefix) {
+    if styleName.contains(openPrefix) || Configuration.runtimeSwappable {
       styleName = styleName.replacingOccurrences(of: openPrefix, with: "")
       isOverridable = true
     }
@@ -658,7 +658,11 @@ class Style {
     // Superclass defined.
     if let components = Optional(styleName.components(separatedBy: "extends")), components.count == 2 {
       styleName = components[0].replacingOccurrences(of: " ", with: "")
-      superclassName = components[1].replacingOccurrences(of: " ", with: "")
+      var extendedClass = components[1]
+      if Configuration.importStylesheetNames != nil && extendedClass.hasPrefix("S") {
+        extendedClass = extendedClass.replace(prefix: "S", with: Configuration.importStylesheetNames!.first!)
+      }
+      superclassName = extendedClass.replacingOccurrences(of: " ", with: "")
     }
     if isOverridable {
       properties.forEach({ $0.isOverridable = true })
@@ -1203,8 +1207,8 @@ extension Stylesheet: Generatable {
     } else {
       
       var importCases = [String: String]()
-      for i in 0..<Configuration.importStylesheetNames.count {
-        let name = Configuration.importStylesheetNames[i]
+      for i in 0..<Configuration.importStylesheetNames!.count {
+        let name = Configuration.importStylesheetNames![i]
         var enumCase = name.firstLowercased
         if name.contains("Style") && name.count > 5 {
           enumCase = name.replacingOccurrences(of: "Style", with: "")

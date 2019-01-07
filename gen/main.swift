@@ -148,7 +148,7 @@ if args.contains("--importNames") {
   if var idx = args.index(of: "--importNames") {
     Configuration.importStylesheetNames = []
     while !args[idx+1].starts(with: "--") && idx < args.count {
-      Configuration.importStylesheetNames.append(args[idx+1])
+      Configuration.importStylesheetNames!.append(args[idx+1])
       idx = idx.advanced(by: 1)
     }
   }
