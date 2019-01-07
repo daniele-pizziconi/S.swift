@@ -521,7 +521,7 @@ extension RhsValue: Generatable {
   func generateCall(_ prefix: String, string: String) -> String {
     var redirection = string
     if let importStylesheetManager = Configuration.importStylesheetManagerName, string.hasPrefix("Style") {
-      redirection = redirection.replacingOccurrences(of: "Style", with: "\(importStylesheetManager).S")
+      redirection = redirection.replace(prefix: "Style", with: "\(importStylesheetManager).S")
     }
     return "\(prefix)\(redirection)"
   }

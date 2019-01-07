@@ -37,6 +37,15 @@ extension String {
         let count = searchString.count
         return _indices.map({ index(startIndex, offsetBy: $0)..<index(startIndex, offsetBy: $0+count) })
     }
+    
+    
+    func replace(prefix: String, with replacement: String) -> String {
+        if hasPrefix(prefix) {
+            return replacement + String(self[prefix.endIndex...])
+        } else {
+            return self
+        }
+    }
 }
 
 /// Returns the arguments strings from a rule string
