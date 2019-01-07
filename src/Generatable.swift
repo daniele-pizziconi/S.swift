@@ -700,7 +700,7 @@ extension Style: Generatable {
     let styleClass = isNestedOverride ? "\(nestedOverrideName!)AppearanceProxy" : "\(name)AppearanceProxy"
     
     if isNestedOverride || isNestedOverridable {
-      let visibility = isNestedOverridable ? "open" : "public"
+      let visibility = "open"
       let override = isNestedOverride ? "override " : ""
       let returnClass = isNestedOverride ? String(nestedSuperclass[nestedSuperclass.index(nestedSuperclass.startIndex, offsetBy: 2)...]) : styleClass
       

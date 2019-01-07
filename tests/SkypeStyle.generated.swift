@@ -10,41 +10,31 @@ public class SkypeStyle: BaseStyle {
 		 struct __ { static let _sharedInstance = SkypeStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - SkypeStyleDuration
-	override public func DurationStyle() -> BaseStyle.DurationAppearanceProxy {
-		if let override = _Duration { return override }
-			return SkypeStyleDurationAppearanceProxy(proxy: { return SkypeStyle.shared() })
-		}
-	open class SkypeStyleDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy {
-
-		//MARK: - SkypeStyleintervalDuration
-		override public func intervalStyle() -> BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
-			if let override = _interval { return override }
-				return SkypeStyleintervalDurationAppearanceProxy(proxy: mainProxy)
-			}
-		open class SkypeStyleintervalDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
-
-			//MARK: long 
-			override open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _long { return override }
-					return CGFloat(1.0)
-				}
-		}
-
-	}
 	//MARK: - SkypeStyleButton
-	override public func ButtonStyle() -> BaseStyle.ButtonAppearanceProxy {
+	override open func ButtonStyle() -> BaseStyle.ButtonAppearanceProxy {
 		if let override = _Button { return override }
 			return SkypeStyleButtonAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
 	open class SkypeStyleButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy {
 
 		//MARK: - SkypeStylecolorButton
-		override public func colorStyle() -> BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+		override open func colorStyle() -> BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
 			if let override = _color { return override }
 				return SkypeStylecolorButtonAppearanceProxy(proxy: mainProxy)
 			}
 		open class SkypeStylecolorButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+
+			//MARK: focus 
+			override open func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _focus { return override }
+					return mainProxy().Color.brand.b06Property(traitCollection)
+				}
+
+			//MARK: active 
+			override open func activeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _active { return override }
+					return mainProxy().Color.whiteProperty(traitCollection)
+				}
 
 			//MARK: disabled 
 			override open func disabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -69,30 +59,18 @@ public class SkypeStyle: BaseStyle {
 				if let override = _hover { return override }
 					return mainProxy().Color.brand.b06Property(traitCollection)
 				}
-
-			//MARK: active 
-			override open func activeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _active { return override }
-					return mainProxy().Color.whiteProperty(traitCollection)
-				}
-
-			//MARK: focus 
-			override open func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _focus { return override }
-					return mainProxy().Color.brand.b06Property(traitCollection)
-				}
 		}
 
 	}
 	//MARK: - SkypeStyleColor
-	override public func ColorStyle() -> BaseStyle.ColorAppearanceProxy {
+	override open func ColorStyle() -> BaseStyle.ColorAppearanceProxy {
 		if let override = _Color { return override }
 			return SkypeStyleColorAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
 	open class SkypeStyleColorAppearanceProxy: BaseStyle.ColorAppearanceProxy {
 
 		//MARK: - SkypeStylebrandColor
-		override public func brandStyle() -> BaseStyle.ColorAppearanceProxy.brandAppearanceProxy {
+		override open func brandStyle() -> BaseStyle.ColorAppearanceProxy.brandAppearanceProxy {
 			if let override = _brand { return override }
 				return SkypeStylebrandColorAppearanceProxy(proxy: mainProxy)
 			}
@@ -102,6 +80,18 @@ public class SkypeStyle: BaseStyle {
 			override open func b04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _b04 { return override }
 					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
+				}
+
+			//MARK: b08 
+			override open func b08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b08 { return override }
+					return UIColor(red: 0.54509807, green: 0.54901963, blue: 0.78039217, alpha: 1.0)
+				}
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
 				}
 
 			//MARK: b16 
@@ -122,10 +112,10 @@ public class SkypeStyle: BaseStyle {
 					return UIColor(red: 0.0, green: 0.3764706, blue: 0.6666667, alpha: 1.0)
 				}
 
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
+			//MARK: b14 
+			override open func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b14 { return override }
+					return UIColor(red: 0.8862745, green: 0.8862745, blue: 0.9647059, alpha: 1.0)
 				}
 
 			//MARK: b12 
@@ -133,41 +123,11 @@ public class SkypeStyle: BaseStyle {
 				if let override = _b12 { return override }
 					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
 				}
-
-			//MARK: b14 
-			override open func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b14 { return override }
-					return UIColor(red: 0.8862745, green: 0.8862745, blue: 0.9647059, alpha: 1.0)
-				}
-
-			//MARK: b08 
-			override open func b08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b08 { return override }
-					return UIColor(red: 0.54509807, green: 0.54901963, blue: 0.78039217, alpha: 1.0)
-				}
-		}
-
-
-		//MARK: - SkypeStylegrayColor
-		override public func grayStyle() -> BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
-			if let override = _gray { return override }
-				return SkypeStylegrayColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class SkypeStylegrayColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
-		}
-
-
-		//MARK: - SkypeStyleblackColor
-		override public func blackStyle() -> BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
-			if let override = _black { return override }
-				return SkypeStyleblackColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class SkypeStyleblackColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
 		}
 
 
 		//MARK: - SkypeStyleredColor
-		override public func redStyle() -> BaseStyle.ColorAppearanceProxy.redAppearanceProxy {
+		override open func redStyle() -> BaseStyle.ColorAppearanceProxy.redAppearanceProxy {
 			if let override = _red { return override }
 				return SkypeStyleredColorAppearanceProxy(proxy: mainProxy)
 			}
@@ -175,24 +135,64 @@ public class SkypeStyle: BaseStyle {
 		}
 
 
+		//MARK: - SkypeStyleblackColor
+		override open func blackStyle() -> BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
+			if let override = _black { return override }
+				return SkypeStyleblackColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class SkypeStyleblackColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
+		}
+
+
 		//MARK: - SkypeStylegreenColor
-		override public func greenStyle() -> BaseStyle.ColorAppearanceProxy.greenAppearanceProxy {
+		override open func greenStyle() -> BaseStyle.ColorAppearanceProxy.greenAppearanceProxy {
 			if let override = _green { return override }
 				return SkypeStylegreenColorAppearanceProxy(proxy: mainProxy)
 			}
 		open class SkypeStylegreenColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.greenAppearanceProxy {
 		}
 
+
+		//MARK: - SkypeStylegrayColor
+		override open func grayStyle() -> BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
+			if let override = _gray { return override }
+				return SkypeStylegrayColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class SkypeStylegrayColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
+		}
+
+	}
+	//MARK: - SkypeStyleDuration
+	override open func DurationStyle() -> BaseStyle.DurationAppearanceProxy {
+		if let override = _Duration { return override }
+			return SkypeStyleDurationAppearanceProxy(proxy: { return SkypeStyle.shared() })
+		}
+	open class SkypeStyleDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy {
+
+		//MARK: - SkypeStyleintervalDuration
+		override open func intervalStyle() -> BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+			if let override = _interval { return override }
+				return SkypeStyleintervalDurationAppearanceProxy(proxy: mainProxy)
+			}
+		open class SkypeStyleintervalDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+
+			//MARK: long 
+			override open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _long { return override }
+					return CGFloat(1.0)
+				}
+		}
+
 	}
 	//MARK: - SkypeStyleTypography
-	override public func TypographyStyle() -> BaseStyle.TypographyAppearanceProxy {
+	override open func TypographyStyle() -> BaseStyle.TypographyAppearanceProxy {
 		if let override = _Typography { return override }
 			return SkypeStyleTypographyAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
 	open class SkypeStyleTypographyAppearanceProxy: BaseStyle.TypographyAppearanceProxy {
 
 		//MARK: - SkypeStyletextStylesTypography
-		override public func textStylesStyle() -> BaseStyle.TypographyAppearanceProxy.textStylesAppearanceProxy {
+		override open func textStylesStyle() -> BaseStyle.TypographyAppearanceProxy.textStylesAppearanceProxy {
 			if let override = _textStyles { return override }
 				return SkypeStyletextStylesTypographyAppearanceProxy(proxy: mainProxy)
 			}
@@ -201,7 +201,7 @@ public class SkypeStyle: BaseStyle {
 
 	}
 	//MARK: - SkypeStyleTimingFunctions
-	override public func TimingFunctionsStyle() -> BaseStyle.TimingFunctionsAppearanceProxy {
+	override open func TimingFunctionsStyle() -> BaseStyle.TimingFunctionsAppearanceProxy {
 		if let override = _TimingFunctions { return override }
 			return SkypeStyleTimingFunctionsAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
@@ -215,11 +215,29 @@ public class SkypeStyle: BaseStyle {
 	public class SkypeStyleAnimatorAnimatorProxy: BaseStyle.AnimatorAnimatorProxy {
 
 		//MARK: - SkypeStylerotate
-		override public func rotateStyle() -> BaseStyle.AnimatorAnimatorProxy.rotateAppearanceProxy {
+		override open func rotateStyle() -> BaseStyle.AnimatorAnimatorProxy.rotateAppearanceProxy {
 			if let override = _rotate { return override }
 				return SkypeStylerotateAppearanceProxy(proxy: { return SkypeStyle.shared() })
 			}
 		open class SkypeStylerotateAppearanceProxy: BaseStyle.AnimatorAnimatorProxy.rotateAppearanceProxy {
+
+		//MARK: repeatCount 
+		override open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.count(0)
+			}
+
+		//MARK: curve 
+		override open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
+			}
+
+		//MARK: duration 
+		override open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return mainProxy().Duration.interval.longProperty(traitCollection)
+			}
 
 		//MARK: keyFrames 
 		override open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
@@ -236,24 +254,6 @@ public class SkypeStyle: BaseStyle {
 		override open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
 			if let override = _delay { return override }
 			return CGFloat(0.0)
-			}
-
-		//MARK: duration 
-		override open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return mainProxy().Duration.interval.longProperty(traitCollection)
-			}
-
-		//MARK: repeatCount 
-		override open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.count(0)
-			}
-
-		//MARK: curve 
-		override open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
 			}
 		}
 	
