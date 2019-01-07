@@ -729,8 +729,8 @@ extension Style: Generatable {
 
     if superclassName == nil && !isNestedOverride && !isInjected {
       let baseStyleName = Generator.Stylesheets.filter({ $0.superclassName == nil }).first!
-      wrapper += "\n\(indentation)\tlet mainProxy: () -> \(baseStyleName.name)"
-      wrapper += "\n\(indentation)\tinit(proxy: @escaping () -> \(baseStyleName.name)) {"
+      wrapper += "\n\(indentation)\t\(variableVisibility)let mainProxy: () -> \(baseStyleName.name)"
+      wrapper += "\n\(indentation)\t\(variableVisibility)init(proxy: @escaping () -> \(baseStyleName.name)) {"
       wrapper += "\n\(indentation)\t\tself.mainProxy = proxy"
       wrapper += "\n\(indentation)\t}"
     } else if isOverridable {

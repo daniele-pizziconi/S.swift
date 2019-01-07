@@ -26,34 +26,10 @@ public class SkypeStyle: BaseStyle {
 		open class SkypeStylebrandColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.brandAppearanceProxy {
 			public init() {}
 
-			//MARK: b14 
-			override open func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b14 { return override }
-					return UIColor(red: 0.8862745, green: 0.8862745, blue: 0.9647059, alpha: 1.0)
-				}
-
-			//MARK: b06 
-			override open func b06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b06 { return override }
-					return UIColor(red: 0.0, green: 0.3764706, blue: 0.6666667, alpha: 1.0)
-				}
-
-			//MARK: b12 
-			override open func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b12 { return override }
-					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
-				}
-
-			//MARK: b04 
-			override open func b04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b04 { return override }
-					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
-				}
-
-			//MARK: b02 
-			override open func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b02 { return override }
-					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
+			//MARK: b16 
+			override open func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b16 { return override }
+					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
 				}
 
 			//MARK: b08 
@@ -62,10 +38,28 @@ public class SkypeStyle: BaseStyle {
 					return UIColor(red: 0.54509807, green: 0.54901963, blue: 0.78039217, alpha: 1.0)
 				}
 
-			//MARK: b16 
-			override open func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b16 { return override }
-					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
+			//MARK: b06 
+			override open func b06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b06 { return override }
+					return UIColor(red: 0.0, green: 0.3764706, blue: 0.6666667, alpha: 1.0)
+				}
+
+			//MARK: b02 
+			override open func b02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b02 { return override }
+					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
+				}
+
+			//MARK: b04 
+			override open func b04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b04 { return override }
+					return UIColor(red: 0.0, green: 0.6039216, blue: 0.8901961, alpha: 1.0)
+				}
+
+			//MARK: b14 
+			override open func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b14 { return override }
+					return UIColor(red: 0.8862745, green: 0.8862745, blue: 0.9647059, alpha: 1.0)
 				}
 
 			//MARK: normal 
@@ -73,16 +67,12 @@ public class SkypeStyle: BaseStyle {
 				if let override = _normal { return override }
 					return UIColor(red: 0.0, green: 0.47058824, blue: 0.83137256, alpha: 1.0)
 				}
-		}
 
-
-		//MARK: - SkypeStylegrayColor
-		override public func grayStyle() -> BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
-			if let override = _gray { return override }
-				return SkypeStylegrayColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class SkypeStylegrayColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
-			public init() {}
+			//MARK: b12 
+			override open func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b12 { return override }
+					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
+				}
 		}
 
 
@@ -96,12 +86,12 @@ public class SkypeStyle: BaseStyle {
 		}
 
 
-		//MARK: - SkypeStyleblackColor
-		override public func blackStyle() -> BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
-			if let override = _black { return override }
-				return SkypeStyleblackColorAppearanceProxy(proxy: mainProxy)
+		//MARK: - SkypeStylegrayColor
+		override public func grayStyle() -> BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
+			if let override = _gray { return override }
+				return SkypeStylegrayColorAppearanceProxy(proxy: mainProxy)
 			}
-		open class SkypeStyleblackColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
+		open class SkypeStylegrayColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
 			public init() {}
 		}
 
@@ -113,6 +103,70 @@ public class SkypeStyle: BaseStyle {
 			}
 		open class SkypeStylegreenColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.greenAppearanceProxy {
 			public init() {}
+		}
+
+
+		//MARK: - SkypeStyleblackColor
+		override public func blackStyle() -> BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
+			if let override = _black { return override }
+				return SkypeStyleblackColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class SkypeStyleblackColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
+			public init() {}
+		}
+
+	}
+	//MARK: - SkypeStyleButton
+	override public func ButtonStyle() -> BaseStyle.ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return SkypeStyleButtonAppearanceProxy(proxy: { return SkypeStyle.shared() })
+		}
+	open class SkypeStyleButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy {
+		public init() {}
+
+		//MARK: - SkypeStylecolorButton
+		override public func colorStyle() -> BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+			if let override = _color { return override }
+				return SkypeStylecolorButtonAppearanceProxy(proxy: mainProxy)
+			}
+		open class SkypeStylecolorButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+			public init() {}
+
+			//MARK: hover 
+			override open func hoverProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _hover { return override }
+					return mainProxy().Color.brand.b06Property(traitCollection)
+				}
+
+			//MARK: disabled 
+			override open func disabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _disabled { return override }
+					return mainProxy().Color.gray.g06Property(traitCollection)
+				}
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return mainProxy().Color.brand.normalProperty(traitCollection)
+				}
+
+			//MARK: focus 
+			override open func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _focus { return override }
+					return mainProxy().Color.brand.b06Property(traitCollection)
+				}
+
+			//MARK: active 
+			override open func activeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _active { return override }
+					return mainProxy().Color.whiteProperty(traitCollection)
+				}
+
+			//MARK: activeDisabled 
+			override open func activeDisabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _activeDisabled { return override }
+					return mainProxy().Color.whiteProperty(traitCollection)
+				}
 		}
 
 	}
@@ -140,59 +194,13 @@ public class SkypeStyle: BaseStyle {
 		}
 
 	}
-	//MARK: - SkypeStyleButton
-	override public func ButtonStyle() -> BaseStyle.ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return SkypeStyleButtonAppearanceProxy(proxy: { return SkypeStyle.shared() })
+	//MARK: - SkypeStyleTimingFunctions
+	override public func TimingFunctionsStyle() -> BaseStyle.TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return SkypeStyleTimingFunctionsAppearanceProxy(proxy: { return SkypeStyle.shared() })
 		}
-	open class SkypeStyleButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy {
+	open class SkypeStyleTimingFunctionsAppearanceProxy: BaseStyle.TimingFunctionsAppearanceProxy {
 		public init() {}
-
-		//MARK: - SkypeStylecolorButton
-		override public func colorStyle() -> BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return SkypeStylecolorButtonAppearanceProxy(proxy: mainProxy)
-			}
-		open class SkypeStylecolorButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
-			public init() {}
-
-			//MARK: disabled 
-			override open func disabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _disabled { return override }
-					return mainProxy().Color.gray.g06Property(traitCollection)
-				}
-
-			//MARK: hover 
-			override open func hoverProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _hover { return override }
-					return mainProxy().Color.brand.b06Property(traitCollection)
-				}
-
-			//MARK: activeDisabled 
-			override open func activeDisabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _activeDisabled { return override }
-					return mainProxy().Color.whiteProperty(traitCollection)
-				}
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return mainProxy().Color.brand.normalProperty(traitCollection)
-				}
-
-			//MARK: focus 
-			override open func focusProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _focus { return override }
-					return mainProxy().Color.brand.b06Property(traitCollection)
-				}
-
-			//MARK: active 
-			override open func activeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _active { return override }
-					return mainProxy().Color.whiteProperty(traitCollection)
-				}
-		}
-
 	}
 	//MARK: - SkypeStyleTypography
 	override public func TypographyStyle() -> BaseStyle.TypographyAppearanceProxy {
@@ -211,14 +219,6 @@ public class SkypeStyle: BaseStyle {
 			public init() {}
 		}
 
-	}
-	//MARK: - SkypeStyleTimingFunctions
-	override public func TimingFunctionsStyle() -> BaseStyle.TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return SkypeStyleTimingFunctionsAppearanceProxy(proxy: { return SkypeStyle.shared() })
-		}
-	open class SkypeStyleTimingFunctionsAppearanceProxy: BaseStyle.TimingFunctionsAppearanceProxy {
-		public init() {}
 	}
 	//MARK: - Animator
 	override public func AnimatorAnimator() -> BaseStyle.AnimatorAnimatorProxy {
@@ -241,10 +241,10 @@ public class SkypeStyle: BaseStyle {
 			return CGFloat(0.0)
 			}
 
-		//MARK: repeatCount 
-		override open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.count(0)
+		//MARK: curve 
+		override open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _curve { return override }
+			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
 			}
 
 		//MARK: keyFrames 
@@ -258,10 +258,10 @@ public class SkypeStyle: BaseStyle {
 			CGFloat(360.0))])]
 			}
 
-		//MARK: curve 
-		override open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _curve { return override }
-			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
+		//MARK: repeatCount 
+		override open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.count(0)
 			}
 
 		//MARK: duration 
