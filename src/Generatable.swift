@@ -733,7 +733,7 @@ extension Style: Generatable {
       wrapper += "\n\(indentation)\tpublic init(proxy: @escaping () -> \(baseStyleName.name)) {"
       wrapper += "\n\(indentation)\t\tself.mainProxy = proxy"
       wrapper += "\n\(indentation)\t}"
-    } else if isOverridable {
+    } else if isOverridable && !Configuration.runtimeSwappable {
       wrapper += "\n\(indentation)\tpublic init() {}"
     }
     for property in properties {

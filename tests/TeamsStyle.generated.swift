@@ -10,13 +10,86 @@ public class TeamsStyle: BaseStyle {
 		 struct __ { static let _sharedInstance = TeamsStyle() }
 		return __._sharedInstance
 	}
+	//MARK: - TeamsStyleTypography
+	override public func TypographyStyle() -> BaseStyle.TypographyAppearanceProxy {
+		if let override = _Typography { return override }
+			return TeamsStyleTypographyAppearanceProxy(proxy: { return TeamsStyle.shared() })
+		}
+	open class TeamsStyleTypographyAppearanceProxy: BaseStyle.TypographyAppearanceProxy {
+
+		//MARK: - TeamsStyletextStylesTypography
+		override public func textStylesStyle() -> BaseStyle.TypographyAppearanceProxy.textStylesAppearanceProxy {
+			if let override = _textStyles { return override }
+				return TeamsStyletextStylesTypographyAppearanceProxy(proxy: mainProxy)
+			}
+		open class TeamsStyletextStylesTypographyAppearanceProxy: BaseStyle.TypographyAppearanceProxy.textStylesAppearanceProxy {
+
+			//MARK: title2 
+			override open func title2Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _title2 { return override }
+					return UIFont.scaledFont(name: "Menlo", textStyle: UIFont.TextStyle.body, traitCollection: traitCollection).with(traits: [UIFontDescriptor.SymbolicTraits.traitBold])
+				}
+
+			//MARK: title1 
+			override open func title1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _title1 { return override }
+					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body, compatibleWith: traitCollection, scalable: true)
+				}
+		}
+
+	}
+	//MARK: - TeamsStyleDuration
+	override public func DurationStyle() -> BaseStyle.DurationAppearanceProxy {
+		if let override = _Duration { return override }
+			return TeamsStyleDurationAppearanceProxy(proxy: { return TeamsStyle.shared() })
+		}
+	open class TeamsStyleDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy {
+
+		//MARK: - TeamsStyleintervalDuration
+		override public func intervalStyle() -> BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+			if let override = _interval { return override }
+				return TeamsStyleintervalDurationAppearanceProxy(proxy: mainProxy)
+			}
+		open class TeamsStyleintervalDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+
+			//MARK: tiny 
+			override open func tinyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _tiny { return override }
+					return CGFloat(1.5)
+				}
+
+			//MARK: long 
+			override open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _long { return override }
+					return CGFloat(4.34)
+				}
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _normal { return override }
+					return CGFloat(3.0)
+				}
+
+			//MARK: debug 
+			override open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _debug { return override }
+					return CGFloat(10.0)
+				}
+
+			//MARK: short 
+			override open func shortProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _short { return override }
+					return CGFloat(2.34)
+				}
+		}
+
+	}
 	//MARK: - TeamsStyleButton
 	override public func ButtonStyle() -> BaseStyle.ButtonAppearanceProxy {
 		if let override = _Button { return override }
 			return TeamsStyleButtonAppearanceProxy(proxy: { return TeamsStyle.shared() })
 		}
 	open class TeamsStyleButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy {
-		public init() {}
 
 		//MARK: - TeamsStylecolorButton
 		override public func colorStyle() -> BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
@@ -24,7 +97,6 @@ public class TeamsStyle: BaseStyle {
 				return TeamsStylecolorButtonAppearanceProxy(proxy: mainProxy)
 			}
 		open class TeamsStylecolorButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
-			public init() {}
 
 			//MARK: disabled 
 			override open func disabledProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -64,111 +136,75 @@ public class TeamsStyle: BaseStyle {
 		}
 
 	}
-	//MARK: - TeamsStyleTimingFunctions
-	override public func TimingFunctionsStyle() -> BaseStyle.TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return TeamsStyleTimingFunctionsAppearanceProxy(proxy: { return TeamsStyle.shared() })
-		}
-	open class TeamsStyleTimingFunctionsAppearanceProxy: BaseStyle.TimingFunctionsAppearanceProxy {
-		public init() {}
-
-		//MARK: easeIn 
-		override open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _easeIn { return override }
-			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
-			}
-	}
-	//MARK: - TeamsStyleDuration
-	override public func DurationStyle() -> BaseStyle.DurationAppearanceProxy {
-		if let override = _Duration { return override }
-			return TeamsStyleDurationAppearanceProxy(proxy: { return TeamsStyle.shared() })
-		}
-	open class TeamsStyleDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy {
-		public init() {}
-
-		//MARK: - TeamsStyleintervalDuration
-		override public func intervalStyle() -> BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
-			if let override = _interval { return override }
-				return TeamsStyleintervalDurationAppearanceProxy(proxy: mainProxy)
-			}
-		open class TeamsStyleintervalDurationAppearanceProxy: BaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
-			public init() {}
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _normal { return override }
-					return CGFloat(3.0)
-				}
-
-			//MARK: long 
-			override open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _long { return override }
-					return CGFloat(4.34)
-				}
-
-			//MARK: debug 
-			override open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _debug { return override }
-					return CGFloat(10.0)
-				}
-
-			//MARK: short 
-			override open func shortProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _short { return override }
-					return CGFloat(2.34)
-				}
-
-			//MARK: tiny 
-			override open func tinyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _tiny { return override }
-					return CGFloat(1.5)
-				}
-		}
-
-	}
-	//MARK: - TeamsStyleTypography
-	override public func TypographyStyle() -> BaseStyle.TypographyAppearanceProxy {
-		if let override = _Typography { return override }
-			return TeamsStyleTypographyAppearanceProxy(proxy: { return TeamsStyle.shared() })
-		}
-	open class TeamsStyleTypographyAppearanceProxy: BaseStyle.TypographyAppearanceProxy {
-		public init() {}
-
-		//MARK: - TeamsStyletextStylesTypography
-		override public func textStylesStyle() -> BaseStyle.TypographyAppearanceProxy.textStylesAppearanceProxy {
-			if let override = _textStyles { return override }
-				return TeamsStyletextStylesTypographyAppearanceProxy(proxy: mainProxy)
-			}
-		open class TeamsStyletextStylesTypographyAppearanceProxy: BaseStyle.TypographyAppearanceProxy.textStylesAppearanceProxy {
-			public init() {}
-
-			//MARK: title1 
-			override open func title1Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _title1 { return override }
-					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.body, compatibleWith: traitCollection, scalable: true)
-				}
-
-			//MARK: title2 
-			override open func title2Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _title2 { return override }
-					return UIFont.scaledFont(name: "Menlo", textStyle: UIFont.TextStyle.body, traitCollection: traitCollection).with(traits: [UIFontDescriptor.SymbolicTraits.traitBold])
-				}
-		}
-
-	}
 	//MARK: - TeamsStyleColor
 	override public func ColorStyle() -> BaseStyle.ColorAppearanceProxy {
 		if let override = _Color { return override }
 			return TeamsStyleColorAppearanceProxy(proxy: { return TeamsStyle.shared() })
 		}
 	open class TeamsStyleColorAppearanceProxy: BaseStyle.ColorAppearanceProxy {
-		public init() {}
 
-		//MARK: magenta 
-		override open func magentaProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _magenta { return override }
-			return UIColor(red: 0.69803923, green: 0.2784314, blue: 0.50980395, alpha: 1.0)
+		//MARK: white 
+		override open func whiteProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _white { return override }
+			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
 			}
+
+		//MARK: - TeamsStylegrayColor
+		override public func grayStyle() -> BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
+			if let override = _gray { return override }
+				return TeamsStylegrayColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class TeamsStylegrayColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
+
+			//MARK: g14 
+			override open func g14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g14 { return override }
+					return UIColor(red: 0.98039216, green: 0.9764706, blue: 0.972549, alpha: 1.0)
+				}
+
+			//MARK: g04 
+			override open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g04 { return override }
+					return UIColor(red: 0.5921569, green: 0.58431375, blue: 0.5764706, alpha: 1.0)
+				}
+
+			//MARK: g09 
+			override open func g09Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g09 { return override }
+					return UIColor(red: 0.92941177, green: 0.92156863, blue: 0.9137255, alpha: 1.0)
+				}
+
+			//MARK: g02 
+			override open func g02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g02 { return override }
+					return UIColor(red: 0.28235295, green: 0.27450982, blue: 0.26666668, alpha: 1.0)
+				}
+
+			//MARK: g08 
+			override open func g08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g08 { return override }
+					return UIColor(red: 0.88235295, green: 0.8745098, blue: 0.8666667, alpha: 1.0)
+				}
+
+			//MARK: g03 
+			override open func g03Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g03 { return override }
+					return UIColor(red: 0.3764706, green: 0.36862746, blue: 0.36078432, alpha: 1.0)
+				}
+
+			//MARK: g06 
+			override open func g06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g06 { return override }
+					return UIColor(red: 0.78431374, green: 0.7764706, blue: 0.76862746, alpha: 1.0)
+				}
+
+			//MARK: g10 
+			override open func g10Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g10 { return override }
+					return UIColor(red: 0.9529412, green: 0.9490196, blue: 0.94509804, alpha: 1.0)
+				}
+		}
+
 
 		//MARK: orange04 
 		override open func orange04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -182,18 +218,11 @@ public class TeamsStyle: BaseStyle {
 				return TeamsStyleblackColorAppearanceProxy(proxy: mainProxy)
 			}
 		open class TeamsStyleblackColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.blackAppearanceProxy {
-			public init() {}
 
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
-				}
-
-			//MARK: border 
-			override open func borderProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _border { return override }
-					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1254902)
+			//MARK: overlayLight 
+			override open func overlayLightProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _overlayLight { return override }
+					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1882353)
 				}
 
 			//MARK: overlay 
@@ -202,19 +231,52 @@ public class TeamsStyle: BaseStyle {
 					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.4392157)
 				}
 
+			//MARK: border 
+			override open func borderProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _border { return override }
+					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1254902)
+				}
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.14509805, green: 0.14117648, blue: 0.13725491, alpha: 1.0)
+				}
+
 			//MARK: overlayMid 
 			override open func overlayMidProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _overlayMid { return override }
 					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.3137255)
 				}
+		}
 
-			//MARK: overlayLight 
-			override open func overlayLightProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _overlayLight { return override }
-					return UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1882353)
+
+		//MARK: - TeamsStyleredColor
+		override public func redStyle() -> BaseStyle.ColorAppearanceProxy.redAppearanceProxy {
+			if let override = _red { return override }
+				return TeamsStyleredColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class TeamsStyleredColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.redAppearanceProxy {
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.76862746, green: 0.19215687, blue: 0.29411766, alpha: 1.0)
+				}
+
+			//MARK: r08 
+			override open func r08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _r08 { return override }
+					return UIColor(red: 0.9529412, green: 0.8392157, blue: 0.85882354, alpha: 1.0)
 				}
 		}
 
+
+		//MARK: magenta 
+		override open func magentaProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _magenta { return override }
+			return UIColor(red: 0.69803923, green: 0.2784314, blue: 0.50980395, alpha: 1.0)
+			}
 
 		//MARK: - TeamsStylegreenColor
 		override public func greenStyle() -> BaseStyle.ColorAppearanceProxy.greenAppearanceProxy {
@@ -222,21 +284,32 @@ public class TeamsStyle: BaseStyle {
 				return TeamsStylegreenColorAppearanceProxy(proxy: mainProxy)
 			}
 		open class TeamsStylegreenColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.greenAppearanceProxy {
-			public init() {}
-
-			//MARK: g04 
-			override open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g04 { return override }
-					return UIColor(red: 0.13725491, green: 0.48235294, blue: 0.29411766, alpha: 1.0)
-				}
 
 			//MARK: normal 
 			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _normal { return override }
 					return UIColor(red: 0.57254905, green: 0.7647059, blue: 0.3254902, alpha: 1.0)
 				}
+
+			//MARK: g04 
+			override open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _g04 { return override }
+					return UIColor(red: 0.13725491, green: 0.48235294, blue: 0.29411766, alpha: 1.0)
+				}
 		}
 
+
+		//MARK: yellow 
+		override open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _yellow { return override }
+			return UIColor(red: 0.972549, green: 0.8235294, blue: 0.16470589, alpha: 1.0)
+			}
+
+		//MARK: orchid 
+		override open func orchidProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _orchid { return override }
+			return UIColor(red: 0.5803922, green: 0.21176471, blue: 0.4392157, alpha: 1.0)
+			}
 
 		//MARK: - TeamsStylebrandColor
 		override public func brandStyle() -> BaseStyle.ColorAppearanceProxy.brandAppearanceProxy {
@@ -244,7 +317,6 @@ public class TeamsStyle: BaseStyle {
 				return TeamsStylebrandColorAppearanceProxy(proxy: mainProxy)
 			}
 		open class TeamsStylebrandColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.brandAppearanceProxy {
-			public init() {}
 
 			//MARK: b04 
 			override open func b04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
@@ -252,10 +324,10 @@ public class TeamsStyle: BaseStyle {
 					return UIColor(red: 0.27450982, green: 0.2784314, blue: 0.45882353, alpha: 1.0)
 				}
 
-			//MARK: b12 
-			override open func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b12 { return override }
-					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
+			//MARK: b16 
+			override open func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b16 { return override }
+					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
 				}
 
 			//MARK: b02 
@@ -270,6 +342,18 @@ public class TeamsStyle: BaseStyle {
 					return UIColor(red: 0.38431373, green: 0.39215687, blue: 0.654902, alpha: 1.0)
 				}
 
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return UIColor(red: 0.38431373, green: 0.39215687, blue: 0.654902, alpha: 1.0)
+				}
+
+			//MARK: b12 
+			override open func b12Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b12 { return override }
+					return UIColor(red: 0.7411765, green: 0.7411765, blue: 0.9019608, alpha: 1.0)
+				}
+
 			//MARK: b14 
 			override open func b14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 				if let override = _b14 { return override }
@@ -281,98 +365,6 @@ public class TeamsStyle: BaseStyle {
 				if let override = _b08 { return override }
 					return UIColor(red: 0.54509807, green: 0.54901963, blue: 0.78039217, alpha: 1.0)
 				}
-
-			//MARK: b16 
-			override open func b16Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b16 { return override }
-					return UIColor(red: 0.95686275, green: 0.95686275, blue: 0.9882353, alpha: 1.0)
-				}
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.38431373, green: 0.39215687, blue: 0.654902, alpha: 1.0)
-				}
-		}
-
-
-		//MARK: - TeamsStylegrayColor
-		override public func grayStyle() -> BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
-			if let override = _gray { return override }
-				return TeamsStylegrayColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class TeamsStylegrayColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.grayAppearanceProxy {
-			public init() {}
-
-			//MARK: g06 
-			override open func g06Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g06 { return override }
-					return UIColor(red: 0.78431374, green: 0.7764706, blue: 0.76862746, alpha: 1.0)
-				}
-
-			//MARK: g02 
-			override open func g02Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g02 { return override }
-					return UIColor(red: 0.28235295, green: 0.27450982, blue: 0.26666668, alpha: 1.0)
-				}
-
-			//MARK: g04 
-			override open func g04Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g04 { return override }
-					return UIColor(red: 0.5921569, green: 0.58431375, blue: 0.5764706, alpha: 1.0)
-				}
-
-			//MARK: g08 
-			override open func g08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g08 { return override }
-					return UIColor(red: 0.88235295, green: 0.8745098, blue: 0.8666667, alpha: 1.0)
-				}
-
-			//MARK: g09 
-			override open func g09Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g09 { return override }
-					return UIColor(red: 0.92941177, green: 0.92156863, blue: 0.9137255, alpha: 1.0)
-				}
-
-			//MARK: g14 
-			override open func g14Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g14 { return override }
-					return UIColor(red: 0.98039216, green: 0.9764706, blue: 0.972549, alpha: 1.0)
-				}
-
-			//MARK: g10 
-			override open func g10Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g10 { return override }
-					return UIColor(red: 0.9529412, green: 0.9490196, blue: 0.94509804, alpha: 1.0)
-				}
-
-			//MARK: g03 
-			override open func g03Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _g03 { return override }
-					return UIColor(red: 0.3764706, green: 0.36862746, blue: 0.36078432, alpha: 1.0)
-				}
-		}
-
-
-		//MARK: - TeamsStyleredColor
-		override public func redStyle() -> BaseStyle.ColorAppearanceProxy.redAppearanceProxy {
-			if let override = _red { return override }
-				return TeamsStyleredColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class TeamsStyleredColorAppearanceProxy: BaseStyle.ColorAppearanceProxy.redAppearanceProxy {
-			public init() {}
-
-			//MARK: r08 
-			override open func r08Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _r08 { return override }
-					return UIColor(red: 0.9529412, green: 0.8392157, blue: 0.85882354, alpha: 1.0)
-				}
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _normal { return override }
-					return UIColor(red: 0.76862746, green: 0.19215687, blue: 0.29411766, alpha: 1.0)
-				}
 		}
 
 
@@ -381,23 +373,18 @@ public class TeamsStyle: BaseStyle {
 			if let override = _transparent { return override }
 			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
 			}
+	}
+	//MARK: - TeamsStyleTimingFunctions
+	override public func TimingFunctionsStyle() -> BaseStyle.TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return TeamsStyleTimingFunctionsAppearanceProxy(proxy: { return TeamsStyle.shared() })
+		}
+	open class TeamsStyleTimingFunctionsAppearanceProxy: BaseStyle.TimingFunctionsAppearanceProxy {
 
-		//MARK: white 
-		override open func whiteProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _white { return override }
-			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-			}
-
-		//MARK: orchid 
-		override open func orchidProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _orchid { return override }
-			return UIColor(red: 0.5803922, green: 0.21176471, blue: 0.4392157, alpha: 1.0)
-			}
-
-		//MARK: yellow 
-		override open func yellowProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _yellow { return override }
-			return UIColor(red: 0.972549, green: 0.8235294, blue: 0.16470589, alpha: 1.0)
+		//MARK: easeIn 
+		override open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _easeIn { return override }
+			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
 			}
 	}
 	//MARK: - Animator
@@ -413,12 +400,28 @@ public class TeamsStyle: BaseStyle {
 				return TeamsStylerotateAppearanceProxy(proxy: { return TeamsStyle.shared() })
 			}
 		open class TeamsStylerotateAppearanceProxy: BaseStyle.AnimatorAnimatorProxy.rotateAppearanceProxy {
-			public init() {}
+
+		//MARK: keyFrames 
+		override open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
+			if let override = _keyFrames { return override }
+			return [
+			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
+			[
+			.rotate(from: 
+			CGFloat(0.0), to: 
+			CGFloat(360.0))])]
+			}
 
 		//MARK: delay 
 		override open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
 			if let override = _delay { return override }
 			return CGFloat(0.0)
+			}
+
+		//MARK: duration 
+		override open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return mainProxy().Duration.interval.longProperty(traitCollection)
 			}
 
 		//MARK: repeatCount 
@@ -431,23 +434,6 @@ public class TeamsStyle: BaseStyle {
 		override open func curveProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
 			if let override = _curve { return override }
 			return mainProxy().TimingFunctions.easeInProperty(traitCollection)
-			}
-
-		//MARK: duration 
-		override open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return mainProxy().Duration.interval.longProperty(traitCollection)
-			}
-
-		//MARK: keyFrames 
-		override open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
-			if let override = _keyFrames { return override }
-			return [
-			KeyFrame(relativeStartTime: 0.0, relativeDuration: nil, values: 
-			[
-			.rotate(from: 
-			CGFloat(0.0), to: 
-			CGFloat(360.0))])]
 			}
 		}
 	
