@@ -47,11 +47,11 @@ public class CallingSkypeStyle: CallingBaseStyle {
 	open class CallingSkypeStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 
 		//MARK: - CallingSkypeStylecolorCallDefaultButton
-		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
+		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
 			if let override = _color { return override }
 				return CallingSkypeStylecolorCallDefaultButtonAppearanceProxy(proxy: mainProxy)
 			}
-		open class CallingSkypeStylecolorCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
+		open class CallingSkypeStylecolorCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
 		}
 
 	}

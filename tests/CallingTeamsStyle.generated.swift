@@ -37,11 +37,11 @@ public class CallingTeamsStyle: CallingBaseStyle {
 	open class CallingTeamsStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 
 		//MARK: - CallingTeamsStylecolorCallDefaultButton
-		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
+		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
 			if let override = _color { return override }
 				return CallingTeamsStylecolorCallDefaultButtonAppearanceProxy(proxy: mainProxy)
 			}
-		open class CallingTeamsStylecolorCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
+		open class CallingTeamsStylecolorCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
 		}
 
 	}

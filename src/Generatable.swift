@@ -973,7 +973,11 @@ class Stylesheet {
         for nestedStyle in style.properties.flatMap({ $0.style }) {
           if let superNestedStyle = superStyle.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle.name }).first {
             nestedStyle.isNestedOverride = true
-            nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(nestedSuperclassPrefix)\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
+            if superStyle.isExternalOverride {
+              nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(nestedSuperclassPrefix)\(superStyle.name)AppearanceProxy.\(superStyle.extendsStylesheetName!)\(superNestedStyle.name)"
+            } else {
+              nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(nestedSuperclassPrefix)\(superStyle.name)AppearanceProxy.\(superNestedStyle.name)"
+            }
             nestedStyle.nestedOverrideName = "\(name)\(superNestedStyle.name)\(style.name)"
           }
           markOverrides(nestedStyle, superclassName: nestedStyle.nestedSuperclassName)
@@ -1016,7 +1020,11 @@ class Stylesheet {
     for st in stylesBase {
       for property in st.properties {
         if let nestedStyle = property.style, nestedStyle.name == style.name, let superclassName = st.superclassName, nestedStyles.count > 1 {
-          return (true, "\(superclassName)AppearanceProxy.\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
+          if st.extendsStylesheetName != nil {
+            return (true, "\(superclassName)AppearanceProxy.\(Configuration.importStylesheetNames!.first!)\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
+          } else {
+            return (true, "\(superclassName)AppearanceProxy.\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
+          }
         }
       }
     }
