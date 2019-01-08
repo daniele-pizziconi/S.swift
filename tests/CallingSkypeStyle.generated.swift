@@ -47,7 +47,7 @@ public class CallingSkypeStyle: CallingBaseStyle {
 	open class CallingSkypeStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
 
 		//MARK: - CallingSkypeStylecolorCallDefaultButton
-		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
+		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
 			if let override = _color { return override }
 				return CallingSkypeStylecolorCallDefaultButtonAppearanceProxy(proxy: mainProxy)
 			}

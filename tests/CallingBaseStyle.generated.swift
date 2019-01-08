@@ -4,14 +4,14 @@
 import UIKit
 
 public enum Theme: Int {
-	case callingBase
 	case callingTeams
+	case callingBase
 	case callingSkype
 
 	public var stylesheet: CallingBaseStyle {
 		switch self {
-		case .callingBase: return CallingBaseStyle.shared()
 		case .callingTeams: return CallingTeamsStyle.shared()
+		case .callingBase: return CallingBaseStyle.shared()
 		case .callingSkype: return CallingSkypeStyle.shared()
 		}
 	}
@@ -30,8 +30,8 @@ public class StylesheetManager {
 	public var theme: Theme {
 		switch CallingStylesheetManager.default.theme {
 		case .skype: return .callingSkype
-		case .teams: return .callingTeams
 		case .base: return .callingBase
+		case .teams: return .callingTeams
 		}
 	}
 
