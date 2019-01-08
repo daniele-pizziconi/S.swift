@@ -717,7 +717,7 @@ extension Style: Generatable {
       let injectedProxy: String
       if isNested {
         injectedProxy = "proxy: mainProxy"
-      } else if isExternalOverride {
+      } else if isExternalOverride || (isInjected && extendsStylesheetName != nil)  {
         injectedProxy = "proxy: { return \(extendsStylesheetName!).shared() }"
       } else {
         injectedProxy = "proxy: { return \(belongsToStylesheetName!).shared() }"
@@ -818,7 +818,6 @@ class Stylesheet {
           if let index = index {
             nestedStyle.extendsStylesheetName = importStylesheetNames[index]
           }
-          nestedStyle.isExternalOverride = true
         }
         
         let injectedProperty = Property(key: property.key, rhs: property.rhs, style: nestedStyle)
@@ -840,7 +839,6 @@ class Stylesheet {
         if let index = index {
           injectedStyle.extendsStylesheetName = importStylesheetNames[index]
         }
-        injectedStyle.isExternalOverride = true
       }
       injectedStyle.isInjected = true
       injectedStyles.append(injectedStyle)
