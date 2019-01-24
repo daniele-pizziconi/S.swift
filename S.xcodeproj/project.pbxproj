@@ -246,7 +246,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$SRCROOT/sgen $SRCROOT --files CallingBaseStyle.yml CallingTeamsStyle.yml CallingSkypeStyle.yml --names CallingBaseStyle CallingTeamsStyle:CallingBaseStyle CallingSkypeStyle:CallingBaseStyle --importNames BaseStyle TeamsStyle SkypeStyle --importManager CallingStylesheetManager  --platform ios --appearance_proxy --app_extension --runtime_swappable StylesheetManager\n";
+			shellScript = "$SRCROOT/sgen $SRCROOT --files CallingBaseStyle.yml CallingTeamsStyle.yml --names CallingBaseStyle CallingTeamsStyle:CallingBaseStyle --importNames BaseStyle TeamsStyle --importManager CallingStylesheetManager  --platform ios --appearance_proxy --app_extension --runtime_swappable StylesheetManager\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -29,19 +29,51 @@ public class CallingTeamsStyle: CallingBaseStyle {
 			set { _white = newValue }
 		}
 	}
-	//MARK: - CallingTeamsStyleCallDefaultButton
-	override open func CallDefaultButtonStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy {
-		if let override = _CallDefaultButton { return override }
-			return CallingTeamsStyleCallDefaultButtonAppearanceProxy(proxy: { return TeamsStyle.shared() })
+	//MARK: - CallingTeamsStyleButton
+	override open func ButtonStyle() -> CallingBaseStyle.ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return CallingTeamsStyleButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
 		}
-	open class CallingTeamsStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
+	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
 
-		//MARK: - CallingTeamsStylecolorCallDefaultButton
-		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return CallingTeamsStylecolorCallDefaultButtonAppearanceProxy(proxy: mainProxy)
+		//MARK: - CallingTeamsStyleblueButton
+		override open func blueStyle() -> CallingBaseStyle.ButtonAppearanceProxy.blueAppearanceProxy {
+			if let override = _blue { return override }
+				return CallingTeamsStyleblueButtonAppearanceProxy(proxy: mainProxy)
 			}
-		open class CallingTeamsStylecolorCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
+		open class CallingTeamsStyleblueButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy.blueAppearanceProxy {
+		}
+
+	}
+	//MARK: - CallingTeamsStyleColorExtended
+	override open func ColorExtendedStyle() -> CallingBaseStyle.ColorExtendedAppearanceProxy {
+		if let override = _ColorExtended { return override }
+			return CallingTeamsStyleColorExtendedAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleColorExtendedAppearanceProxy: CallingBaseStyle.ColorExtendedAppearanceProxy {
+
+		//MARK: - CallingTeamsStyletextFontColorExtended
+		override open func textFontStyle() -> CallingBaseStyle.ColorExtendedAppearanceProxy.textFontAppearanceProxy {
+			if let override = _textFont { return override }
+				return CallingTeamsStyletextFontColorExtendedAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingTeamsStyletextFontColorExtendedAppearanceProxy: CallingBaseStyle.ColorExtendedAppearanceProxy.textFontAppearanceProxy {
+		}
+
+	}
+	//MARK: - CallingTeamsStyleTextView
+	override open func TextViewStyle() -> CallingBaseStyle.TextViewAppearanceProxy {
+		if let override = _TextView { return override }
+			return CallingTeamsStyleTextViewAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleTextViewAppearanceProxy: CallingBaseStyle.TextViewAppearanceProxy {
+
+		//MARK: - CallingTeamsStyletextFontTextView
+		override open func textFontStyle() -> CallingBaseStyle.TextViewAppearanceProxy.textFontAppearanceProxy {
+			if let override = _textFont { return override }
+				return CallingTeamsStyletextFontTextViewAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingTeamsStyletextFontTextViewAppearanceProxy: CallingBaseStyle.TextViewAppearanceProxy.textFontAppearanceProxy {
 		}
 
 	}

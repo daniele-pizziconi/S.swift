@@ -1,2 +1,8 @@
-CallDefaultButton extends S.Button:
-  color: [normal: #ffffff]
+@appearance_proxy Button:
+  blue: [b50: "#E5F2FF", b100: '#CCE5FF']
+
+ColorExtended extends Button:
+  textFont: [normal: "Call(S.Typography.textStyles.callout, UIFont)", bold: "Font(PreferredSystem, callout, bold)", italic: "Font(PreferredSystem, callout, italic)", boldItalic: "Font(PreferredSystem, callout, bold-italic)", monoSpace: "Font(Menlo, callout)"]
+
+@appearance_proxy TextView:
+  textFont: [normal: "Call(S.Color.black.normal, UIColor)"]

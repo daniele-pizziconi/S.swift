@@ -4,15 +4,13 @@
 import UIKit
 
 public enum Theme: Int {
-	case callingTeams
 	case callingBase
-	case callingSkype
+	case callingTeams
 
 	public var stylesheet: CallingBaseStyle {
 		switch self {
-		case .callingTeams: return CallingTeamsStyle.shared()
 		case .callingBase: return CallingBaseStyle.shared()
-		case .callingSkype: return CallingSkypeStyle.shared()
+		case .callingTeams: return CallingTeamsStyle.shared()
 		}
 	}
 }
@@ -29,9 +27,8 @@ public class StylesheetManager {
 
 	public var theme: Theme {
 		switch CallingStylesheetManager.default.theme {
-		case .skype: return .callingSkype
-		case .base: return .callingBase
 		case .teams: return .callingTeams
+		case .base: return .callingBase
 		}
 	}
 
@@ -203,32 +200,288 @@ public class CallingBaseStyle: NSObject {
 		 struct __ { static let _sharedInstance = CallingBaseStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - CallDefaultButton
-	public var _CallDefaultButton: CallDefaultButtonAppearanceProxy?
-	open func CallDefaultButtonStyle() -> CallDefaultButtonAppearanceProxy {
-		if let override = _CallDefaultButton { return override }
-			return CallDefaultButtonAppearanceProxy(proxy: { return BaseStyle.shared() })
+	//MARK: - Button
+	public var _Button: ButtonAppearanceProxy?
+	open func ButtonStyle() -> ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return ButtonAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
 		}
-	public var CallDefaultButton: CallDefaultButtonAppearanceProxy {
-		get { return self.CallDefaultButtonStyle() }
-		set { _CallDefaultButton = newValue }
+	public var Button: ButtonAppearanceProxy {
+		get { return self.ButtonStyle() }
+		set { _Button = newValue }
 	}
-	open class CallDefaultButtonAppearanceProxy: BaseStyle.ButtonAppearanceProxy {
+	open class ButtonAppearanceProxy {
+		public let mainProxy: () -> CallingBaseStyle
+		public init(proxy: @escaping () -> CallingBaseStyle) {
+			self.mainProxy = proxy
+		}
 
-		//MARK: - BaseStylecolor
-		override open func colorStyle() -> BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return BaseStylecolorAppearanceProxy(proxy: mainProxy)
+		//MARK: - blue
+		public var _blue: blueAppearanceProxy?
+		open func blueStyle() -> blueAppearanceProxy {
+			if let override = _blue { return override }
+				return blueAppearanceProxy(proxy: mainProxy)
 			}
-		open class BaseStylecolorAppearanceProxy: BaseStyle.ButtonAppearanceProxy.colorAppearanceProxy {
+		public var blue: blueAppearanceProxy {
+			get { return self.blueStyle() }
+			set { _blue = newValue }
+		}
+		open class blueAppearanceProxy {
+			public let mainProxy: () -> CallingBaseStyle
+			public init(proxy: @escaping () -> CallingBaseStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: b100 
+			public var _b100: UIColor?
+			open func b100Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b100 { return override }
+					return UIColor(red: 0.8, green: 0.8980392, blue: 1.0, alpha: 1.0)
+				}
+			public var b100: UIColor {
+				get { return self.b100Property() }
+				set { _b100 = newValue }
+			}
+
+			//MARK: b50 
+			public var _b50: UIColor?
+			open func b50Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _b50 { return override }
+					return UIColor(red: 0.8980392, green: 0.9490196, blue: 1.0, alpha: 1.0)
+				}
+			public var b50: UIColor {
+				get { return self.b50Property() }
+				set { _b50 = newValue }
+			}
+		}
+
+	}
+	//MARK: - ColorExtended
+	public var _ColorExtended: ColorExtendedAppearanceProxy?
+	open func ColorExtendedStyle() -> ColorExtendedAppearanceProxy {
+		if let override = _ColorExtended { return override }
+			return ColorExtendedAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var ColorExtended: ColorExtendedAppearanceProxy {
+		get { return self.ColorExtendedStyle() }
+		set { _ColorExtended = newValue }
+	}
+	open class ColorExtendedAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: - textFont
+		public var _textFont: textFontAppearanceProxy?
+		open func textFontStyle() -> textFontAppearanceProxy {
+			if let override = _textFont { return override }
+				return textFontAppearanceProxy(proxy: mainProxy)
+			}
+		public var textFont: textFontAppearanceProxy {
+			get { return self.textFontStyle() }
+			set { _textFont = newValue }
+		}
+		open class textFontAppearanceProxy {
+			public let mainProxy: () -> CallingBaseStyle
+			public init(proxy: @escaping () -> CallingBaseStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: boldItalic 
+			public var _boldItalic: UIFont?
+			open func boldItalicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _boldItalic { return override }
+					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.callout, compatibleWith: traitCollection, scalable: true).with(traits: [UIFontDescriptor.SymbolicTraits.traitBold, UIFontDescriptor.SymbolicTraits.traitItalic])
+				}
+			public var boldItalic: UIFont {
+				get { return self.boldItalicProperty() }
+				set { _boldItalic = newValue }
+			}
+
+			//MARK: italic 
+			public var _italic: UIFont?
+			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _italic { return override }
+					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.callout, compatibleWith: traitCollection, scalable: true).with(traits: [UIFontDescriptor.SymbolicTraits.traitItalic])
+				}
+			public var italic: UIFont {
+				get { return self.italicProperty() }
+				set { _italic = newValue }
+			}
 
 			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
 				if let override = _normal { return override }
-					return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+					return CallingStylesheetManager.S.Typography.textStyles.callout
 				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+
+			//MARK: monoSpace 
+			public var _monoSpace: UIFont?
+			open func monoSpaceProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _monoSpace { return override }
+					return UIFont.scaledFont(name: "Menlo", textStyle: UIFont.TextStyle.callout, traitCollection: traitCollection)
+				}
+			public var monoSpace: UIFont {
+				get { return self.monoSpaceProperty() }
+				set { _monoSpace = newValue }
+			}
+
+			//MARK: bold 
+			public var _bold: UIFont?
+			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _bold { return override }
+					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.callout, compatibleWith: traitCollection, scalable: true).with(traits: [UIFontDescriptor.SymbolicTraits.traitBold])
+				}
+			public var bold: UIFont {
+				get { return self.boldProperty() }
+				set { _bold = newValue }
+			}
+		}
+
+	}
+	//MARK: - TextView
+	public var _TextView: TextViewAppearanceProxy?
+	open func TextViewStyle() -> TextViewAppearanceProxy {
+		if let override = _TextView { return override }
+			return TextViewAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var TextView: TextViewAppearanceProxy {
+		get { return self.TextViewStyle() }
+		set { _TextView = newValue }
+	}
+	open class TextViewAppearanceProxy {
+		public let mainProxy: () -> CallingBaseStyle
+		public init(proxy: @escaping () -> CallingBaseStyle) {
+			self.mainProxy = proxy
+		}
+
+		//MARK: - textFont
+		public var _textFont: textFontAppearanceProxy?
+		open func textFontStyle() -> textFontAppearanceProxy {
+			if let override = _textFont { return override }
+				return textFontAppearanceProxy(proxy: mainProxy)
+			}
+		public var textFont: textFontAppearanceProxy {
+			get { return self.textFontStyle() }
+			set { _textFont = newValue }
+		}
+		open class textFontAppearanceProxy {
+			public let mainProxy: () -> CallingBaseStyle
+			public init(proxy: @escaping () -> CallingBaseStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: normal 
+			public var _normal: UIColor?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+				if let override = _normal { return override }
+					return CallingStylesheetManager.S.Color.black.normal
+				}
+			public var normal: UIColor {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
 		}
 
 	}
 
+}
+extension Button: AppearaceProxyComponent {
+
+	public typealias ApperanceProxyType = CallingBaseStyle.ButtonAppearanceProxy
+	public var appearanceProxy: ApperanceProxyType {
+		get {
+			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
+				if !themeAware { return proxy }
+
+				if proxy is CallingBaseStyle.ColorExtendedAppearanceProxy {
+					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorExtended
+				}
+				return proxy
+			}
+
+			return StylesheetManager.stylesheet(CallingBaseStyle.shared()).Button
+		}
+		set {
+			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			didChangeAppearanceProxy()
+		}
+	}
+
+	public var themeAware: Bool {
+		get {
+			guard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) as? Bool else { return true }
+			return proxy
+		}
+		set {
+			objc_setAssociatedObject(self, &__ThemeAwareHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			isObservingDidChangeTheme = newValue
+		}
+	}
+
+	fileprivate var isObservingDidChangeTheme: Bool {
+		get {
+			guard let observing = objc_getAssociatedObject(self, &__ObservingDidChangeThemeHandle) as? Bool else { return false }
+			return observing
+		}
+		set {
+			if newValue == isObservingDidChangeTheme { return }
+			if newValue {
+				NotificationCenter.default.addObserver(self, selector: #selector(didChangeAppearanceProxy), name: Notification.Name.didChangeTheme, object: nil)
+			} else {
+				NotificationCenter.default.removeObserver(self, name: Notification.Name.didChangeTheme, object: nil)
+			}
+			objc_setAssociatedObject(self, &__ObservingDidChangeThemeHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+		}
+	}
+}
+
+extension TextView: AppearaceProxyComponent {
+
+	public typealias ApperanceProxyType = CallingBaseStyle.TextViewAppearanceProxy
+	public var appearanceProxy: ApperanceProxyType {
+		get {
+			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
+				if !themeAware { return proxy }
+
+
+				return proxy
+			}
+
+			return StylesheetManager.stylesheet(CallingBaseStyle.shared()).TextView
+		}
+		set {
+			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			didChangeAppearanceProxy()
+		}
+	}
+
+	public var themeAware: Bool {
+		get {
+			guard let proxy = objc_getAssociatedObject(self, &__ThemeAwareHandle) as? Bool else { return true }
+			return proxy
+		}
+		set {
+			objc_setAssociatedObject(self, &__ThemeAwareHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			isObservingDidChangeTheme = newValue
+		}
+	}
+
+	fileprivate var isObservingDidChangeTheme: Bool {
+		get {
+			guard let observing = objc_getAssociatedObject(self, &__ObservingDidChangeThemeHandle) as? Bool else { return false }
+			return observing
+		}
+		set {
+			if newValue == isObservingDidChangeTheme { return }
+			if newValue {
+				NotificationCenter.default.addObserver(self, selector: #selector(didChangeAppearanceProxy), name: Notification.Name.didChangeTheme, object: nil)
+			} else {
+				NotificationCenter.default.removeObserver(self, name: Notification.Name.didChangeTheme, object: nil)
+			}
+			objc_setAssociatedObject(self, &__ObservingDidChangeThemeHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+		}
+	}
 }

@@ -1027,7 +1027,7 @@ class Stylesheet {
     
     for st in stylesBase {
       for property in st.properties {
-        if let nestedStyle = property.style, nestedStyle.name == style.name, let superclassName = st.superclassName, nestedStyles.count > 1 {
+        if let nestedStyle = property.style, nestedStyle.name == style.name, let superclassName = st.superclassName, superclassName == superStyle.name && nestedStyles.count > 1 {
           if st.extendsStylesheetName != nil {
             return (true, "\(superclassName)AppearanceProxy.\(Configuration.importStylesheetNames!.first!)\(nestedStyle.name)", "\(superStyle.name)\(style.name)")
           } else {

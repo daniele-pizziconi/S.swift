@@ -75,7 +75,7 @@ struct Rhs {
                 || hexString.count == 8 else {
                     throw ColorInputError.mismatchedHexStringLength
             }
-            
+                        
             switch (hexString.count) {
             case 3:
                 self.init(hex3: UInt16(hexValue))

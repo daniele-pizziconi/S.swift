@@ -39,19 +39,35 @@ public class CallingSkypeStyle: CallingBaseStyle {
 		}
 
 	}
-	//MARK: - CallingSkypeStyleCallDefaultButton
-	override open func CallDefaultButtonStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy {
-		if let override = _CallDefaultButton { return override }
-			return CallingSkypeStyleCallDefaultButtonAppearanceProxy(proxy: { return SkypeStyle.shared() })
+	//MARK: - CallingSkypeStyleColor
+	override open func ColorStyle() -> CallingBaseStyle.ColorAppearanceProxy {
+		if let override = _Color { return override }
+			return CallingSkypeStyleColorAppearanceProxy(proxy: { return CallingSkypeStyle.shared() })
 		}
-	open class CallingSkypeStyleCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy {
+	open class CallingSkypeStyleColorAppearanceProxy: CallingBaseStyle.ColorAppearanceProxy {
 
-		//MARK: - CallingSkypeStylecolorCallDefaultButton
-		override open func colorStyle() -> CallingBaseStyle.CallDefaultButtonAppearanceProxy.colorAppearanceProxy {
-			if let override = _color { return override }
-				return CallingSkypeStylecolorCallDefaultButtonAppearanceProxy(proxy: mainProxy)
+		//MARK: - CallingSkypeStyleblueColor
+		override open func blueStyle() -> CallingBaseStyle.ColorAppearanceProxy.blueAppearanceProxy {
+			if let override = _blue { return override }
+				return CallingSkypeStyleblueColorAppearanceProxy(proxy: mainProxy)
 			}
-		open class CallingSkypeStylecolorCallDefaultButtonAppearanceProxy: CallingBaseStyle.CallDefaultButtonAppearanceProxy.BaseStylecolorAppearanceProxy {
+		open class CallingSkypeStyleblueColorAppearanceProxy: CallingBaseStyle.ColorAppearanceProxy.blueAppearanceProxy {
+		}
+
+	}
+	//MARK: - CallingSkypeStyleColorExtended
+	override open func ColorExtendedStyle() -> CallingBaseStyle.ColorExtendedAppearanceProxy {
+		if let override = _ColorExtended { return override }
+			return CallingSkypeStyleColorExtendedAppearanceProxy(proxy: { return CallingSkypeStyle.shared() })
+		}
+	open class CallingSkypeStyleColorExtendedAppearanceProxy: CallingBaseStyle.ColorExtendedAppearanceProxy {
+
+		//MARK: - CallingSkypeStyleprovaColorExtended
+		override open func provaStyle() -> CallingBaseStyle.ColorExtendedAppearanceProxy.provaAppearanceProxy {
+			if let override = _prova { return override }
+				return CallingSkypeStyleprovaColorExtendedAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingSkypeStyleprovaColorExtendedAppearanceProxy: CallingBaseStyle.ColorExtendedAppearanceProxy.provaAppearanceProxy {
 		}
 
 	}
