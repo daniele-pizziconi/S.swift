@@ -1,8 +1,9 @@
 @appearance_proxy Button:
-  textFont: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
+  textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
 
 ColorExtended extends Button:
   textFont: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
 
 @appearance_proxy TextView:
   textFont: [normal: "Call(S.Color.black.normal, UIColor)"]
+

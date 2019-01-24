@@ -27,8 +27,8 @@ public class StylesheetManager {
 
 	public var theme: Theme {
 		switch CallingStylesheetManager.default.theme {
-		case .teams: return .callingTeams
 		case .base: return .callingBase
+		case .teams: return .callingTeams
 		}
 	}
 
@@ -200,21 +200,17 @@ public class CallingBaseStyle: NSObject {
 		 struct __ { static let _sharedInstance = CallingBaseStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - Button
-	public var _Button: ButtonAppearanceProxy?
-	open func ButtonStyle() -> ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return ButtonAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+	//MARK: - ColorExtended
+	public var _ColorExtended: ColorExtendedAppearanceProxy?
+	open func ColorExtendedStyle() -> ColorExtendedAppearanceProxy {
+		if let override = _ColorExtended { return override }
+			return ColorExtendedAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
 		}
-	public var Button: ButtonAppearanceProxy {
-		get { return self.ButtonStyle() }
-		set { _Button = newValue }
+	public var ColorExtended: ColorExtendedAppearanceProxy {
+		get { return self.ColorExtendedStyle() }
+		set { _ColorExtended = newValue }
 	}
-	open class ButtonAppearanceProxy {
-		public let mainProxy: () -> CallingBaseStyle
-		public init(proxy: @escaping () -> CallingBaseStyle) {
-			self.mainProxy = proxy
-		}
+	open class ColorExtendedAppearanceProxy: ButtonAppearanceProxy {
 
 		//MARK: - textFont
 		public var _textFont: textFontAppearanceProxy?
@@ -242,33 +238,6 @@ public class CallingBaseStyle: NSObject {
 				get { return self.normalProperty() }
 				set { _normal = newValue }
 			}
-		}
-
-	}
-	//MARK: - ColorExtended
-	public var _ColorExtended: ColorExtendedAppearanceProxy?
-	open func ColorExtendedStyle() -> ColorExtendedAppearanceProxy {
-		if let override = _ColorExtended { return override }
-			return ColorExtendedAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
-		}
-	public var ColorExtended: ColorExtendedAppearanceProxy {
-		get { return self.ColorExtendedStyle() }
-		set { _ColorExtended = newValue }
-	}
-	open class ColorExtendedAppearanceProxy: ButtonAppearanceProxy {
-
-		//MARK: - ColorExtendedtextFont
-		override open func textFontStyle() -> ButtonAppearanceProxy.textFontAppearanceProxy {
-			if let override = _textFont { return override }
-				return ColorExtendedtextFontAppearanceProxy(proxy: mainProxy)
-			}
-		open class ColorExtendedtextFontAppearanceProxy: ButtonAppearanceProxy.textFontAppearanceProxy {
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return CallingStylesheetManager.S.Typography.textStyles.callout
-				}
 		}
 
 	}
@@ -317,23 +286,66 @@ public class CallingBaseStyle: NSObject {
 		}
 
 	}
+	//MARK: - Button
+	public var _Button: ButtonAppearanceProxy?
+	open func ButtonStyle() -> ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return ButtonAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var Button: ButtonAppearanceProxy {
+		get { return self.ButtonStyle() }
+		set { _Button = newValue }
+	}
+	open class ButtonAppearanceProxy {
+		public let mainProxy: () -> CallingBaseStyle
+		public init(proxy: @escaping () -> CallingBaseStyle) {
+			self.mainProxy = proxy
+		}
+
+		//MARK: - textColor
+		public var _textColor: textColorAppearanceProxy?
+		open func textColorStyle() -> textColorAppearanceProxy {
+			if let override = _textColor { return override }
+				return textColorAppearanceProxy(proxy: mainProxy)
+			}
+		public var textColor: textColorAppearanceProxy {
+			get { return self.textColorStyle() }
+			set { _textColor = newValue }
+		}
+		open class textColorAppearanceProxy {
+			public let mainProxy: () -> CallingBaseStyle
+			public init(proxy: @escaping () -> CallingBaseStyle) {
+				self.mainProxy = proxy
+			}
+
+			//MARK: normal 
+			public var _normal: UIFont?
+			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return CallingStylesheetManager.S.Typography.textStyles.callout
+				}
+			public var normal: UIFont {
+				get { return self.normalProperty() }
+				set { _normal = newValue }
+			}
+		}
+
+	}
 
 }
-extension Button: AppearaceProxyComponent {
+extension TextView: AppearaceProxyComponent {
 
-	public typealias ApperanceProxyType = CallingBaseStyle.ButtonAppearanceProxy
+	public typealias ApperanceProxyType = CallingBaseStyle.TextViewAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
 			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
 				if !themeAware { return proxy }
 
-				if proxy is CallingBaseStyle.ColorExtendedAppearanceProxy {
-					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorExtended
-				}
+
 				return proxy
 			}
 
-			return StylesheetManager.stylesheet(CallingBaseStyle.shared()).Button
+			return StylesheetManager.stylesheet(CallingBaseStyle.shared()).TextView
 		}
 		set {
 			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -369,19 +381,21 @@ extension Button: AppearaceProxyComponent {
 	}
 }
 
-extension TextView: AppearaceProxyComponent {
+extension Button: AppearaceProxyComponent {
 
-	public typealias ApperanceProxyType = CallingBaseStyle.TextViewAppearanceProxy
+	public typealias ApperanceProxyType = CallingBaseStyle.ButtonAppearanceProxy
 	public var appearanceProxy: ApperanceProxyType {
 		get {
 			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
 				if !themeAware { return proxy }
 
-
+				if proxy is CallingBaseStyle.ColorExtendedAppearanceProxy {
+					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorExtended
+				}
 				return proxy
 			}
 
-			return StylesheetManager.stylesheet(CallingBaseStyle.shared()).TextView
+			return StylesheetManager.stylesheet(CallingBaseStyle.shared()).Button
 		}
 		set {
 			objc_setAssociatedObject(self, &__ApperanceProxyHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
