@@ -36,12 +36,12 @@ public class CallingTeamsStyle: CallingBaseStyle {
 		}
 	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
 
-		//MARK: - CallingTeamsStyleblueButton
-		override open func blueStyle() -> CallingBaseStyle.ButtonAppearanceProxy.blueAppearanceProxy {
-			if let override = _blue { return override }
-				return CallingTeamsStyleblueButtonAppearanceProxy(proxy: mainProxy)
+		//MARK: - CallingTeamsStyletextFontButton
+		override open func textFontStyle() -> CallingBaseStyle.ButtonAppearanceProxy.textFontAppearanceProxy {
+			if let override = _textFont { return override }
+				return CallingTeamsStyletextFontButtonAppearanceProxy(proxy: mainProxy)
 			}
-		open class CallingTeamsStyleblueButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy.blueAppearanceProxy {
+		open class CallingTeamsStyletextFontButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy.textFontAppearanceProxy {
 		}
 
 	}

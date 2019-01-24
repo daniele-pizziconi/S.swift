@@ -4,13 +4,13 @@
 import UIKit
 
 public enum Theme: Int {
-	case callingBase
 	case callingTeams
+	case callingBase
 
 	public var stylesheet: CallingBaseStyle {
 		switch self {
-		case .callingBase: return CallingBaseStyle.shared()
 		case .callingTeams: return CallingTeamsStyle.shared()
+		case .callingBase: return CallingBaseStyle.shared()
 		}
 	}
 }
@@ -216,58 +216,6 @@ public class CallingBaseStyle: NSObject {
 			self.mainProxy = proxy
 		}
 
-		//MARK: - blue
-		public var _blue: blueAppearanceProxy?
-		open func blueStyle() -> blueAppearanceProxy {
-			if let override = _blue { return override }
-				return blueAppearanceProxy(proxy: mainProxy)
-			}
-		public var blue: blueAppearanceProxy {
-			get { return self.blueStyle() }
-			set { _blue = newValue }
-		}
-		open class blueAppearanceProxy {
-			public let mainProxy: () -> CallingBaseStyle
-			public init(proxy: @escaping () -> CallingBaseStyle) {
-				self.mainProxy = proxy
-			}
-
-			//MARK: b100 
-			public var _b100: UIColor?
-			open func b100Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b100 { return override }
-					return UIColor(red: 0.8, green: 0.8980392, blue: 1.0, alpha: 1.0)
-				}
-			public var b100: UIColor {
-				get { return self.b100Property() }
-				set { _b100 = newValue }
-			}
-
-			//MARK: b50 
-			public var _b50: UIColor?
-			open func b50Property(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-				if let override = _b50 { return override }
-					return UIColor(red: 0.8980392, green: 0.9490196, blue: 1.0, alpha: 1.0)
-				}
-			public var b50: UIColor {
-				get { return self.b50Property() }
-				set { _b50 = newValue }
-			}
-		}
-
-	}
-	//MARK: - ColorExtended
-	public var _ColorExtended: ColorExtendedAppearanceProxy?
-	open func ColorExtendedStyle() -> ColorExtendedAppearanceProxy {
-		if let override = _ColorExtended { return override }
-			return ColorExtendedAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
-		}
-	public var ColorExtended: ColorExtendedAppearanceProxy {
-		get { return self.ColorExtendedStyle() }
-		set { _ColorExtended = newValue }
-	}
-	open class ColorExtendedAppearanceProxy: ButtonAppearanceProxy {
-
 		//MARK: - textFont
 		public var _textFont: textFontAppearanceProxy?
 		open func textFontStyle() -> textFontAppearanceProxy {
@@ -284,28 +232,6 @@ public class CallingBaseStyle: NSObject {
 				self.mainProxy = proxy
 			}
 
-			//MARK: boldItalic 
-			public var _boldItalic: UIFont?
-			open func boldItalicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _boldItalic { return override }
-					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.callout, compatibleWith: traitCollection, scalable: true).with(traits: [UIFontDescriptor.SymbolicTraits.traitBold, UIFontDescriptor.SymbolicTraits.traitItalic])
-				}
-			public var boldItalic: UIFont {
-				get { return self.boldItalicProperty() }
-				set { _boldItalic = newValue }
-			}
-
-			//MARK: italic 
-			public var _italic: UIFont?
-			open func italicProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _italic { return override }
-					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.callout, compatibleWith: traitCollection, scalable: true).with(traits: [UIFontDescriptor.SymbolicTraits.traitItalic])
-				}
-			public var italic: UIFont {
-				get { return self.italicProperty() }
-				set { _italic = newValue }
-			}
-
 			//MARK: normal 
 			public var _normal: UIFont?
 			open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
@@ -316,28 +242,33 @@ public class CallingBaseStyle: NSObject {
 				get { return self.normalProperty() }
 				set { _normal = newValue }
 			}
+		}
 
-			//MARK: monoSpace 
-			public var _monoSpace: UIFont?
-			open func monoSpaceProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _monoSpace { return override }
-					return UIFont.scaledFont(name: "Menlo", textStyle: UIFont.TextStyle.callout, traitCollection: traitCollection)
-				}
-			public var monoSpace: UIFont {
-				get { return self.monoSpaceProperty() }
-				set { _monoSpace = newValue }
-			}
+	}
+	//MARK: - ColorExtended
+	public var _ColorExtended: ColorExtendedAppearanceProxy?
+	open func ColorExtendedStyle() -> ColorExtendedAppearanceProxy {
+		if let override = _ColorExtended { return override }
+			return ColorExtendedAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var ColorExtended: ColorExtendedAppearanceProxy {
+		get { return self.ColorExtendedStyle() }
+		set { _ColorExtended = newValue }
+	}
+	open class ColorExtendedAppearanceProxy: ButtonAppearanceProxy {
 
-			//MARK: bold 
-			public var _bold: UIFont?
-			open func boldProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _bold { return override }
-					return UIFont.preferredFont(forTextStyle: UIFont.TextStyle.callout, compatibleWith: traitCollection, scalable: true).with(traits: [UIFontDescriptor.SymbolicTraits.traitBold])
-				}
-			public var bold: UIFont {
-				get { return self.boldProperty() }
-				set { _bold = newValue }
+		//MARK: - ColorExtendedtextFont
+		override open func textFontStyle() -> ButtonAppearanceProxy.textFontAppearanceProxy {
+			if let override = _textFont { return override }
+				return ColorExtendedtextFontAppearanceProxy(proxy: mainProxy)
 			}
+		open class ColorExtendedtextFontAppearanceProxy: ButtonAppearanceProxy.textFontAppearanceProxy {
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return CallingStylesheetManager.S.Typography.textStyles.callout
+				}
 		}
 
 	}
