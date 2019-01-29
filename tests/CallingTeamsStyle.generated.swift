@@ -45,6 +45,22 @@ public class CallingTeamsStyle: CallingBaseStyle {
 		}
 
 	}
+	//MARK: - CallingTeamsStyleButton
+	override open func ButtonStyle() -> CallingBaseStyle.ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return CallingTeamsStyleButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
+
+		//MARK: - CallingTeamsStyletextColorButton
+		override open func textColorStyle() -> CallingBaseStyle.ButtonAppearanceProxy.textColorAppearanceProxy {
+			if let override = _textColor { return override }
+				return CallingTeamsStyletextColorButtonAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingTeamsStyletextColorButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy.textColorAppearanceProxy {
+		}
+
+	}
 	//MARK: - CallingTeamsStyleColorExtended
 	override open func ColorExtendedStyle() -> CallingBaseStyle.ColorExtendedAppearanceProxy {
 		if let override = _ColorExtended { return override }
@@ -74,22 +90,6 @@ public class CallingTeamsStyle: CallingBaseStyle {
 				return CallingTeamsStyletextColorColorAncoraNuovoAppearanceProxy(proxy: mainProxy)
 			}
 		open class CallingTeamsStyletextColorColorAncoraNuovoAppearanceProxy: CallingBaseStyle.ColorAncoraNuovoAppearanceProxy.textColorAppearanceProxy {
-		}
-
-	}
-	//MARK: - CallingTeamsStyleButton
-	override open func ButtonStyle() -> CallingBaseStyle.ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return CallingTeamsStyleButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
-
-		//MARK: - CallingTeamsStyletextColorButton
-		override open func textColorStyle() -> CallingBaseStyle.ButtonAppearanceProxy.textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return CallingTeamsStyletextColorButtonAppearanceProxy(proxy: mainProxy)
-			}
-		open class CallingTeamsStyletextColorButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy.textColorAppearanceProxy {
 		}
 
 	}
