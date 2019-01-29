@@ -1025,6 +1025,7 @@ class Stylesheet {
       return true
     };
     
+    
     for st in stylesBase {
       for property in st.properties {
         if let nestedStyle = property.style, nestedStyle.name == style.name, st.name != superStyle.name && nestedStyles.count > 1 {
