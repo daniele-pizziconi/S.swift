@@ -1387,7 +1387,7 @@ extension Stylesheet: Generatable {
     header += "\t\t.title3: 48,\n"
     header += "\t\t.title2: 57,\n"
     header += "\t\t.title1: 76]\n"
-    header += "#elseif os(tvOS)\n"
+    header += "#elseif os(watchOS)\n"
     header += "private let defaultSizes: [UIFont.TextStyle: CGFloat] = {\n"
     header += "\tif #available(watchOS 5.0, *) {\n"
     header += "\t\tswitch WKInterfaceDevice.current().preferredContentSizeCategory {\n"

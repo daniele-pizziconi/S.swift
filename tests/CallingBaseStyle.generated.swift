@@ -27,8 +27,8 @@ public class StylesheetManager {
 
 	public var theme: Theme {
 		switch CallingStylesheetManager.default.theme {
-		case .teams: return .callingTeams
 		case .base: return .callingBase
+		case .teams: return .callingTeams
 		}
 	}
 
@@ -227,6 +227,33 @@ public class CallingBaseStyle: NSObject {
 		}
 
 	}
+	//MARK: - ColorAncoraNuovo
+	public var _ColorAncoraNuovo: ColorAncoraNuovoAppearanceProxy?
+	open func ColorAncoraNuovoStyle() -> ColorAncoraNuovoAppearanceProxy {
+		if let override = _ColorAncoraNuovo { return override }
+			return ColorAncoraNuovoAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var ColorAncoraNuovo: ColorAncoraNuovoAppearanceProxy {
+		get { return self.ColorAncoraNuovoStyle() }
+		set { _ColorAncoraNuovo = newValue }
+	}
+	open class ColorAncoraNuovoAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: - ColorAncoraNuovotextColor
+		override open func textColorStyle() -> ButtonAppearanceProxy.textColorAppearanceProxy {
+			if let override = _textColor { return override }
+				return ColorAncoraNuovotextColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class ColorAncoraNuovotextColorAppearanceProxy: ButtonAppearanceProxy.textColorAppearanceProxy {
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return CallingStylesheetManager.S.Typography.textStyles.callout
+				}
+		}
+
+	}
 	//MARK: - Button
 	public var _Button: ButtonAppearanceProxy?
 	open func ButtonStyle() -> ButtonAppearanceProxy {
@@ -299,33 +326,6 @@ public class CallingBaseStyle: NSObject {
 		}
 
 	}
-	//MARK: - ColorAncoraNuovo
-	public var _ColorAncoraNuovo: ColorAncoraNuovoAppearanceProxy?
-	open func ColorAncoraNuovoStyle() -> ColorAncoraNuovoAppearanceProxy {
-		if let override = _ColorAncoraNuovo { return override }
-			return ColorAncoraNuovoAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
-		}
-	public var ColorAncoraNuovo: ColorAncoraNuovoAppearanceProxy {
-		get { return self.ColorAncoraNuovoStyle() }
-		set { _ColorAncoraNuovo = newValue }
-	}
-	open class ColorAncoraNuovoAppearanceProxy: ButtonAppearanceProxy {
-
-		//MARK: - ColorAncoraNuovotextColor
-		override open func textColorStyle() -> ButtonAppearanceProxy.textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return ColorAncoraNuovotextColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class ColorAncoraNuovotextColorAppearanceProxy: ButtonAppearanceProxy.textColorAppearanceProxy {
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return CallingStylesheetManager.S.Typography.textStyles.callout
-				}
-		}
-
-	}
 
 }
 extension Button: AppearaceProxyComponent {
@@ -338,10 +338,10 @@ extension Button: AppearaceProxyComponent {
 
 				if proxy is CallingBaseStyle.ColorExtendedAppearanceProxy {
 					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorExtended
-				} else if proxy is CallingBaseStyle.ColorNuovoAppearanceProxy {
-					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorNuovo
 				} else if proxy is CallingBaseStyle.ColorAncoraNuovoAppearanceProxy {
 					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorAncoraNuovo
+				} else if proxy is CallingBaseStyle.ColorNuovoAppearanceProxy {
+					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorNuovo
 				}
 				return proxy
 			}
