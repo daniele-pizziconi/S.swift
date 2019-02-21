@@ -1,5 +1,6 @@
 @appearance_proxy Button:
   textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
+  mask: Option(UIView.AutoresizingMask, flexibleLeftMargin, flexibleRightMargin)
 
 ColorExtended extends Button:
   textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]

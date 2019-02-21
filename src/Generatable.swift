@@ -46,6 +46,9 @@ enum RhsValue {
   /// An enum.
   case `enum`(type: String, name: String)
   
+  /// An option.
+  case option(type: String, names: [String])
+  
   /// An animation curve
   case timingFunction(function: Rhs.TimingFunction)
   
@@ -281,6 +284,16 @@ enum RhsValue {
       let name = enumComponents.count == 2 ? enumComponents[1] : enumComponents[2]
       return .enum(type: type, name: name)
 
+    } else if let components = argumentsFromString("option", string: string) {
+      assert(components.count > 1, "Not a valid enum. Format: option(Type, Value1, Value2)")
+      
+      let type = components.first!.trimmingCharacters(in: CharacterSet.whitespaces)
+      var names = [String]()
+      for i in 1..<components.count {
+        names.append(components[i].trimmingCharacters(in: CharacterSet.whitespaces))
+      }
+      return .option(type: type, names: names)
+      
     } else if let components = argumentsFromString("call", string: string) {
       assert(components.count == 2, "Not a valid enum. Format: enum(Type.Value)")
       let call = components[0].trimmingCharacters(in: CharacterSet.whitespaces)
@@ -299,6 +312,7 @@ enum RhsValue {
     case .color(_): return Configuration.targetOsx ? "NSColor" : "UIColor"
     case .image(_): return Configuration.targetOsx ? "NSImage" : "UIImage"
     case .enum(let type, _): return type
+    case .option(let type, _): return type
     case .redirect(let r): return r.type
     case .point(_, _): return "CGPoint"
     case .size(_, _): return "CGSize"
@@ -356,6 +370,9 @@ extension RhsValue: Generatable {
 
     case .enum(let type, let name):
       return generateEnum(prefix, type: type, name: name)
+      
+    case .option(let type, let names):
+      return generateOption(prefix, type: type, names: names)
 
     case .point(let x, let y):
       return generatePoint(prefix, x: x, y: y)
@@ -494,6 +511,16 @@ extension RhsValue: Generatable {
 
   func generateEnum(_ prefix: String, type: String, name: String) -> String {
     return "\(prefix)\(type).\(name)"
+  }
+  
+  func generateOption(_ prefix: String, type: String, names: [String]) -> String {
+    var generate = "\(prefix)["
+    for name in names {
+      generate.append("\(type).\(name), ")
+    }
+    generate.removeLast(2)
+    generate.append("]")
+    return generate
   }
 
   func generatePoint(_ prefix: String, x: Float, y: Float) -> String {

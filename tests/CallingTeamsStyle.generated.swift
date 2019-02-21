@@ -29,22 +29,6 @@ public class CallingTeamsStyle: CallingBaseStyle {
 			set { _white = newValue }
 		}
 	}
-	//MARK: - CallingTeamsStyleColorNuovo
-	override open func ColorNuovoStyle() -> CallingBaseStyle.ColorNuovoAppearanceProxy {
-		if let override = _ColorNuovo { return override }
-			return CallingTeamsStyleColorNuovoAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleColorNuovoAppearanceProxy: CallingBaseStyle.ColorNuovoAppearanceProxy {
-
-		//MARK: - CallingTeamsStyletextColorColorNuovo
-		override open func textColorStyle() -> CallingBaseStyle.ColorNuovoAppearanceProxy.textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return CallingTeamsStyletextColorColorNuovoAppearanceProxy(proxy: mainProxy)
-			}
-		open class CallingTeamsStyletextColorColorNuovoAppearanceProxy: CallingBaseStyle.ColorNuovoAppearanceProxy.textColorAppearanceProxy {
-		}
-
-	}
 	//MARK: - CallingTeamsStyleColorAncoraNuovo
 	override open func ColorAncoraNuovoStyle() -> CallingBaseStyle.ColorAncoraNuovoAppearanceProxy {
 		if let override = _ColorAncoraNuovo { return override }
@@ -90,6 +74,22 @@ public class CallingTeamsStyle: CallingBaseStyle {
 				return CallingTeamsStyletextColorColorExtendedAppearanceProxy(proxy: mainProxy)
 			}
 		open class CallingTeamsStyletextColorColorExtendedAppearanceProxy: CallingBaseStyle.ColorExtendedAppearanceProxy.textColorAppearanceProxy {
+		}
+
+	}
+	//MARK: - CallingTeamsStyleColorNuovo
+	override open func ColorNuovoStyle() -> CallingBaseStyle.ColorNuovoAppearanceProxy {
+		if let override = _ColorNuovo { return override }
+			return CallingTeamsStyleColorNuovoAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleColorNuovoAppearanceProxy: CallingBaseStyle.ColorNuovoAppearanceProxy {
+
+		//MARK: - CallingTeamsStyletextColorColorNuovo
+		override open func textColorStyle() -> CallingBaseStyle.ColorNuovoAppearanceProxy.textColorAppearanceProxy {
+			if let override = _textColor { return override }
+				return CallingTeamsStyletextColorColorNuovoAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingTeamsStyletextColorColorNuovoAppearanceProxy: CallingBaseStyle.ColorNuovoAppearanceProxy.textColorAppearanceProxy {
 		}
 
 	}

@@ -4,13 +4,13 @@
 import UIKit
 
 public enum Theme: Int {
-	case callingTeams
 	case callingBase
+	case callingTeams
 
 	public var stylesheet: CallingBaseStyle {
 		switch self {
-		case .callingTeams: return CallingTeamsStyle.shared()
 		case .callingBase: return CallingBaseStyle.shared()
+		case .callingTeams: return CallingTeamsStyle.shared()
 		}
 	}
 }
@@ -88,7 +88,7 @@ private let defaultSizes: [UIFont.TextStyle: CGFloat] =
 		.title3: 48,
 		.title2: 57,
 		.title1: 76]
-#elseif os(tvOS)
+#elseif os(watchOS)
 private let defaultSizes: [UIFont.TextStyle: CGFloat] = {
 	if #available(watchOS 5.0, *) {
 		switch WKInterfaceDevice.current().preferredContentSizeCategory {
@@ -200,33 +200,6 @@ public class CallingBaseStyle: NSObject {
 		 struct __ { static let _sharedInstance = CallingBaseStyle() }
 		return __._sharedInstance
 	}
-	//MARK: - ColorNuovo
-	public var _ColorNuovo: ColorNuovoAppearanceProxy?
-	open func ColorNuovoStyle() -> ColorNuovoAppearanceProxy {
-		if let override = _ColorNuovo { return override }
-			return ColorNuovoAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
-		}
-	public var ColorNuovo: ColorNuovoAppearanceProxy {
-		get { return self.ColorNuovoStyle() }
-		set { _ColorNuovo = newValue }
-	}
-	open class ColorNuovoAppearanceProxy: ButtonAppearanceProxy {
-
-		//MARK: - ColorNuovotextColor
-		override open func textColorStyle() -> ButtonAppearanceProxy.textColorAppearanceProxy {
-			if let override = _textColor { return override }
-				return ColorNuovotextColorAppearanceProxy(proxy: mainProxy)
-			}
-		open class ColorNuovotextColorAppearanceProxy: ButtonAppearanceProxy.textColorAppearanceProxy {
-
-			//MARK: normal 
-			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
-				if let override = _normal { return override }
-					return CallingStylesheetManager.S.Typography.textStyles.callout
-				}
-		}
-
-	}
 	//MARK: - ColorAncoraNuovo
 	public var _ColorAncoraNuovo: ColorAncoraNuovoAppearanceProxy?
 	open func ColorAncoraNuovoStyle() -> ColorAncoraNuovoAppearanceProxy {
@@ -298,6 +271,17 @@ public class CallingBaseStyle: NSObject {
 			}
 		}
 
+
+		//MARK: mask 
+		public var _mask: UIView.AutoresizingMask?
+		open func maskProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIView.AutoresizingMask {
+			if let override = _mask { return override }
+			return [UIView.AutoresizingMask.flexibleLeftMargin, UIView.AutoresizingMask.flexibleRightMargin]
+			}
+		public var mask: UIView.AutoresizingMask {
+			get { return self.maskProperty() }
+			set { _mask = newValue }
+		}
 	}
 	//MARK: - ColorExtended
 	public var _ColorExtended: ColorExtendedAppearanceProxy?
@@ -326,6 +310,33 @@ public class CallingBaseStyle: NSObject {
 		}
 
 	}
+	//MARK: - ColorNuovo
+	public var _ColorNuovo: ColorNuovoAppearanceProxy?
+	open func ColorNuovoStyle() -> ColorNuovoAppearanceProxy {
+		if let override = _ColorNuovo { return override }
+			return ColorNuovoAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var ColorNuovo: ColorNuovoAppearanceProxy {
+		get { return self.ColorNuovoStyle() }
+		set { _ColorNuovo = newValue }
+	}
+	open class ColorNuovoAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: - ColorNuovotextColor
+		override open func textColorStyle() -> ButtonAppearanceProxy.textColorAppearanceProxy {
+			if let override = _textColor { return override }
+				return ColorNuovotextColorAppearanceProxy(proxy: mainProxy)
+			}
+		open class ColorNuovotextColorAppearanceProxy: ButtonAppearanceProxy.textColorAppearanceProxy {
+
+			//MARK: normal 
+			override open func normalProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIFont {
+				if let override = _normal { return override }
+					return CallingStylesheetManager.S.Typography.textStyles.callout
+				}
+		}
+
+	}
 
 }
 extension Button: AppearaceProxyComponent {
@@ -336,10 +347,10 @@ extension Button: AppearaceProxyComponent {
 			if let proxy = objc_getAssociatedObject(self, &__ApperanceProxyHandle) as? ApperanceProxyType {
 				if !themeAware { return proxy }
 
-				if proxy is CallingBaseStyle.ColorExtendedAppearanceProxy {
-					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorExtended
-				} else if proxy is CallingBaseStyle.ColorAncoraNuovoAppearanceProxy {
+				if proxy is CallingBaseStyle.ColorAncoraNuovoAppearanceProxy {
 					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorAncoraNuovo
+				} else if proxy is CallingBaseStyle.ColorExtendedAppearanceProxy {
+					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorExtended
 				} else if proxy is CallingBaseStyle.ColorNuovoAppearanceProxy {
 					return StylesheetManager.stylesheet(CallingBaseStyle.shared()).ColorNuovo
 				}
