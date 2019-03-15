@@ -1092,13 +1092,7 @@ class Stylesheet {
     let stylesBase = isStyleProperty ? styles : animations
     guard let style = stylesBase.filter({ return $0.name == superclass }).first else {
       if let components = Optional(superclass.components(separatedBy: ".")), components.count == 2 {
-        let style = components[0].replacingOccurrences(of: "AppearanceProxy", with: "");
-        let nestedStyle = components[1].replacingOccurrences(of: "AppearanceProxy", with: "");
-        if let _ = stylesBase.filter({ $0.name == style }).first?.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle }).first?.properties.filter({ return $0.key == property }).first {
-          return true
-        } else {
-          return false
-        }
+        return true
       }
       return false
     }

@@ -1,5 +1,12 @@
 @appearance_proxy Button:
-  test: [normal: true]
+  textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
+  mask: Option(UIView.AutoresizingMask, flexibleLeftMargin, flexibleRightMargin)
 
 ColorExtended extends Button:
-  test: [normal: false, option: true]
+  textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
+
+ColorNuovo extends Button:
+  textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
+
+ColorAncoraNuovo extends Button:
+  textColor: [normal: "Call(S.Typography.textStyles.callout, UIFont)"]
