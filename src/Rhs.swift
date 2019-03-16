@@ -35,7 +35,7 @@ struct Rhs {
             let red     = Float((hex4 & 0xF000) >> 12) / divisor
             let green   = Float((hex4 & 0x0F00) >>  8) / divisor
             let blue    = Float((hex4 & 0x00F0) >>  4) / divisor
-            let alpha   = Float( hex4 & 0x000F       ) / divisor
+            let alpha   = Float( hex4 & 0x000F       ) / Float(10)
             self.init(red: red, green: green, blue: blue, alpha: alpha)
         }
         
@@ -52,7 +52,7 @@ struct Rhs {
             let red     = Float((hex8 & 0xFF000000) >> 24) / divisor
             let green   = Float((hex8 & 0x00FF0000) >> 16) / divisor
             let blue    = Float((hex8 & 0x0000FF00) >>  8) / divisor
-            let alpha   = Float( hex8 & 0x000000FF       ) / divisor
+            let alpha   = Float( hex8 & 0x000000FF       ) / Float(10)
             self.init(red: red, green: green, blue: blue, alpha: alpha)
         }
         
@@ -61,9 +61,16 @@ struct Rhs {
                 throw ColorInputError.missingHashMarkAsPrefix
             }
             
+            var hexString: String = rgba.substring(from: rgba.index(rgba.startIndex, offsetBy: 1))
+            var alpha: Float = 1
+            if hexString.count == 5 || hexString.count == 8 {
+                //has alpha indication
+                let alphaString: String = hexString.substring(from: hexString.index(hexString.endIndex, offsetBy: -2))
+                alpha = ((alphaString as NSString).floatValue)/100.0
+                hexString = hexString.substring(to: hexString.index(hexString.endIndex, offsetBy: -2))
+            }
+            
             guard
-                let hexString: String =
-                rgba.substring(from: rgba.index(rgba.startIndex, offsetBy: 1)),
                 var hexValue:  UInt32 = 0,
                 Scanner(string: hexString).scanHexInt32(&hexValue) else {
                     throw ColorInputError.unableToScanHexValue
@@ -78,13 +85,12 @@ struct Rhs {
                         
             switch (hexString.count) {
             case 3:
-                self.init(hex3: UInt16(hexValue))
-            case 4:
-                self.init(hex4: UInt16(hexValue))
+                self.init(hex3: UInt16(hexValue), alpha: alpha)
             case 6:
-                self.init(hex6: hexValue)
+                self.init(hex6: hexValue, alpha: alpha)
             default:
-                self.init(hex8: hexValue)
+                fatalError()
+                break
             }
         }
         
