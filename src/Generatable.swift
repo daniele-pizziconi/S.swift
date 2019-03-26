@@ -335,7 +335,7 @@ enum RhsValue {
     case .hash(let hash): for (_, rhs) in hash { return rhs.returnValue() }
     case .call(_, let type): return type
     case .array(let values):
-      guard let returnTypes = Optional(values.flatMap({ $0.returnValue() })), let first = returnTypes.first, returnTypes.filter({ $0 == first }).count == returnTypes.count else { return "[Any]" }
+      guard let returnTypes = Optional(values.compactMap({ $0.returnValue() })), let first = returnTypes.first, returnTypes.filter({ $0 == first }).count == returnTypes.count else { return "[Any]" }
       return "[\(first)]"
     }
     return "Any"

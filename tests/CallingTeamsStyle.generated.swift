@@ -36,5 +36,28 @@ public class CallingTeamsStyle: CallingBaseStyle {
 		}
 	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
 	}
+	//MARK: - CallingTeamsStyleTimingFunctions
+	override open func TimingFunctionsStyle() -> CallingBaseStyle.TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return CallingTeamsStyleTimingFunctionsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleTimingFunctionsAppearanceProxy: CallingBaseStyle.TimingFunctionsAppearanceProxy {
+	}
+	//MARK: - CallingTeamsStyleDuration
+	override open func DurationStyle() -> CallingBaseStyle.DurationAppearanceProxy {
+		if let override = _Duration { return override }
+			return CallingTeamsStyleDurationAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleDurationAppearanceProxy: CallingBaseStyle.DurationAppearanceProxy {
+
+		//MARK: - CallingTeamsStyleintervalDuration
+		override open func intervalStyle() -> CallingBaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+			if let override = _interval { return override }
+				return CallingTeamsStyleintervalDurationAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingTeamsStyleintervalDurationAppearanceProxy: CallingBaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+		}
+
+	}
 
 }

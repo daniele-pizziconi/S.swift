@@ -1,3 +1,16 @@
-AP_Button:
+@appearance_proxy Button:
   textColor: #ffffff00
-  icon: Icon(contact)
+
+Duration:
+  interval: [tiny: 1.5, short: 2.34, normal: 3.0, long: 4.34, debug: 10.0]
+
+TimingFunctions:
+  easeIn: TimingFunction(1.0,0.0,0.78,1.00)
+
+@animator Animator:
+  rotate: 
+    curve: $TimingFunctions.easeIn
+    keyFrames: [{relativeStartTime: 0, animationValues: [{type: rotate, from: 0, to: 360.0]}]}]
+    repeatCount: 0
+    duration: $Duration.interval.long
+    delay: 0.0
