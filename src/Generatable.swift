@@ -1,5 +1,7 @@
 import Foundation
 
+private let IconicSymbolType = "IconicSymbol"
+
 //MARK: Rhs
 
 enum RhsError: Error {
@@ -45,6 +47,9 @@ enum RhsValue {
 
   /// An enum.
   case `enum`(type: String, name: String)
+  
+  /// An icon.
+  case icon(name: String)
   
   /// An option.
   case option(type: String, names: [String])
@@ -284,6 +289,10 @@ enum RhsValue {
       let name = enumComponents.count == 2 ? enumComponents[1] : enumComponents[2]
       return .enum(type: type, name: name)
 
+    } else if let components = argumentsFromString("icon", string: string) {
+      assert(components.count == 1, "Not a valid icon. Format: Icon(value)")
+      return .icon(name: components.first!)
+      
     } else if let components = argumentsFromString("option", string: string) {
       assert(components.count > 1, "Not a valid enum. Format: option(Type, Value1, Value2)")
       
@@ -312,6 +321,7 @@ enum RhsValue {
     case .color(_): return Configuration.targetOsx ? "NSColor" : "UIColor"
     case .image(_): return Configuration.targetOsx ? "NSImage" : "UIImage"
     case .enum(let type, _): return type
+    case .icon(_): return IconicSymbolType
     case .option(let type, _): return type
     case .redirect(let r): return r.type
     case .point(_, _): return "CGPoint"
@@ -370,6 +380,9 @@ extension RhsValue: Generatable {
 
     case .enum(let type, let name):
       return generateEnum(prefix, type: type, name: name)
+      
+    case .icon(let name):
+      return generateIcon(prefix, name: name)
       
     case .option(let type, let names):
       return generateOption(prefix, type: type, names: names)
@@ -511,6 +524,10 @@ extension RhsValue: Generatable {
 
   func generateEnum(_ prefix: String, type: String, name: String) -> String {
     return "\(prefix)\(type).\(name)"
+  }
+  
+  func generateIcon(_ prefix: String, name: String) -> String {
+    return "\(prefix)\(IconicSymbolType).\(name)"
   }
   
   func generateOption(_ prefix: String, type: String, names: [String]) -> String {

@@ -1,2 +1,3 @@
 AP_Button:
   textColor: #ffffff00
+  icon: Icon(contact)

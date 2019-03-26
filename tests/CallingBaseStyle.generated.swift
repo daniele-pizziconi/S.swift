@@ -27,8 +27,8 @@ public class StylesheetManager {
 
 	public var theme: Theme {
 		switch CallingStylesheetManager.default.theme {
-		case .teams: return .callingTeams
 		case .base: return .callingBase
+		case .teams: return .callingTeams
 		}
 	}
 
@@ -225,6 +225,17 @@ public class CallingBaseStyle: NSObject {
 		public var textColor: UIColor {
 			get { return self.textColorProperty() }
 			set { _textColor = newValue }
+		}
+
+		//MARK: icon 
+		public var _icon: IconicSymbol?
+		open func iconProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> IconicSymbol {
+			if let override = _icon { return override }
+			return IconicSymbol.contact
+			}
+		public var icon: IconicSymbol {
+			get { return self.iconProperty() }
+			set { _icon = newValue }
 		}
 	}
 
