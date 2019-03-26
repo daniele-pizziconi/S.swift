@@ -876,7 +876,7 @@ class Stylesheet {
     }
     normalizedStyles.append(contentsOf: injectedStyles)
     
-    let nestedStyles = normalizedStyles.flatMap({ $0.properties }).flatMap({ $0.style })
+    let nestedStyles = normalizedStyles.flatMap({ $0.properties }).compactMap({ $0.style })
     for style in sourceArray {
       for property in style.properties where property.style != nil {
         let nestedStyle = property.style!
@@ -911,7 +911,7 @@ class Stylesheet {
       // Mark the overrides.
       generatableArray.forEach({ markOverrides($0, superclassName: $0.superclassName) })
       // Mark the overridables.
-      let nestedStyles = generatableArray.flatMap{ $0.properties }.flatMap{ $0.style }
+      let nestedStyles = generatableArray.flatMap{ $0.properties }.compactMap{ $0.style }
       let duplicates = Dictionary(grouping: nestedStyles, by: { $0.name })
         .filter { $1.count > 1 }
         .sorted { $0.1.count > $1.1.count }
@@ -926,8 +926,8 @@ class Stylesheet {
         }.count > 0) {
         for style in generatableArray {
           style.isNestedOverridable = true
-          style.properties.flatMap({ $0.style }).forEach({ $0.isNestedOverridable = true })
-          style.properties.flatMap({ $0.style }).flatMap({ $0.properties }).forEach({ $0.isOverridable = true })
+          style.properties.compactMap({ $0.style }).forEach({ $0.isNestedOverridable = true })
+          style.properties.compactMap({ $0.style }).flatMap({ $0.properties }).forEach({ $0.isOverridable = true })
           style.properties.forEach({ $0.isOverridable = true })
         }
       }
@@ -1002,8 +1002,8 @@ class Stylesheet {
         style.nestedReturnClass = style.nestedSuperclassName
         style.nestedOverrideName = "\(name)\(style.name)"
         
-        for nestedStyle in style.properties.flatMap({ $0.style }) {
-          if let superNestedStyle = superStyle.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle.name }).first {
+        for nestedStyle in style.properties.compactMap({ $0.style }) {
+          if let superNestedStyle = superStyle.properties.compactMap({ $0.style }).filter({ $0.name == nestedStyle.name }).first {
             nestedStyle.isNestedOverride = true
             if superStyle.isExternalOverride {
               nestedStyle.nestedSuperclassName = "\(baseStylesheet.name).\(nestedSuperclassPrefix)\(superStyle.name)AppearanceProxy.\(superStyle.extendsStylesheetName!)\(superNestedStyle.name)"
@@ -1083,7 +1083,7 @@ class Stylesheet {
       } else {
         let style = components[1].replacingOccurrences(of: "AppearanceProxy", with: "");
         let nestedStyle = components[2].replacingOccurrences(of: "AppearanceProxy", with: "");
-        if let _ = stylesBase.filter({ $0.name == style }).first?.properties.flatMap({ $0.style }).filter({ $0.name == nestedStyle }).first?.properties.filter({ return $0.key == property }).first {
+        if let _ = stylesBase.filter({ $0.name == style }).first?.properties.compactMap({ $0.style }).filter({ $0.name == nestedStyle }).first?.properties.filter({ return $0.key == property }).first {
           return true
         }
       }
@@ -1378,7 +1378,7 @@ extension Stylesheet: Generatable {
     
     if themeHandler {
       header += "public extension AppearaceProxyComponent {\n"
-      header += "\tpublic func initAppearanceProxy(themeAware: Bool = true) {\n"
+      header += "\tfunc initAppearanceProxy(themeAware: Bool = true) {\n"
       header += "\t\tself.themeAware = themeAware\n"
       header += "\t\tdidChangeAppearanceProxy()\n"
       header += "\t}\n"
@@ -1496,23 +1496,23 @@ extension Stylesheet: Generatable {
     header += "\t\t}\n"
     header += "\t}\n\n"
     
-    header += "\tpublic func with(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {\n"
+    header += "\tfunc with(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {\n"
     header += "\t\tlet descriptor = fontDescriptor.withSymbolicTraits(traits)\n"
     header += "\t\treturn UIFont(descriptor: descriptor!, size: 0)\n"
     header += "\t}\n\n"
     
-    header += "\tpublic class func preferredFont(forTextStyle style: UIFont.TextStyle, compatibleWith traitCollection: UITraitCollection?, scalable: Bool) -> UIFont {\n"
+    header += "\tclass func preferredFont(forTextStyle style: UIFont.TextStyle, compatibleWith traitCollection: UITraitCollection?, scalable: Bool) -> UIFont {\n"
     header += "\t\tlet font = UIFont.preferredFont(forTextStyle: style, compatibleWith: traitCollection)\n"
     header += "\t\tfont.isScalable = true\n"
     header += "\t\treturn font\n"
     header += "\t}\n\n"
     
-    header += "\tpublic convenience init?(name: String, scalable: Bool) {\n"
+    header += "\tconvenience init?(name: String, scalable: Bool) {\n"
     header += "\t\tself.init(name: name, size: 4)\n"
     header += "\t\tself.isScalable = scalable\n"
     header += "\t}\n\n"
     
-    header += "\tpublic var isScalable: Bool {\n"
+    header += "\tvar isScalable: Bool {\n"
     header += "\t\tget { return objc_getAssociatedObject(self, &__ScalableHandle) as? Bool ?? false }\n"
     header += "\t\tset { objc_setAssociatedObject(self, &__ScalableHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }\n"
     header += "\t}\n\n"

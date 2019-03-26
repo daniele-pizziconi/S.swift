@@ -1,2 +1,2 @@
-@appearance_proxy Button:
+AP_Button:
   textColor: #ffffff00

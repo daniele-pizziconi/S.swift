@@ -4,13 +4,13 @@
 import UIKit
 
 public enum Theme: Int {
-	case callingBase
 	case callingTeams
+	case callingBase
 
 	public var stylesheet: CallingBaseStyle {
 		switch self {
-		case .callingBase: return CallingBaseStyle.shared()
 		case .callingTeams: return CallingTeamsStyle.shared()
+		case .callingBase: return CallingBaseStyle.shared()
 		}
 	}
 }
@@ -27,8 +27,8 @@ public class StylesheetManager {
 
 	public var theme: Theme {
 		switch CallingStylesheetManager.default.theme {
-		case .base: return .callingBase
 		case .teams: return .callingTeams
+		case .base: return .callingBase
 		}
 	}
 
@@ -53,7 +53,7 @@ public protocol AppearaceProxyComponent: class {
 }
 
 public extension AppearaceProxyComponent {
-	public func initAppearanceProxy(themeAware: Bool = true) {
+	func initAppearanceProxy(themeAware: Bool = true) {
 		self.themeAware = themeAware
 		didChangeAppearanceProxy()
 	}
@@ -170,23 +170,23 @@ public extension UIFont {
 		}
 	}
 
-	public func with(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {
+	func with(traits: UIFontDescriptor.SymbolicTraits) -> UIFont {
 		let descriptor = fontDescriptor.withSymbolicTraits(traits)
 		return UIFont(descriptor: descriptor!, size: 0)
 	}
 
-	public class func preferredFont(forTextStyle style: UIFont.TextStyle, compatibleWith traitCollection: UITraitCollection?, scalable: Bool) -> UIFont {
+	class func preferredFont(forTextStyle style: UIFont.TextStyle, compatibleWith traitCollection: UITraitCollection?, scalable: Bool) -> UIFont {
 		let font = UIFont.preferredFont(forTextStyle: style, compatibleWith: traitCollection)
 		font.isScalable = true
 		return font
 	}
 
-	public convenience init?(name: String, scalable: Bool) {
+	convenience init?(name: String, scalable: Bool) {
 		self.init(name: name, size: 4)
 		self.isScalable = scalable
 	}
 
-	public var isScalable: Bool {
+	var isScalable: Bool {
 		get { return objc_getAssociatedObject(self, &__ScalableHandle) as? Bool ?? false }
 		set { objc_setAssociatedObject(self, &__ScalableHandle, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
 	}

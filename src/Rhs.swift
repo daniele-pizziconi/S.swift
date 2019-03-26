@@ -60,16 +60,14 @@ struct Rhs {
             guard rgba.hasPrefix("#") else {
                 throw ColorInputError.missingHashMarkAsPrefix
             }
-            
-            var hexString: String = rgba.substring(from: rgba.index(rgba.startIndex, offsetBy: 1))
+            var hexString: String = String(rgba[rgba.index(rgba.startIndex, offsetBy: 1)...])
             var alpha: Float = 1
             if hexString.count == 5 || hexString.count == 8 {
                 //has alpha indication
-                let alphaString: String = hexString.substring(from: hexString.index(hexString.endIndex, offsetBy: -2))
+                let alphaString: String = String(hexString[hexString.index(hexString.endIndex, offsetBy: -2)...])
                 alpha = ((alphaString as NSString).floatValue)/100.0
-                hexString = hexString.substring(to: hexString.index(hexString.endIndex, offsetBy: -2))
+                hexString = String(hexString[..<hexString.index(hexString.endIndex, offsetBy: -2)])
             }
-            
             guard
                 var hexValue:  UInt32 = 0,
                 Scanner(string: hexString).scanHexInt32(&hexValue) else {

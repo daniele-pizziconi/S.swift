@@ -120,7 +120,7 @@ extension Yaml {
     let endIndex = text.index(text.startIndex,
                               offsetBy: 50,
                               limitedBy: text.endIndex) ?? text.endIndex
-    let escaped = text.substring(to: endIndex)
+    let escaped = String(text[..<endIndex])
       |> Yaml.Regex.replace(Yaml.Regex.regex("\\r"), template: "\\\\r")
       |> Yaml.Regex.replace(Yaml.Regex.regex("\\n"), template: "\\\\n")
       |> Yaml.Regex.replace(Yaml.Regex.regex("\""), template: "\\\\\"")
@@ -144,7 +144,7 @@ extension Yaml {
             case .newLine:
               let match = text |> Yaml.Regex.substringWithRange(range)
               let lastindent = indents.last ?? 0
-              let rest = match.substring(from: match.index(after: match.startIndex))
+              let rest = String(match[match.index(after: match.startIndex)...])
               let spaces = rest.count
               let nestedBlockSequence =
                 Yaml.Regex.matches(text |> Yaml.Regex.substringFromIndex(rangeend),
@@ -178,9 +178,8 @@ extension Yaml {
               let index = match.index(after: match.startIndex)
               let indent = match.count
               indents.append((indents.last ?? 0) + indent)
-              matchList.append(
-                TokenMatch(tokenPattern.type, match.substring(to: index)))
-              matchList.append(TokenMatch(.indent, match.substring(from: index)))
+              matchList.append(TokenMatch(tokenPattern.type, String(match[..<index])))
+              matchList.append(TokenMatch(.indent, String(match[index...])))
 
             case .colonFO:
               if insideFlow > 0 {
@@ -740,12 +739,8 @@ extension Yaml {
             if let result = result {
               var captures = [String](repeating: "", count: result.numberOfRanges)
               for i in 0..<result.numberOfRanges {
-                #if os(Linux)
-                  let rangeAt = result.range(at: i)
-                #else
-                  let rangeAt = result.rangeAt(i)
-                #endif
-                if let r = rangeAt.toRange() {
+                let rangeAt = result.range(at: i)
+                if let r = Range(rangeAt) {
                   captures[i] = NSString(string: string).substring(with: NSRange(r))
                 }
               }
@@ -1059,7 +1054,7 @@ private func parse (_ context: Context) -> YAMLResult<ContextValue> {
 
   case .anchor:
     let m = peekMatch(context)
-    let name = m.substring(from: m.index(after: m.startIndex))
+    let name = String(m[m.index(after: m.startIndex)...])
     let cv = parse(advance(context))
     let v = cv >>- getValue
     let c = addAlias(name) <^> v <*> (cv >>- getContext)
@@ -1067,7 +1062,7 @@ private func parse (_ context: Context) -> YAMLResult<ContextValue> {
 
   case .alias:
     let m = peekMatch(context)
-    let name = m.substring(from: m.index(after: m.startIndex))
+    let name = String(m[m.index(after: m.startIndex)...])
     let value = context.aliases[name]
     let err = "unknown alias \(name)"
     return Resulter.`guard`(error(err)(context), check: value != nil)
@@ -1404,7 +1399,7 @@ private func normalizeBreaks (_ s: String) -> String {
 }
 
 private func unwrapQuotedString (_ s: String) -> String {
-  return s[s.index(after: s.startIndex)..<s.index(before: s.endIndex)]
+  return String(s[s.index(after: s.startIndex)..<s.index(before: s.endIndex)])
 }
 
 private func unescapeSingleQuotes (_ s: String) -> String {

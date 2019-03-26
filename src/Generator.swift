@@ -49,6 +49,7 @@ public struct Generator: Generatable  {
       do {
         string = try String(contentsOf: url)
         string = string.replacingOccurrences(of: "@", with: "__")
+        string = string.replacingOccurrences(of: "AP_", with: "__appearance_proxy")
       } catch {
         throw GeneratorError.fileDoesNotExist(error: "File \(url) not found.")
       }
