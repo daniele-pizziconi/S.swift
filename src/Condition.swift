@@ -115,186 +115,181 @@ protocol Parsable: Equatable {
 }
 
 struct Condition: Hashable, Parsable {
-
-  struct ExpressionToken {
-
-    enum Default: String {
-      case `default` = "default"
-      case external = "?"
-    }
-
-    enum Lhs: String {
-      case horizontal = "horizontal"
-      case vertical = "vertical"
-      case width = "width"
-      case height = "height"
-      case idiom = "idiom"
-      case contentSize = "category"
-      case unspecified = "unspecified"
-    }
-
-    enum Operator: String {
-      case equal = "="
-      case notEqual = "≠"
-      case lessThan = "<"
-      case lessThanOrequal = "≤"
-      case greaterThan = ">"
-      case greaterThanOrequal = "≥"
-      case unspecified = "unspecified"
-
-      static func all() -> [Operator] {
-        return [equal, notEqual, lessThan, lessThanOrequal, greaterThan, greaterThanOrequal]
-      }
-
-      static func allRaw() -> [String] {
-        return [equal.rawValue,
-                notEqual.rawValue,
-                lessThan.rawValue,
-                lessThanOrequal.rawValue,
-                greaterThan.rawValue,
-                greaterThanOrequal.rawValue]
-      }
-
-      static func characterSet() -> CharacterSet {
-        return CharacterSet(charactersIn: self.allRaw().joined(separator: ""))
-      }
-
-      static func operatorContainedInString(_ string: String) -> Operator {
-        for opr in self.all() {
-          if string.range(of: opr.rawValue) != nil {
-            return opr
-          }
+    
+    struct ExpressionToken {
+        
+        enum Default: String {
+            case `default` = "default"
+            case external = "?"
         }
-        return unspecified
-      }
-
-      func isEqual<T:Equatable>(_ lhs: T, rhs: T) -> Bool {
-        switch self {
-        case .equal: return lhs == rhs
-        case .notEqual: return lhs != rhs
-        default: return false
+        
+        enum Lhs: String {
+            case horizontal = "horizontal"
+            case vertical = "vertical"
+            case width = "width"
+            case height = "height"
+            case idiom = "idiom"
+            case contentSize = "category"
+            case unspecified = "unspecified"
         }
-      }
-
-      func compare<T:Comparable>(_ lhs: T, rhs: T) -> Bool {
-        switch self {
-        case .equal: return lhs == rhs
-        case .notEqual: return lhs != rhs
-        case .lessThan: return lhs < rhs
-        case .lessThanOrequal: return lhs <= rhs
-        case .greaterThan: return lhs > rhs
-        case .greaterThanOrequal: return lhs >= rhs
-        default: return false
+        
+        enum Operator: String {
+            case equal = "="
+            case notEqual = "≠"
+            case lessThan = "<"
+            case lessThanOrequal = "≤"
+            case greaterThan = ">"
+            case greaterThanOrequal = "≥"
+            case unspecified = "unspecified"
+            
+            static func all() -> [Operator] {
+                return [equal, notEqual, lessThan, lessThanOrequal, greaterThan, greaterThanOrequal]
+            }
+            
+            static func allRaw() -> [String] {
+                return [equal.rawValue,
+                        notEqual.rawValue,
+                        lessThan.rawValue,
+                        lessThanOrequal.rawValue,
+                        greaterThan.rawValue,
+                        greaterThanOrequal.rawValue]
+            }
+            
+            static func characterSet() -> CharacterSet {
+                return CharacterSet(charactersIn: self.allRaw().joined(separator: ""))
+            }
+            
+            static func operatorContainedInString(_ string: String) -> Operator {
+                for opr in self.all() {
+                    if string.range(of: opr.rawValue) != nil {
+                        return opr
+                    }
+                }
+                return unspecified
+            }
+            
+            func isEqual<T:Equatable>(_ lhs: T, rhs: T) -> Bool {
+                switch self {
+                case .equal: return lhs == rhs
+                case .notEqual: return lhs != rhs
+                default: return false
+                }
+            }
+            
+            func compare<T:Comparable>(_ lhs: T, rhs: T) -> Bool {
+                switch self {
+                case .equal: return lhs == rhs
+                case .notEqual: return lhs != rhs
+                case .lessThan: return lhs < rhs
+                case .lessThanOrequal: return lhs <= rhs
+                case .greaterThan: return lhs > rhs
+                case .greaterThanOrequal: return lhs >= rhs
+                default: return false
+                }
+            }
         }
-      }
+        
+        enum Rhs: String {
+            case regular = "regular"
+            case compact = "compact"
+            case pad = "pad"
+            case phone = "phone"
+            case constant = "_"
+            case contentSizeExtraSmall = "xs"
+            case contentSizeSmall = "s"
+            case contentSizeMedium = "m"
+            case contentSizeLarge = "l"
+            case contentSizeExtraLarge = "xl"
+            case contentSizeExtraExtraLarge = "xxl"
+            case contentSizeExtraExtraExtraLarge = "xxxl"
+            case contentSizeAccessibilityMedium = "am"
+            case contentSizeAccessibilityLarge = "al"
+            case contentSizeAccessibilityExtraLarge = "axl"
+            case contentSizeAccessibilityExtraExtraLarge = "axxl"
+            case contentSizeAccessibilityExtraExtraExtraLarge = "axxxl"
+            case unspecified = "unspecified"
+        }
     }
-
-    enum Rhs: String {
-      case regular = "regular"
-      case compact = "compact"
-      case pad = "pad"
-      case phone = "phone"
-      case constant = "_"
-      case contentSizeExtraSmall = "xs"
-      case contentSizeSmall = "s"
-      case contentSizeMedium = "m"
-      case contentSizeLarge = "l"
-      case contentSizeExtraLarge = "xl"
-      case contentSizeExtraExtraLarge = "xxl"
-      case contentSizeExtraExtraExtraLarge = "xxxl"
-      case contentSizeAccessibilityMedium = "am"
-      case contentSizeAccessibilityLarge = "al"
-      case contentSizeAccessibilityExtraLarge = "axl"
-      case contentSizeAccessibilityExtraExtraLarge = "axxl"
-      case contentSizeAccessibilityExtraExtraExtraLarge = "axxxl"
-      case unspecified = "unspecified"
+    
+    struct Expression: Hashable, Parsable {
+        
+        /// @see Parsable.
+        let rawString: String
+        
+        /// Wether this expression is always true or not.
+        fileprivate let tautology: Bool
+        
+        /// The actual parsed expression.
+        fileprivate let expression: (Condition.ExpressionToken.Lhs,
+        Condition.ExpressionToken.Operator,
+        Condition.ExpressionToken.Rhs,
+        Float)
+        
+        /// Hashable compliancy.
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(rawString)
+        }
+        
+        init(rawString: String) throws {
+            self.rawString = normalizeExpressionString(rawString)
+            // Check for default expression.
+            if self.rawString.range(of: Condition.ExpressionToken.Default.default.rawValue) != nil {
+                self.expression = (.unspecified, .unspecified, .unspecified, 0)
+                self.tautology = true
+                // Expression.
+            } else {
+                self.tautology = false
+                var terms = self.rawString.components(separatedBy:
+                    Condition.ExpressionToken.Operator.characterSet())
+                let opr = Condition.ExpressionToken.Operator.operatorContainedInString(self.rawString)
+                
+                if terms.count != 2 || opr == Condition.ExpressionToken.Operator.unspecified {
+                    throw ConditionError.malformedCondition(error: "No valid operator found in the string")
+                }
+                terms = terms.map({
+                    return $0.trimmingCharacters(in: CharacterSet.whitespaces)
+                })
+                
+                let constant: Float
+                let hasConstant: Bool
+                if let c = Float(terms[1]) {
+                    constant = c
+                    hasConstant = true
+                } else {
+                    constant = Float.nan
+                    hasConstant = false
+                }
+                guard let lhs = Condition.ExpressionToken.Lhs(rawValue: terms[0]),
+                    let rhs = hasConstant
+                        ? Condition.ExpressionToken.Rhs.constant
+                        : Condition.ExpressionToken.Rhs(rawValue: terms[1]) else {
+                            throw ConditionError.malformedCondition(error: "Terms of the condition not valid.")
+                }
+                self.expression = (lhs, opr, rhs, constant)
+            }
+        }
     }
-  }
-
-  struct Expression: Hashable, Parsable {
-
+    
     /// @see Parsable.
     let rawString: String
-
-    /// Wether this expression is always true or not.
-    fileprivate let tautology: Bool
-
-    /// The actual parsed expression.
-    fileprivate let expression: (Condition.ExpressionToken.Lhs,
-                                 Condition.ExpressionToken.Operator,
-                                 Condition.ExpressionToken.Rhs,
-                                 Float)
-
-
+    var expressions: [Expression] = [Expression]()
+    
     /// Hashable compliancy.
-    var hashValue: Int {
-      get {
-        return rawString.hashValue
-      }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawString)
     }
-
+    
     init(rawString: String) throws {
-      self.rawString = normalizeExpressionString(rawString)
-      // Check for default expression.
-      if self.rawString.range(of: Condition.ExpressionToken.Default.default.rawValue) != nil {
-        self.expression = (.unspecified, .unspecified, .unspecified, 0)
-        self.tautology = true
-      // Expression.
-      } else {
-        self.tautology = false
-        var terms = self.rawString.components(separatedBy:
-            Condition.ExpressionToken.Operator.characterSet())
-        let opr = Condition.ExpressionToken.Operator.operatorContainedInString(self.rawString)
-
-        if terms.count != 2 || opr == Condition.ExpressionToken.Operator.unspecified {
-          throw ConditionError.malformedCondition(error: "No valid operator found in the string")
+        self.rawString = normalizeExpressionString(rawString)
+        let components = self.rawString.components(separatedBy: "and")
+        for exprString in components {
+            try expressions.append(Expression(rawString: exprString))
         }
-        terms = terms.map({
-          return $0.trimmingCharacters(in: CharacterSet.whitespaces)
-        })
-
-        let constant: Float
-        let hasConstant: Bool
-        if let c = Float(terms[1]) {
-          constant = c
-          hasConstant = true
-        } else {
-          constant = Float.nan
-          hasConstant = false
-        }
-        guard let lhs = Condition.ExpressionToken.Lhs(rawValue: terms[0]),
-          let rhs = hasConstant
-              ? Condition.ExpressionToken.Rhs.constant
-              : Condition.ExpressionToken.Rhs(rawValue: terms[1]) else {
-            throw ConditionError.malformedCondition(error: "Terms of the condition not valid.")
-        }
-        self.expression = (lhs, opr, rhs, constant)
-      }
     }
-  }
-
-  /// @see Parsable.
-  let rawString: String
-  var expressions: [Expression] = [Expression]()
-
-  /// Hashable compliancy.
-  var hashValue: Int {
-    get {
-      return rawString.hashValue
+    
+    func isDefault() -> Bool {
+        return self.rawString.contains("default")
     }
-  }
-
-  init(rawString: String) throws {
-    self.rawString = normalizeExpressionString(rawString)
-    let components = self.rawString.components(separatedBy: "and")
-    for exprString in components {
-      try expressions.append(Expression(rawString: exprString))
-    }
-  }
-
-  func isDefault() -> Bool {
-    return self.rawString.contains("default")
-  }
 }
 
 private func normalizeExpressionString(_ string: String, forceLowerCase: Bool = true) -> String {

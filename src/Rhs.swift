@@ -69,7 +69,7 @@ struct Rhs {
                 hexString = String(hexString[..<hexString.index(hexString.endIndex, offsetBy: -2)])
             }
             guard
-                var hexValue:  UInt32 = 0,
+                var hexValue:  UInt32 = Optional(0),
                 Scanner(string: hexString).scanHexInt32(&hexValue) else {
                     throw ColorInputError.unableToScanHexValue
             }
