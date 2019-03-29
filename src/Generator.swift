@@ -48,6 +48,7 @@ public struct Generator: Generatable  {
       var string = ""
       do {
         string = try String(contentsOf: url)
+        string = string.replacingOccurrences(of: "AN_", with: "__animator ")
         string = string.replacingOccurrences(of: "@", with: "__")
         string = string.replacingOccurrences(of: "AP_", with: "__appearance_proxy")
       } catch {

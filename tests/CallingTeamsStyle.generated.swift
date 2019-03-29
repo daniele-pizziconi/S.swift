@@ -29,12 +29,28 @@ public class CallingTeamsStyle: CallingBaseStyle {
 			set { _white = newValue }
 		}
 	}
-	//MARK: - CallingTeamsStyleButton
-	override open func ButtonStyle() -> CallingBaseStyle.ButtonAppearanceProxy {
-		if let override = _Button { return override }
-			return CallingTeamsStyleButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+	//MARK: - CallingTeamsStyleDuration
+	override open func DurationStyle() -> CallingBaseStyle.DurationAppearanceProxy {
+		if let override = _Duration { return override }
+			return CallingTeamsStyleDurationAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
 		}
-	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
+	open class CallingTeamsStyleDurationAppearanceProxy: CallingBaseStyle.DurationAppearanceProxy {
+
+		//MARK: - CallingTeamsStyleintervalDuration
+		override open func intervalStyle() -> CallingBaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+			if let override = _interval { return override }
+				return CallingTeamsStyleintervalDurationAppearanceProxy(proxy: mainProxy)
+			}
+		open class CallingTeamsStyleintervalDurationAppearanceProxy: CallingBaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+		}
+
+	}
+	//MARK: - CallingTeamsStyleTimingFunctions
+	override open func TimingFunctionsStyle() -> CallingBaseStyle.TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return CallingTeamsStyleTimingFunctionsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleTimingFunctionsAppearanceProxy: CallingBaseStyle.TimingFunctionsAppearanceProxy {
 	}
 	//MARK: - CallingTeamsStyleColorButton
 	override open func ColorButtonStyle() -> CallingBaseStyle.ColorButtonAppearanceProxy {
@@ -42,6 +58,13 @@ public class CallingTeamsStyle: CallingBaseStyle {
 			return CallingTeamsStyleColorButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
 		}
 	open class CallingTeamsStyleColorButtonAppearanceProxy: CallingBaseStyle.ColorButtonAppearanceProxy {
+	}
+	//MARK: - CallingTeamsStyleButton
+	override open func ButtonStyle() -> CallingBaseStyle.ButtonAppearanceProxy {
+		if let override = _Button { return override }
+			return CallingTeamsStyleButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
 	}
 
 }
