@@ -141,6 +141,17 @@ func preprocessInput(_ string: String) -> String {
         newReplacement = newReplacement.replacingOccurrences(of: "}", with: ")\"")
         formattedResult = formattedResult.replacingOccurrences(of: replacement, with: newReplacement)
     }
-    return formattedResult
+    
+    let mutableString = NSMutableString(string: formattedResult)
+    formatter = try! NSRegularExpression(pattern: #"(\w*):\sEnumDef\((.*?)\)"#, options: .dotMatchesLineSeparators)
+    formatter.replaceMatches(in: mutableString, options: .reportProgress, range: NSRange(location: 0, length: mutableString.length), withTemplate: "$1: EnumDef($1, $2)")
+    
+    formatter = try! NSRegularExpression(pattern: #"(\w*):\sOptionDef\((.*?)\)"#, options: .dotMatchesLineSeparators)
+    formatter.replaceMatches(in: mutableString, options: .reportProgress, range: NSRange(location: 0, length: mutableString.length), withTemplate: "$1: OptionDef($1, $2)")
+    
+    formatter = try! NSRegularExpression(pattern: #"(\w*):\s\[(.*?\|.*?)\]"#, options: .dotMatchesLineSeparators)
+    formatter.replaceMatches(in: mutableString, options: .reportProgress, range: NSRange(location: 0, length: mutableString.length), withTemplate: "$1:[$2]")
+
+    return String(mutableString)
 }
 

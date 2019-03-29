@@ -45,11 +45,17 @@ enum RhsValue {
   /// A map between cocndition and a rhs.
   case hash(hash: [Condition: RhsValue])
 
+  /// An enum definitition.
+  case enumDef(type: String, names: [String])
+  
   /// An enum.
   case `enum`(type: String, name: String)
   
   /// An icon.
   case icon(name: String)
+  
+  /// An option definitition.
+  case optionDef(type: String, names: [String])
   
   /// An option.
   case option(type: String, names: [String])
@@ -79,6 +85,13 @@ enum RhsValue {
     }
   }
 
+  fileprivate var isGlobal: Bool {
+    switch self {
+    case .enumDef, .optionDef: return true
+    default: return false
+    }
+  }
+  
   fileprivate var isRedirect: Bool {
     switch self {
 //    case .keyFrame(let keyFrame): return keyFrame.timing?.isRedirect ?? false
@@ -281,6 +294,16 @@ enum RhsValue {
       }
       return .keyFrame(keyFrame: Rhs.KeyFrame(relativeStartTime: relativeStartTime, relativeDuration: relativeDuration, values: values))
       
+    } else if let components = argumentsFromString("enumDef", string: string) {
+      assert(components.count > 1, "Not a valid enumDef. Format: enumDef(Type, Value1, Value2)")
+      
+      let type = components.first!.trimmingCharacters(in: CharacterSet.whitespaces)
+      var names = [String]()
+      for i in 1..<components.count {
+        names.append(components[i].trimmingCharacters(in: CharacterSet.whitespaces))
+      }
+      return .enumDef(type: type, names: names)
+      
     } else if let components = argumentsFromString("enum", string: string) {
       assert(components.count == 1, "Not a valid enum. Format: enum(Type.Value)")
       let enumComponents = components.first!.components(separatedBy: ".")
@@ -289,19 +312,32 @@ enum RhsValue {
       let name = enumComponents.count == 2 ? enumComponents[1] : enumComponents[2]
       return .enum(type: type, name: name)
 
-    } else if let components = argumentsFromString("icon", string: string) {
-      assert(components.count == 1, "Not a valid icon. Format: Icon(value)")
-      return .icon(name: components.first!)
-      
-    } else if let components = argumentsFromString("option", string: string) {
-      assert(components.count > 1, "Not a valid enum. Format: option(Type, Value1, Value2)")
+    } else if let components = argumentsFromString("optionDef", string: string) {
+      assert(components.count > 1, "Not a valid optionDef. Format: optionDef(Type, Value1, Value2)")
       
       let type = components.first!.trimmingCharacters(in: CharacterSet.whitespaces)
       var names = [String]()
       for i in 1..<components.count {
         names.append(components[i].trimmingCharacters(in: CharacterSet.whitespaces))
       }
+      return .optionDef(type: type, names: names)
+      
+    } else if let components = argumentsFromString("option", string: string) {
+      assert(components.count > 0, "Not a valid enum. Format: option(Type.Value1, Type.Value2)")
+      
+      let firstOptionComponents = components.first!.trimmingCharacters(in: CharacterSet.whitespaces).components(separatedBy: ".")
+      assert(firstOptionComponents.count == 2 || firstOptionComponents.count == 3, "An option should be expressed in the form Type.Value")
+      let type = firstOptionComponents.count == 2 ? firstOptionComponents[0] : "\(firstOptionComponents[0]).\(firstOptionComponents[1])"
+
+      var names = [String]()
+      components.forEach {
+        names.append($0.trimmingCharacters(in: CharacterSet.whitespaces))
+      }
       return .option(type: type, names: names)
+      
+    } else if let components = argumentsFromString("icon", string: string) {
+      assert(components.count == 1, "Not a valid icon. Format: Icon(value)")
+      return .icon(name: components.first!)
       
     } else if let components = argumentsFromString("call", string: string) {
       assert(components.count == 2, "Not a valid enum. Format: enum(Type.Value)")
@@ -320,9 +356,11 @@ enum RhsValue {
     case .font(_): return Configuration.targetOsx ? "NSFont" : "UIFont"
     case .color(_): return Configuration.targetOsx ? "NSColor" : "UIColor"
     case .image(_): return Configuration.targetOsx ? "NSImage" : "UIImage"
+    case .enumDef(let type, _): return type
     case .enum(let type, _): return type
-    case .icon(_): return IconicSymbolType
+    case .optionDef(let type, _): return type
     case .option(let type, _): return type
+    case .icon(_): return IconicSymbolType
     case .redirect(let r): return r.type
     case .point(_, _): return "CGPoint"
     case .size(_, _): return "CGSize"
@@ -358,7 +396,7 @@ extension RhsValue: Generatable {
     func generate(_ isNested: Bool = false) -> String {
     let indentationNested = isNested ? "\t\t" : ""
     let indentation = "\n\(indentationNested)\t\t\t"
-    let prefix = "\(indentation)return "
+    let prefix = isGlobal ? "public " : "\(indentation)return "
     switch self {
     case .scalar(let float):
       return generateScalar(prefix, float: float)
@@ -378,14 +416,20 @@ extension RhsValue: Generatable {
     case .redirect(let redirection):
       return generateRedirection(prefix, redirection: redirection)
 
+    case .enumDef(let type, let names):
+      return generateEnumDef(prefix, type: type, names: names)
+      
     case .enum(let type, let name):
       return generateEnum(prefix, type: type, name: name)
       
-    case .icon(let name):
-      return generateIcon(prefix, name: name)
+    case .optionDef(let type, let names):
+      return generateOptionDef(prefix, type: type, names: names)
       
     case .option(let type, let names):
       return generateOption(prefix, type: type, names: names)
+      
+    case .icon(let name):
+      return generateIcon(prefix, name: name)
 
     case .point(let x, let y):
       return generatePoint(prefix, x: x, y: y)
@@ -521,9 +565,38 @@ extension RhsValue: Generatable {
       return "\(prefix)\(redirection.redirection)Property(traitCollection)"
     }
   }
+  
+  func generateEnumDef(_ prefix: String, type: String, names: [String]) -> String {
+    var generate = "\(prefix)enum \(type) {\n"
+    names.forEach({ generate += "\tcase \($0)\n" })
+    generate += "}\n\n"
+    return generate
+  }
 
   func generateEnum(_ prefix: String, type: String, name: String) -> String {
     return "\(prefix)\(type).\(name)"
+  }
+  
+  func generateOptionDef(_ prefix: String, type: String, names: [String]) -> String {
+    var generate = "\(prefix)struct \(type): OptionSet, Hashable {\n"
+    generate += "\t\(prefix)let rawValue: Int\n"
+    generate += "\t\(prefix)init(rawValue: Int) { self.rawValue = rawValue }\n\n"
+    
+    for (index, name) in names.enumerated() {
+      if name.contains(":") {
+        let components = name.split(separator: ":")
+        generate += "\t\(prefix)static let \(components.first!): \(type) = [\n"
+        let nestedNames = components.last!.replacingOccurrences(of: "[", with: "").replacingOccurrences(of: "]", with: "").split(separator: "|")
+        generate += "\t\t"
+        nestedNames.forEach({ generate += ".\($0), " })
+        generate.removeLast(2)
+        generate += "\n\t]\n"
+      } else {
+        generate += "\t\(prefix)static let \(name) = \(type)(rawValue: 1 << \(String(index)))\n"
+      }
+    }
+    generate += "}\n\n"
+    return generate
   }
   
   func generateIcon(_ prefix: String, name: String) -> String {
@@ -533,7 +606,7 @@ extension RhsValue: Generatable {
   func generateOption(_ prefix: String, type: String, names: [String]) -> String {
     var generate = "\(prefix)["
     for name in names {
-      generate.append("\(type).\(name), ")
+      generate.append("\(name), ")
     }
     generate.removeLast(2)
     generate.append("]")
@@ -609,7 +682,7 @@ extension Property: Generatable {
     var generated = ""
     if let style = self.style {
         generated = style.generate(true)
-    } else if let rhs = self.rhs {
+    } else if let rhs = self.rhs, rhs.isGlobal == false {
         
         var method = ""
         let indentation = isNested ? "\t\t\t" : "\t\t"
@@ -1204,6 +1277,8 @@ extension Stylesheet: Generatable {
       }
     }
     
+    stylesheet += generateGlobal()
+    
     stylesheet += "/// Entry point for the app stylesheet\n"
     stylesheet += "\(objc)public class \(self.name)\(superclass) {\n\n"
     
@@ -1234,6 +1309,12 @@ extension Stylesheet: Generatable {
       stylesheet += generateAnimatorExtension()
     }
     return stylesheet
+  }
+  
+  func generateGlobal() -> String {
+    var global = ""
+    styles.flatMap({ $0.properties }).compactMap({ $0.rhs }).filter({ $0.isGlobal }).forEach({ global += $0.generate(false) })
+    return global
   }
   
   func generateStylesheetManager() -> String {
