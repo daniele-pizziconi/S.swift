@@ -568,7 +568,13 @@ extension RhsValue: Generatable {
   
   func generateEnumDef(_ prefix: String, type: String, names: [String]) -> String {
     var generate = "\(prefix)enum \(type) {\n"
-    names.forEach({ generate += "\tcase \($0)\n" })
+    names.forEach({
+      if $0 == "default" {
+         generate += "\tcase `\($0)`\n"
+      } else {
+         generate += "\tcase \($0)\n"
+      }
+    })
     generate += "}\n\n"
     return generate
   }

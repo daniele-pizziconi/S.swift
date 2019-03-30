@@ -21,13 +21,13 @@ fileprivate extension UserDefaults {
 }
 
 public enum Theme: Int {
-	case callingBase
 	case callingTeams
+	case callingBase
 
 	public var stylesheet: CallingBaseStyle {
 		switch self {
-		case .callingBase: return CallingBaseStyle.shared()
 		case .callingTeams: return CallingTeamsStyle.shared()
+		case .callingBase: return CallingBaseStyle.shared()
 		}
 	}
 }
@@ -314,6 +314,11 @@ public extension AnimatableProp {
 
 }
 
+public enum AvatarSize {
+	case smallest
+	case small
+}
+
 public struct BitMask: OptionSet, Hashable {
 	public let rawValue: Int
 	public init(rawValue: Int) { self.rawValue = rawValue }
@@ -323,11 +328,6 @@ public struct BitMask: OptionSet, Hashable {
 	public static let all: BitMask = [
 		.left, .right
 	]
-}
-
-public enum AvatarSize {
-	case smallest
-	case small
 }
 
 /// Entry point for the app stylesheet
@@ -369,17 +369,6 @@ public class CallingBaseStyle: NSObject {
 				self.mainProxy = proxy
 			}
 
-			//MARK: short 
-			public var _short: CGFloat?
-			open func shortProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _short { return override }
-					return CGFloat(2.34)
-				}
-			public var short: CGFloat {
-				get { return self.shortProperty() }
-				set { _short = newValue }
-			}
-
 			//MARK: debug 
 			public var _debug: CGFloat?
 			open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -389,6 +378,17 @@ public class CallingBaseStyle: NSObject {
 			public var debug: CGFloat {
 				get { return self.debugProperty() }
 				set { _debug = newValue }
+			}
+
+			//MARK: short 
+			public var _short: CGFloat?
+			open func shortProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _short { return override }
+					return CGFloat(2.34)
+				}
+			public var short: CGFloat {
+				get { return self.shortProperty() }
+				set { _short = newValue }
 			}
 
 			//MARK: tiny 
@@ -465,6 +465,12 @@ public class CallingBaseStyle: NSObject {
 	}
 	open class ColorButtonAppearanceProxy: ButtonAppearanceProxy {
 
+		//MARK: mask 
+		override open func maskProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> BitMask {
+			if let override = _mask { return override }
+			return [BitMask.left]
+			}
+
 		//MARK: textColor 
 		override open func textColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
 			if let override = _textColor { return override }
@@ -475,12 +481,6 @@ public class CallingBaseStyle: NSObject {
 		override open func sizeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AvatarSize {
 			if let override = _size { return override }
 			return AvatarSize.smallest
-			}
-
-		//MARK: mask 
-		override open func maskProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> BitMask {
-			if let override = _mask { return override }
-			return [BitMask.left]
 			}
 	}
 	//MARK: - Button
