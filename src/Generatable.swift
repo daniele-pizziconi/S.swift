@@ -1,6 +1,7 @@
 import Foundation
 
 private let IconicSymbolType = "IconicSymbol"
+private let NamespaceEnums = "S"
 
 //MARK: Rhs
 
@@ -357,9 +358,9 @@ enum RhsValue {
     case .color(_): return Configuration.targetOsx ? "NSColor" : "UIColor"
     case .image(_): return Configuration.targetOsx ? "NSImage" : "UIImage"
     case .enumDef(let type, _): return type
-    case .enum(let type, _): return type
+    case .enum(let type, _): return NamespaceEnums + "." + type
     case .optionDef(let type, _): return type
-    case .option(let type, _): return type
+    case .option(let type, _): return NamespaceEnums + "." + type
     case .icon(_): return IconicSymbolType
     case .redirect(let r): return r.type
     case .point(_, _): return "CGPoint"
@@ -580,7 +581,7 @@ extension RhsValue: Generatable {
   }
 
   func generateEnum(_ prefix: String, type: String, name: String) -> String {
-    return "\(prefix)\(type).\(name)"
+    return "\(prefix)\(NamespaceEnums).\(type).\(name)"
   }
   
   func generateOptionDef(_ prefix: String, type: String, names: [String]) -> String {
@@ -605,18 +606,18 @@ extension RhsValue: Generatable {
     return generate
   }
   
-  func generateIcon(_ prefix: String, name: String) -> String {
-    return "\(prefix)\(IconicSymbolType).\(name)"
-  }
-  
   func generateOption(_ prefix: String, type: String, names: [String]) -> String {
     var generate = "\(prefix)["
     for name in names {
-      generate.append("\(name), ")
+      generate.append("\(NamespaceEnums).\(name), ")
     }
     generate.removeLast(2)
     generate.append("]")
     return generate
+  }
+  
+  func generateIcon(_ prefix: String, name: String) -> String {
+    return "\(prefix)\(IconicSymbolType).\(name)"
   }
 
   func generatePoint(_ prefix: String, x: Float, y: Float) -> String {
@@ -1318,8 +1319,14 @@ extension Stylesheet: Generatable {
   }
   
   func generateGlobal() -> String {
-    var global = ""
-    styles.flatMap({ $0.properties }).compactMap({ $0.rhs }).filter({ $0.isGlobal }).forEach({ global += $0.generate(false) })
+    if superclassName != nil { return "" }
+    let isBaseStylesheet = Configuration.importStylesheetManagerName == nil && superclassName == nil
+    
+    var global = isBaseStylesheet ? "public struct \(NamespaceEnums) {\n\n" : "public extension \(NamespaceEnums) {\n\n"
+    Generator.Stylesheets.forEach {
+      $0.styles.flatMap({ $0.properties }).compactMap({ $0.rhs }).filter({ $0.isGlobal }).forEach({ global += $0.generate(false) })
+    }
+    global += "}\n"
     return global
   }
   

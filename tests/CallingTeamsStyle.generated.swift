@@ -45,19 +45,19 @@ public class CallingTeamsStyle: CallingBaseStyle {
 		}
 
 	}
-	//MARK: - CallingTeamsStyleTimingFunctions
-	override open func TimingFunctionsStyle() -> CallingBaseStyle.TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return CallingTeamsStyleTimingFunctionsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleTimingFunctionsAppearanceProxy: CallingBaseStyle.TimingFunctionsAppearanceProxy {
-	}
 	//MARK: - CallingTeamsStyleColorButton
 	override open func ColorButtonStyle() -> CallingBaseStyle.ColorButtonAppearanceProxy {
 		if let override = _ColorButton { return override }
 			return CallingTeamsStyleColorButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
 		}
 	open class CallingTeamsStyleColorButtonAppearanceProxy: CallingBaseStyle.ColorButtonAppearanceProxy {
+	}
+	//MARK: - CallingTeamsStyleTimingFunctions
+	override open func TimingFunctionsStyle() -> CallingBaseStyle.TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return CallingTeamsStyleTimingFunctionsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
+		}
+	open class CallingTeamsStyleTimingFunctionsAppearanceProxy: CallingBaseStyle.TimingFunctionsAppearanceProxy {
 	}
 	//MARK: - CallingTeamsStyleButton
 	override open func ButtonStyle() -> CallingBaseStyle.ButtonAppearanceProxy {
