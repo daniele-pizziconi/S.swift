@@ -149,9 +149,6 @@ func preprocessInput(_ string: String) -> String {
     formatter = try! NSRegularExpression(pattern: #"(\w*):\sOptionDef\((.*?)\)"#, options: .dotMatchesLineSeparators)
     formatter.replaceMatches(in: mutableString, options: .reportProgress, range: NSRange(location: 0, length: mutableString.length), withTemplate: "$1: OptionDef($1, $2)")
     
-    formatter = try! NSRegularExpression(pattern: #"(\w*):\s\[(.*?\|.*?)\]"#, options: .dotMatchesLineSeparators)
-    formatter.replaceMatches(in: mutableString, options: .reportProgress, range: NSRange(location: 0, length: mutableString.length), withTemplate: "$1:[$2]")
-
     return String(mutableString)
 }
 
