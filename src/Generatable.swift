@@ -1323,9 +1323,14 @@ extension Stylesheet: Generatable {
     let isBaseStylesheet = Configuration.importStylesheetManagerName == nil && superclassName == nil
     
     var global = isBaseStylesheet ? "public struct \(NamespaceEnums) {\n\n" : "public extension \(NamespaceEnums) {\n\n"
+    var enums = ""
     Generator.Stylesheets.forEach {
-      $0.styles.flatMap({ $0.properties }).compactMap({ $0.rhs }).filter({ $0.isGlobal }).forEach({ global += $0.generate(false) })
+      $0.styles.flatMap({ $0.properties }).compactMap({ $0.rhs }).filter({ $0.isGlobal }).forEach({ enums += $0.generate(false) })
     }
+    if isBaseStylesheet == false {
+      enums = enums.replacingOccurrences(of: "public enum", with: "enum").replacingOccurrences(of: "public struct", with: "struct")
+    }
+    global += enums
     global += "}\n"
     return global
   }
