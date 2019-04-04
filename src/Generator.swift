@@ -168,8 +168,8 @@ public struct Generator: Generatable  {
         }
       case .dictionary(let dictionary): rhsValue = try RhsValue.valueFrom(dictionary)
       case .bool(let boolean): rhsValue = RhsValue.valueFrom(boolean)
+      case .int(let integer): rhsValue = RhsValue.valueFrom(integer)
       case .double(let double): rhsValue = RhsValue.valueFrom(Float(double))
-      case .int(let integer): rhsValue = RhsValue.valueFrom(Float(integer))
       case .string(let string): rhsValue = try RhsValue.valueFrom(string)
       default:
         throw GeneratorError.illegalYamlScalarValue(

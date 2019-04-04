@@ -316,20 +316,80 @@ public extension AnimatableProp {
 
 public struct S {
 
-public enum AvatarSize {
-	case smallest
+public enum ViewSize {
+	case micro
+	case mini
+	case tiny
 	case small
+	case normal
+	case large
+	case big
+	case huge
+	case massive
 }
 
-public struct BitMask: OptionSet, Hashable {
-	public let rawValue: Int
-	public init(rawValue: Int) { self.rawValue = rawValue }
+public enum ViewPosition {
+	case right
+	case bottomRight
+	case bottom
+	case bottomLeft
+	case left
+	case topLeft
+	case top
+	case topRight
+}
 
-	public static let left = BitMask(rawValue: 1 << 0)
-	public static let right = BitMask(rawValue: 1 << 1)
-	public static let all: BitMask = [
-		.left, .right
-	]
+public enum ViewContentMode {
+	case scaleToFill
+	case scaleAspectFit
+	case scaleAspectFill
+	case redraw
+	case center
+	case top
+	case bottom
+	case left
+	case right
+	case topLeft
+	case topRight
+	case bottomLeft
+	case bottomRight
+}
+
+public enum LineBreakMode {
+	case byWordWrapping
+	case byCharWrapping
+	case byClipping
+	case byTruncatingHead
+	case byTruncatingTail
+	case byTruncatingMiddle
+}
+
+public enum TextAlignment {
+	case natural
+	case left
+	case right
+	case center
+	case justified
+}
+
+public enum KeyboardAppearance {
+	case `default`
+	case dark
+	case light
+}
+
+public enum StatusBarStyle {
+	case `default`
+	case lightContent
+}
+
+public enum ViewAlignment {
+	case leading
+	case trailing
+	case center
+	case justified
+	case top
+	case bottom
 }
 
 public struct CornerMask: OptionSet, Hashable {
@@ -361,82 +421,6 @@ public struct UnderlineStyle: OptionSet, Hashable {
 	public static let byWord = UnderlineStyle(rawValue: 1 << 9)
 }
 
-public enum KeyboardAppearance {
-	case `default`
-	case dark
-	case light
-}
-
-public enum LineBreakMode {
-	case byWordWrapping
-	case byCharWrapping
-	case byClipping
-	case byTruncatingHead
-	case byTruncatingTail
-	case byTruncatingMiddle
-}
-
-public enum StatusBarStyle {
-	case `default`
-	case lightContent
-}
-
-public enum ViewContentMode {
-	case scaleToFill
-	case scaleAspectFit
-	case scaleAspectFill
-	case redraw
-	case center
-	case top
-	case bottom
-	case left
-	case right
-	case topLeft
-	case topRight
-	case bottomLeft
-	case bottomRight
-}
-
-public enum TextAlignment {
-	case natural
-	case left
-	case right
-	case center
-	case justified
-}
-
-public enum ViewSize {
-	case micro
-	case mini
-	case tiny
-	case small
-	case normal
-	case large
-	case big
-	case huge
-	case massive
-}
-
-public enum ViewPosition {
-	case right
-	case bottomRight
-	case bottom
-	case bottomLeft
-	case left
-	case topLeft
-	case top
-	case topRight
-}
-
-public enum ViewAlignment {
-	case leading
-	case trailing
-	case center
-	case justified
-	case top
-	case bottom
-}
-
 }
 /// Entry point for the app stylesheet
 public class CallingBaseStyle: NSObject {
@@ -461,26 +445,15 @@ public class CallingBaseStyle: NSObject {
 			self.mainProxy = proxy
 		}
 
-		//MARK: mask 
-		public var _mask: S.BitMask?
-		open func maskProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> S.BitMask {
-			if let override = _mask { return override }
-			return [S.BitMask.left]
+		//MARK: padding 
+		public var _padding: CGFloat?
+		open func paddingProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _padding { return override }
+			return CGFloat(1.0)
 			}
-		public var mask: S.BitMask {
-			get { return self.maskProperty() }
-			set { _mask = newValue }
-		}
-
-		//MARK: size 
-		public var _size: S.AvatarSize?
-		open func sizeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> S.AvatarSize {
-			if let override = _size { return override }
-			return S.AvatarSize.smallest
-			}
-		public var size: S.AvatarSize {
-			get { return self.sizeProperty() }
-			set { _size = newValue }
+		public var padding: CGFloat {
+			get { return self.paddingProperty() }
+			set { _padding = newValue }
 		}
 
 		//MARK: textColor 
@@ -492,49 +465,6 @@ public class CallingBaseStyle: NSObject {
 		public var textColor: UIColor {
 			get { return self.textColorProperty() }
 			set { _textColor = newValue }
-		}
-	}
-	//MARK: - TimingFunctions
-	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
-	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return TimingFunctionsAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
-		}
-	public var TimingFunctions: TimingFunctionsAppearanceProxy {
-		get { return self.TimingFunctionsStyle() }
-		set { _TimingFunctions = newValue }
-	}
-	open class TimingFunctionsAppearanceProxy {
-		public let mainProxy: () -> CallingBaseStyle
-		public init(proxy: @escaping () -> CallingBaseStyle) {
-			self.mainProxy = proxy
-		}
-
-		//MARK: easeIn 
-		public var _easeIn: AnimationCurveType?
-		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
-			if let override = _easeIn { return override }
-			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
-			}
-		public var easeIn: AnimationCurveType {
-			get { return self.easeInProperty() }
-			set { _easeIn = newValue }
-		}
-	}
-	//MARK: - Options
-	public var _Options: OptionsAppearanceProxy?
-	open func OptionsStyle() -> OptionsAppearanceProxy {
-		if let override = _Options { return override }
-			return OptionsAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
-		}
-	public var Options: OptionsAppearanceProxy {
-		get { return self.OptionsStyle() }
-		set { _Options = newValue }
-	}
-	open class OptionsAppearanceProxy {
-		public let mainProxy: () -> CallingBaseStyle
-		public init(proxy: @escaping () -> CallingBaseStyle) {
-			self.mainProxy = proxy
 		}
 	}
 	//MARK: - Enums
@@ -553,35 +483,21 @@ public class CallingBaseStyle: NSObject {
 			self.mainProxy = proxy
 		}
 	}
-	//MARK: - ColorButton
-	public var _ColorButton: ColorButtonAppearanceProxy?
-	open func ColorButtonStyle() -> ColorButtonAppearanceProxy {
-		if let override = _ColorButton { return override }
-			return ColorButtonAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+	//MARK: - Options
+	public var _Options: OptionsAppearanceProxy?
+	open func OptionsStyle() -> OptionsAppearanceProxy {
+		if let override = _Options { return override }
+			return OptionsAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
 		}
-	public var ColorButton: ColorButtonAppearanceProxy {
-		get { return self.ColorButtonStyle() }
-		set { _ColorButton = newValue }
+	public var Options: OptionsAppearanceProxy {
+		get { return self.OptionsStyle() }
+		set { _Options = newValue }
 	}
-	open class ColorButtonAppearanceProxy: ButtonAppearanceProxy {
-
-		//MARK: textColor 
-		override open func textColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
-			if let override = _textColor { return override }
-			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
-			}
-
-		//MARK: size 
-		override open func sizeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> S.AvatarSize {
-			if let override = _size { return override }
-			return S.AvatarSize.smallest
-			}
-
-		//MARK: mask 
-		override open func maskProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> S.BitMask {
-			if let override = _mask { return override }
-			return [S.BitMask.left]
-			}
+	open class OptionsAppearanceProxy {
+		public let mainProxy: () -> CallingBaseStyle
+		public init(proxy: @escaping () -> CallingBaseStyle) {
+			self.mainProxy = proxy
+		}
 	}
 	//MARK: - Duration
 	public var _Duration: DurationAppearanceProxy?
@@ -615,6 +531,17 @@ public class CallingBaseStyle: NSObject {
 				self.mainProxy = proxy
 			}
 
+			//MARK: long 
+			public var _long: CGFloat?
+			open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _long { return override }
+					return CGFloat(4.34)
+				}
+			public var long: CGFloat {
+				get { return self.longProperty() }
+				set { _long = newValue }
+			}
+
 			//MARK: tiny 
 			public var _tiny: CGFloat?
 			open func tinyProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -626,15 +553,15 @@ public class CallingBaseStyle: NSObject {
 				set { _tiny = newValue }
 			}
 
-			//MARK: short 
-			public var _short: CGFloat?
-			open func shortProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _short { return override }
-					return CGFloat(2.34)
+			//MARK: debug 
+			public var _debug: CGFloat?
+			open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _debug { return override }
+					return CGFloat(10.0)
 				}
-			public var short: CGFloat {
-				get { return self.shortProperty() }
-				set { _short = newValue }
+			public var debug: CGFloat {
+				get { return self.debugProperty() }
+				set { _debug = newValue }
 			}
 
 			//MARK: normal 
@@ -648,29 +575,85 @@ public class CallingBaseStyle: NSObject {
 				set { _normal = newValue }
 			}
 
-			//MARK: long 
-			public var _long: CGFloat?
-			open func longProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _long { return override }
-					return CGFloat(4.34)
+			//MARK: short 
+			public var _short: CGFloat?
+			open func shortProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+				if let override = _short { return override }
+					return CGFloat(2.34)
 				}
-			public var long: CGFloat {
-				get { return self.longProperty() }
-				set { _long = newValue }
-			}
-
-			//MARK: debug 
-			public var _debug: CGFloat?
-			open func debugProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-				if let override = _debug { return override }
-					return CGFloat(10.0)
-				}
-			public var debug: CGFloat {
-				get { return self.debugProperty() }
-				set { _debug = newValue }
+			public var short: CGFloat {
+				get { return self.shortProperty() }
+				set { _short = newValue }
 			}
 		}
 
+	}
+	//MARK: - TimingFunctions
+	public var _TimingFunctions: TimingFunctionsAppearanceProxy?
+	open func TimingFunctionsStyle() -> TimingFunctionsAppearanceProxy {
+		if let override = _TimingFunctions { return override }
+			return TimingFunctionsAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var TimingFunctions: TimingFunctionsAppearanceProxy {
+		get { return self.TimingFunctionsStyle() }
+		set { _TimingFunctions = newValue }
+	}
+	open class TimingFunctionsAppearanceProxy {
+		public let mainProxy: () -> CallingBaseStyle
+		public init(proxy: @escaping () -> CallingBaseStyle) {
+			self.mainProxy = proxy
+		}
+
+		//MARK: easeIn 
+		public var _easeIn: AnimationCurveType?
+		open func easeInProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationCurveType {
+			if let override = _easeIn { return override }
+			return .timingParameters(UICubicTimingParameters(controlPoint1: CGPoint(x: 1.0, y: 0.0), controlPoint2: CGPoint(x: 0.78, y: 1.0)))
+			}
+		public var easeIn: AnimationCurveType {
+			get { return self.easeInProperty() }
+			set { _easeIn = newValue }
+		}
+	}
+	//MARK: - ColorButton
+	public var _ColorButton: ColorButtonAppearanceProxy?
+	open func ColorButtonStyle() -> ColorButtonAppearanceProxy {
+		if let override = _ColorButton { return override }
+			return ColorButtonAppearanceProxy(proxy: { return CallingBaseStyle.shared() })
+		}
+	public var ColorButton: ColorButtonAppearanceProxy {
+		get { return self.ColorButtonStyle() }
+		set { _ColorButton = newValue }
+	}
+	open class ColorButtonAppearanceProxy: ButtonAppearanceProxy {
+
+		//MARK: textColor 
+		override open func textColorProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> UIColor {
+			if let override = _textColor { return override }
+			return UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
+			}
+
+		//MARK: mask 
+		public var _mask: S.BitMask?
+		open func maskProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> S.BitMask {
+			if let override = _mask { return override }
+			return [S.BitMask.left]
+			}
+		public var mask: S.BitMask {
+			get { return self.maskProperty() }
+			set { _mask = newValue }
+		}
+
+		//MARK: size 
+		public var _size: S.AvatarSize?
+		open func sizeProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> S.AvatarSize {
+			if let override = _size { return override }
+			return S.AvatarSize.smallest
+			}
+		public var size: S.AvatarSize {
+			get { return self.sizeProperty() }
+			set { _size = newValue }
+		}
 	}
 	//MARK: - Animator
 	public typealias AnimationCompletion = () -> Void
@@ -906,28 +889,6 @@ public class CallingBaseStyle: NSObject {
 				self.mainProxy = proxy
 			}
 
-		//MARK: repeatCount 
-		public var _repeatCount: AnimationRepeatCount?
-		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
-			if let override = _repeatCount { return override }
-			return AnimationRepeatCount.count(0)
-			}
-		public var repeatCount: AnimationRepeatCount {
-			get { return self.repeatCountProperty() }
-			set { _repeatCount = newValue }
-		}
-
-		//MARK: duration 
-		public var _duration: CGFloat?
-		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
-			if let override = _duration { return override }
-			return mainProxy().Duration.interval.longProperty(traitCollection)
-			}
-		public var duration: CGFloat {
-			get { return self.durationProperty() }
-			set { _duration = newValue }
-		}
-
 		//MARK: delay 
 		public var _delay: CGFloat?
 		open func delayProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
@@ -950,6 +911,17 @@ public class CallingBaseStyle: NSObject {
 			set { _curve = newValue }
 		}
 
+		//MARK: repeatCount 
+		public var _repeatCount: AnimationRepeatCount?
+		open func repeatCountProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> AnimationRepeatCount {
+			if let override = _repeatCount { return override }
+			return AnimationRepeatCount.count(0)
+			}
+		public var repeatCount: AnimationRepeatCount {
+			get { return self.repeatCountProperty() }
+			set { _repeatCount = newValue }
+		}
+
 		//MARK: keyFrames 
 		public var _keyFrames: [KeyFrame]?
 		open func keyFramesProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> [KeyFrame] {
@@ -964,6 +936,17 @@ public class CallingBaseStyle: NSObject {
 		public var keyFrames: [KeyFrame] {
 			get { return self.keyFramesProperty() }
 			set { _keyFrames = newValue }
+		}
+
+		//MARK: duration 
+		public var _duration: CGFloat?
+		open func durationProperty(_ traitCollection: UITraitCollection? = UIScreen.main.traitCollection) -> CGFloat {
+			if let override = _duration { return override }
+			return mainProxy().Duration.interval.longProperty(traitCollection)
+			}
+		public var duration: CGFloat {
+			get { return self.durationProperty() }
+			set { _duration = newValue }
 		}
 		}
 	

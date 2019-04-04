@@ -13,8 +13,11 @@ enum RhsError: Error {
 
 enum RhsValue {
 
-  /// A scalar float value.
-  case scalar(float: Float)
+  /// An int value
+  case int(int: Int)
+  
+  /// A float value.
+  case float(float: Float)
 
   /// A CGPoint.
   case point(x: Float, y: Float)
@@ -95,7 +98,6 @@ enum RhsValue {
   
   fileprivate var isRedirect: Bool {
     switch self {
-//    case .keyFrame(let keyFrame): return keyFrame.timing?.isRedirect ?? false
     case .redirect: return true
     default: return false
     }
@@ -104,9 +106,6 @@ enum RhsValue {
   fileprivate var redirection: String? {
     switch self {
     case .redirect(let r): return r.redirection
-//    case .keyFrame(let keyFrame):
-//      guard let timing = keyFrame.timing, case let .redirect(r) = timing else { return nil }
-//      return r.redirection
     default: return nil
     }
   }
@@ -114,15 +113,16 @@ enum RhsValue {
   fileprivate func applyRedirection(_ redirectValue: RhsRedirectValue) -> RhsValue {
     switch self {
     case .redirect(_): return .redirect(redirection: redirectValue)
-//    case .keyFrame(let keyFrame):
-//      guard let timing = keyFrame.timing, timing.isRedirect else { return self }
-//      return .keyFrame(keyFrame: keyFrame)
     default: return self
     }
   }
+  
+  static func valueFrom(_ int: Int) -> RhsValue  {
+    return .int(int: Int(int))
+  }
 
-  static func valueFrom(_ scalar: Float) -> RhsValue  {
-    return .scalar(float: Float(scalar))
+  static func valueFrom(_ float: Float) -> RhsValue  {
+    return .float(float: Float(float))
   }
 
   static func valueFrom(_ boolean: Bool) -> RhsValue  {
@@ -137,8 +137,8 @@ enum RhsValue {
         switch item {
         case .dictionary(let dictionary): rhsValue = try valueFrom(dictionary)
         case .bool(let boolean): rhsValue = valueFrom(boolean)
+        case .int(let integer): rhsValue = valueFrom(integer)
         case .double(let double): rhsValue = valueFrom(Float(double))
-        case .int(let integer): rhsValue = valueFrom(Float(integer))
         case .string(let string): rhsValue = try valueFrom(string)
         default:
           throw RhsError.internal
@@ -158,7 +158,7 @@ enum RhsValue {
       do {
         switch value {
         case .int(let integer):
-          try conditions[Condition(rawString: key)] = RhsValue.valueFrom(Float(integer))
+          try conditions[Condition(rawString: key)] = RhsValue.valueFrom(integer)
         case .double(let double):
           try conditions[Condition(rawString: key)] = RhsValue.valueFrom(Float(double))
         case .string(let string):
@@ -179,7 +179,9 @@ enum RhsValue {
 
   static func valueFrom(_ string: String) throws  -> RhsValue  {
 
-    if let components = argumentsFromString("font", string: string) {
+    if let string = Optional(string), string.hasSuffix("pt") || string.hasSuffix("f") {
+      return .float(float: parseNumber(string))
+    } else if let components = argumentsFromString("font", string: string) {
       assert(components.count == 2 || components.count == 3, "Not a valid font. Format: Font(\"FontName\", size)")
       let second = Float(parseNumber(components[1]))
       if second > 0 {
@@ -352,7 +354,8 @@ enum RhsValue {
 
   func returnValue() -> String {
     switch self {
-    case .scalar(_): return "CGFloat"
+    case .int(_): return "Int"
+    case .float(_): return "CGFloat"
     case .boolean(_): return "Bool"
     case .font(_): return Configuration.targetOsx ? "NSFont" : "UIFont"
     case .color(_): return Configuration.targetOsx ? "NSColor" : "UIColor"
@@ -399,8 +402,11 @@ extension RhsValue: Generatable {
     let indentation = "\n\(indentationNested)\t\t\t"
     let prefix = isGlobal ? "public " : "\(indentation)return "
     switch self {
-    case .scalar(let float):
-      return generateScalar(prefix, float: float)
+    case .int(let int):
+      return generateInt(prefix, int: int)
+      
+    case .float(let float):
+      return generateFloat(prefix, float: float)
 
     case .boolean(let boolean):
       return generateBool(prefix, boolean: boolean)
@@ -479,8 +485,12 @@ extension RhsValue: Generatable {
     }
 
   }
+  
+  func generateInt(_ prefix: String, int: Int) -> String {
+    return "\(prefix)Int(\(int))"
+  }
 
-  func generateScalar(_ prefix: String, float: Float) -> String {
+  func generateFloat(_ prefix: String, float: Float) -> String {
     return "\(prefix)CGFloat(\(float))"
   }
 
