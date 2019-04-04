@@ -90,6 +90,7 @@ func parseNumber(_ string: String) -> Float {
     
     input = input.replacingOccurrences(of: "-", with: "")
     input = input.replacingOccurrences(of: "\"", with: "")
+    input = input.replacingOccurrences(of: "dp", with: "")
     input = input.replacingOccurrences(of: "pt", with: "")
     input = input.replacingOccurrences(of: "f", with: "")
     let scanner = Scanner(string: input)

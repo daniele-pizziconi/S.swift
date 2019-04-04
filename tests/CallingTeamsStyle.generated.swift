@@ -35,50 +35,15 @@ public class CallingTeamsStyle: CallingBaseStyle {
 			return CallingTeamsStyleButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
 		}
 	open class CallingTeamsStyleButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy {
-	}
-	//MARK: - CallingTeamsStyleEnums
-	override open func EnumsStyle() -> CallingBaseStyle.EnumsAppearanceProxy {
-		if let override = _Enums { return override }
-			return CallingTeamsStyleEnumsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleEnumsAppearanceProxy: CallingBaseStyle.EnumsAppearanceProxy {
-	}
-	//MARK: - CallingTeamsStyleOptions
-	override open func OptionsStyle() -> CallingBaseStyle.OptionsAppearanceProxy {
-		if let override = _Options { return override }
-			return CallingTeamsStyleOptionsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleOptionsAppearanceProxy: CallingBaseStyle.OptionsAppearanceProxy {
-	}
-	//MARK: - CallingTeamsStyleDuration
-	override open func DurationStyle() -> CallingBaseStyle.DurationAppearanceProxy {
-		if let override = _Duration { return override }
-			return CallingTeamsStyleDurationAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleDurationAppearanceProxy: CallingBaseStyle.DurationAppearanceProxy {
 
-		//MARK: - CallingTeamsStyleintervalDuration
-		override open func intervalStyle() -> CallingBaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
-			if let override = _interval { return override }
-				return CallingTeamsStyleintervalDurationAppearanceProxy(proxy: mainProxy)
+		//MARK: - CallingTeamsStyleborderWidthButton
+		override open func borderWidthStyle() -> CallingBaseStyle.ButtonAppearanceProxy.borderWidthAppearanceProxy {
+			if let override = _borderWidth { return override }
+				return CallingTeamsStyleborderWidthButtonAppearanceProxy(proxy: mainProxy)
 			}
-		open class CallingTeamsStyleintervalDurationAppearanceProxy: CallingBaseStyle.DurationAppearanceProxy.intervalAppearanceProxy {
+		open class CallingTeamsStyleborderWidthButtonAppearanceProxy: CallingBaseStyle.ButtonAppearanceProxy.borderWidthAppearanceProxy {
 		}
 
-	}
-	//MARK: - CallingTeamsStyleTimingFunctions
-	override open func TimingFunctionsStyle() -> CallingBaseStyle.TimingFunctionsAppearanceProxy {
-		if let override = _TimingFunctions { return override }
-			return CallingTeamsStyleTimingFunctionsAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleTimingFunctionsAppearanceProxy: CallingBaseStyle.TimingFunctionsAppearanceProxy {
-	}
-	//MARK: - CallingTeamsStyleColorButton
-	override open func ColorButtonStyle() -> CallingBaseStyle.ColorButtonAppearanceProxy {
-		if let override = _ColorButton { return override }
-			return CallingTeamsStyleColorButtonAppearanceProxy(proxy: { return CallingTeamsStyle.shared() })
-		}
-	open class CallingTeamsStyleColorButtonAppearanceProxy: CallingBaseStyle.ColorButtonAppearanceProxy {
 	}
 
 }

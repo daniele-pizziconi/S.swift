@@ -1,36 +1,4 @@
 AP_Button:
   textColor: #ffffff00
   padding: 1pt
-
-Duration:
-  interval: [tiny: 1.5, short: 2.34, normal: 3.0, long: 4.34, debug: 10.0]
-
-TimingFunctions:
-  easeIn: TimingFunction(1.0,0.0,0.78,1.00)
-
-Enums:
-  TextAlignment: EnumDef(natural, left, right, center, justified)
-  LineBreakMode: EnumDef(byWordWrapping, byCharWrapping, byClipping, byTruncatingHead, byTruncatingTail, byTruncatingMiddle)
-  StatusBarStyle: EnumDef(default, lightContent)
-  ViewContentMode: EnumDef(scaleToFill, scaleAspectFit, scaleAspectFill, redraw, center, top, bottom, left, right, topLeft, topRight, bottomLeft, bottomRight)
-  ViewPosition: EnumDef(right, bottomRight, bottom, bottomLeft, left, topLeft, top, topRight)
-  ViewAlignment: EnumDef(leading, trailing, center, justified, top, bottom)
-  ViewSize: EnumDef(micro, mini, tiny, small, normal, large, big, huge, massive)
-  KeyboardAppearance: EnumDef(default, dark, light)
-
-Options:
-  CornerMask: OptionDef(bottomRight, topRight, bottomLeft, topLeft, allCorners:[bottomRight|topRight|bottomLeft|topLeft])
-  UnderlineStyle: OptionDef(none, single, thick, double, patternSolid, patternDot, patternDash, patterDashDot, patternDashDotDot, byWord)
-
-AN_Animator:
-  rotate:
-    curve: $TimingFunctions.easeIn
-    keyFrames: [{relativeStartTime: 0, animationValues: [{type: rotate, from: 0, to: 360.0]}]}]
-    repeatCount: 0
-    duration: $Duration.interval.long
-    delay: 0.0
-
-ColorButton extends Button:
-  textColor: #ffffff00
-  size: Enum(AvatarSize.smallest)
-  mask: Option(BitMask.left)
+  borderWidth: [normal: 0pt, active: 0pt, activeDisabled: 0pt, hover: 0pt, focus: 0pt, disabled: 0pt]

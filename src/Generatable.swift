@@ -179,7 +179,7 @@ enum RhsValue {
 
   static func valueFrom(_ string: String) throws  -> RhsValue  {
 
-    if let string = Optional(string), string.hasSuffix("pt") || string.hasSuffix("f") {
+    if let string = Optional(string), string.hasSuffix("pt") || string.hasSuffix("dp") || string.hasSuffix("f") {
       return .float(float: parseNumber(string))
     } else if let components = argumentsFromString("font", string: string) {
       assert(components.count == 2 || components.count == 3, "Not a valid font. Format: Font(\"FontName\", size)")
